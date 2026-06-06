@@ -1,0 +1,13 @@
+# Project-scoped Codex configuration for this repository.
+# Codex loads project-scoped config only for trusted projects.
+# Machine-local provider/auth/profile settings should stay in ~/.codex/config.toml.
+
+[mcp_servers.playwright-test]
+command = "npx"
+args = ["playwright", "run-test-mcp-server"]
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+enabled = true
+required = false
+# Keep approval behavior conservative because browser/test tools can perform actions in a real app.
+default_tools_approval_mode = "prompt"
