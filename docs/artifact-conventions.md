@@ -84,14 +84,18 @@ artifacts/<feature>/
       coverage-map.md
       evidence-index.md
       planner-summary.md
-    02_validator/
+    02_test_designer/
+      technique-selection.md
+      test-design-summary.md
+      design-notes.md
+    03_validator/
       validation-report.md
       refinement-request.md
-    03_generator/
+    04_generator/
       generation-log.md
       implementation-report.md
       test-mapping.md
-    04_healer/
+    05_healer/
       failure-analysis.md
       healing-report.md
       patch-log.md
@@ -108,6 +112,7 @@ artifacts/<feature>/
 
 ```text
 specs/<feature>.plan.md
+specs/<feature>.test-design.md
 specs/_reviews/<feature>.validation.md
 tests/<feature>.spec.ts
 ```

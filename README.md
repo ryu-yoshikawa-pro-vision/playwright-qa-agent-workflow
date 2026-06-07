@@ -4,15 +4,15 @@ This repository contains common AI-agent skills for Playwright CLI based QA work
 
 It is **Playwright CLI first** for browser exploration, UI interaction, snapshots, screenshots, traces, sessions, diagnostics, and evidence capture. Test execution is a separate target-project concern and is not part of the Playwright CLI skill.
 
-It is not a full Playwright test project by itself. It is a reusable skill, artifact, handoff, and evaluation template layer for AI coding agents.
+It is not a full Playwright test project by itself. It is a reusable skill, artifact, handoff, test-design, and evaluation template layer for AI coding agents.
 
 ## What this repository provides
 
 | Area | Files | Purpose |
 |---|---|---|
 | Common agent instructions | `AGENTS.md` | Repository-wide workflow rules |
-| Common skills | `.agents/skills/` | CLI helper, service mapper, planner, validator, generator, healer |
-| Skill details | `.agents/skills/*/references/` | Skill-specific output, evidence, and workflow references |
+| Common skills | `.agents/skills/` | CLI helper, service mapper, planner, test designer, validator, generator, healer |
+| Skill details | `.agents/skills/*/references/` | Skill-specific output, evidence, technique, and workflow references |
 | Workflow docs | `docs/workflow.md` | End-to-end flow and phase boundaries |
 | Playwright CLI guidance | `docs/playwright-cli.md`, `.agents/skills/playwright-cli/references/commands.md`, `.agents/skills/playwright-cli/references/use-cases.md` | Browser operation, use-case selection, ad hoc verification, and evidence policy |
 | Test execution boundary | `docs/test-execution-boundary.md` | Separation between Playwright CLI browser operations and target-project test execution |
@@ -64,6 +64,8 @@ playwright-service-mapper
   ↓
 playwright-test-planner
   ↓
+playwright-test-designer
+  ↓
 playwright-test-plan-validator
   ↓ PASS
 playwright-test-generator
@@ -71,7 +73,7 @@ playwright-test-generator
 playwright-test-healer
 ```
 
-Use `playwright-service-mapper` only for service-wide exploration. Use `playwright-test-planner` for one known feature, page, or flow.
+Use `playwright-service-mapper` only for service-wide exploration. Use `playwright-test-planner` for one known feature, page, or flow. Use `playwright-test-designer` after planning to apply relevant test techniques and produce final test cases.
 
 ## Handoff layer
 
@@ -98,6 +100,16 @@ artifacts/<feature>/DECISIONS.md
 
 Every skill also writes `runs/<run-id>/99_handoff.md` before completion.
 
+## Key durable outputs
+
+```text
+specs/<feature>.plan.md
+specs/<feature>.test-design.md
+specs/_reviews/<feature>.validation.md
+```
+
+The plan defines scope, assumptions, evidence, risks, behavior inventory, and design inputs. The test design selects techniques, applies them, and defines final independent test cases. The validation report records plan/design hashes and quality-gate decisions.
+
 ## Automatic runtime logging
 
 Codex hooks and the OpenCode plugin write local JSONL runtime logs under `.agent-logs/` without asking the model to write logs. See `docs/automatic-runtime-logging.md`.
@@ -110,12 +122,13 @@ Minimum checks:
 
 - service-wide request routes to `playwright-service-mapper`
 - feature-level planning routes to `playwright-test-planner`
-- generation is blocked until validation returns `PASS`
+- technique-based design routes to `playwright-test-designer`
+- generation is blocked until plan and test design validation returns `PASS`
 - healer does not weaken tests to make failures disappear
 
 ## Git management
 
-Track durable lightweight artifacts such as plans, validation reports, handoff files, templates, docs, and skills.
+Track durable lightweight artifacts such as plans, test designs, validation reports, handoff files, templates, docs, and skills.
 
 Do not track heavy runtime evidence such as screenshots, traces, videos, Playwright reports, runtime JSONL logs, or `artifacts/**/runs/` directories by default. Promote important findings into scope-level handoff files instead.
 
@@ -132,8 +145,24 @@ This repository includes lightweight structure checks for the common Playwright 
 ```bash
 npm run check:artifacts
 npm run check:validation
+npm run check:semantic
+npm run check:test-design
 npm run check:logs
 npm run check:evals
 ```
 
-These checks validate required artifact files, validation report hashes, and runtime JSONL log structure. They do not replace human QA review or real Playwright test execution.
+These checks validate required artifact files, validation report hashes, fixtures, and runtime JSONL log structure. They do not replace human QA review or real Playwright test execution.
+
+
+## Workflow harness
+
+Use the thin workflow harness for feature-level artifact setup and gate checks. It does not run an LLM, does not operate Playwright CLI, and does not assume a target Playwright project layout.
+
+```bash
+npm run agent:init -- --feature login --request "Design login tests"
+npm run agent:status -- --feature login
+npm run agent:next -- --feature login
+npm run agent:gate -- --feature login --for generator
+```
+
+Use `agent:gate`, not `check:validation`, as the generator-readiness decision. See `docs/workflow-harness.md` for details.

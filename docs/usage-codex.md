@@ -25,13 +25,13 @@ Use the playwright-test-planner skill to create specs/<feature>.plan.md for the 
 Validation:
 
 ```text
-Use the playwright-test-plan-validator skill to validate specs/<feature>.plan.md before generation.
+Use the playwright-test-designer skill to create specs/<feature>.test-design.md, then use the playwright-test-plan-validator skill to validate both plan and test design before generation.
 ```
 
 Generation:
 
 ```text
-Use the playwright-test-generator skill to generate Playwright tests from a PASS-validated plan.
+Use the playwright-test-generator skill to generate Playwright tests from a PASS-validated test design.
 ```
 
 Healing:
@@ -42,4 +42,4 @@ Use the playwright-test-healer skill to diagnose and safely fix the failing Play
 
 ## Operational rule
 
-Do not ask Codex to explore and generate everything in one step for serious QA work. Use staged mapping, planning, validation, generation, and healing.
+Do not ask Codex to explore and generate everything in one step for serious QA work. Use staged mapping, planning, design, validation, generation, and healing.

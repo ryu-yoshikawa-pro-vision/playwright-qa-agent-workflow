@@ -77,6 +77,7 @@ for (const skill of [
   'playwright-cli',
   'playwright-service-mapper',
   'playwright-test-planner',
+  'playwright-test-designer',
   'playwright-test-plan-validator',
   'playwright-test-generator',
   'playwright-test-healer',
@@ -93,9 +94,30 @@ for (const doc of [
   'docs/artifact-conventions.md',
   'docs/handoff-conventions.md',
   'docs/validation-gate.md',
+  'docs/workflow-harness.md',
   'docs/git-management.md',
+  '.agents/skills/playwright-test-plan-validator/references/semantic-quality-gate.md',
+  '.agents/skills/playwright-test-plan-validator/references/test-design-quality-gate.md',
+  '.agents/skills/playwright-test-designer/references/test-techniques.md',
+  '.agents/skills/playwright-test-designer/references/technique-selection-rules.md',
+  '.agents/skills/playwright-test-designer/references/test-design-format.md',
+  '.agents/skills/playwright-test-designer/references/anti-patterns.md',
+  '.agents/skills/playwright-service-mapper/references/output-formats.md',
 ]) {
   fileExists(doc, { nonEmpty: true });
+}
+
+
+for (const harnessFile of [
+  'scripts/agent-init-run.mjs',
+  'scripts/agent-status.mjs',
+  'scripts/agent-next-step.mjs',
+  'scripts/agent-check-gate.mjs',
+  'scripts/workflow/paths.mjs',
+  'scripts/workflow/status.mjs',
+  'scripts/workflow/validation.mjs',
+]) {
+  fileExists(harnessFile, { nonEmpty: true });
 }
 
 for (let index = 1; index <= 17; index += 1) {
@@ -115,8 +137,51 @@ for (const template of [
   'FINDINGS.md',
   'DECISIONS.md',
   'FEATURE_BACKLOG.md',
+  '00_request.md',
 ]) {
   fileExists(`artifacts/_templates/${template}`, { nonEmpty: true });
+}
+
+for (const template of [
+  'service-mapper/exploration-log.md',
+  'service-mapper/service-map.md',
+  'service-mapper/screen-inventory.md',
+  'service-mapper/navigation-map.md',
+  'service-mapper/feature-inventory.md',
+  'service-mapper/role-permission-map.md',
+  'service-mapper/coverage-matrix.md',
+  'service-mapper/open-questions.md',
+  'service-mapper/evidence-index.md',
+  'service-mapper/service-mapper-summary.md',
+  'validator/semantic-review.md',
+  'validator/test-design-review.md',
+  'validator/validation-report.md',
+  'test-designer/test-design.md',
+  'healer/failure-analysis.md',
+  'healer/healing-report.md',
+  'healer/patch-log.md',
+]) {
+  fileExists(`artifacts/_templates/${template}`, { nonEmpty: true });
+}
+
+for (const fixture of [
+  'good-login.plan.md',
+  'bad-thin-login.plan.md',
+  'bad-unverified-visual-claim.plan.md',
+  'bad-non-independent-scenarios.plan.md',
+  'bad-unverified-permission.plan.md',
+]) {
+  fileExists(`evals/fixtures/${fixture}`, { nonEmpty: true });
+}
+
+for (const fixture of [
+  'good-login.test-design.md',
+  'bad-technique-stuffing.test-design.md',
+  'bad-missing-boundary-values.test-design.md',
+  'bad-unjustified-exclusions.test-design.md',
+  'bad-unverified-permission-matrix.test-design.md',
+]) {
+  fileExists(`evals/fixtures/${fixture}`, { nonEmpty: true });
 }
 
 checkHandoffScope(scope);
@@ -131,6 +196,8 @@ for (const evalFile of [
   'artifact-structure.md',
   'runtime-logging.md',
   'validation-hash.md',
+  'semantic-quality.md',
+  'test-design-techniques.md',
 ]) {
   fileExists(`evals/${evalFile}`, { nonEmpty: true });
 }

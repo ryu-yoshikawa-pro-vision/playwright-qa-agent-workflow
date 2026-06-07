@@ -17,17 +17,27 @@ Use this skill to diagnose and safely fix failing Playwright tests.
 
 1. Reproduce or inspect the smallest failing scope.
 2. Use screenshots, traces, snapshots, logs, and test output to classify the failure.
-3. Decide whether the cause is selector drift, timing, assertion mismatch, test data, environment, application behavior change, or unknown.
-4. Apply the smallest safe fix.
-5. Rerun the smallest relevant test scope.
-6. Write failure analysis, healing report, patch log, and handoff updates.
+3. Classify the failure using `references/healing-rules.md` before editing.
+4. Apply the smallest safe fix only when the classification permits a test-side patch.
+5. Rerun the smallest relevant test scope when the target project test command is available.
+6. Write failure analysis, healing report, patch log, and handoff updates using the templates under `artifacts/_templates/healer/`.
+
+## Required output templates
+
+Use these templates unless the target project already has a stricter format:
+
+- `artifacts/_templates/healer/failure-analysis.md`
+- `artifacts/_templates/healer/healing-report.md`
+- `artifacts/_templates/healer/patch-log.md`
 
 ## Safety rules
 
+- Classify the failure before editing.
 - Do not hide product failures.
 - Do not remove assertions without an equivalent or stronger replacement.
 - Do not add arbitrary sleeps as the primary fix.
 - Do not add `test.skip()` or `test.fixme()` unless explicitly approved.
+- Return to planner/designer/validator when the root cause is a test design issue.
 
 See `references/healing-rules.md`.
 

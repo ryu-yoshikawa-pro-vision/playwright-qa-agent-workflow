@@ -4,7 +4,7 @@
 
 This repository provides common Playwright CLI based skills for AI coding agents.
 
-The workflow is designed for QA work where an agent explores a web application, creates test plans, validates those plans, generates Playwright tests, and safely heals failing tests.
+The workflow is designed for QA work where an agent explores a web application, creates feature plans, applies test design techniques, validates the plan/design, generates Playwright tests, and safely heals failing tests.
 
 ## Primary rule
 
@@ -39,9 +39,10 @@ For login-required exploration, follow `docs/playwright-cli.md#authentication-an
 |---|---|---|
 | `playwright-cli` | Browser operation, snapshots, screenshots, tracing, sessions, diagnostics, ad hoc browser verification, or browser evidence capture are needed | The task is pure document review or only running a project test-suite command |
 | `playwright-service-mapper` | The request is to explore the whole service, all screens, or the entire application | The scope is already one known feature, page, or flow |
-| `playwright-test-planner` | One feature, page, or flow is known and needs a test plan | The request is service-wide exploration |
-| `playwright-test-plan-validator` | A Markdown plan must be validated before generation | The user asks to generate code directly from an unvalidated plan |
-| `playwright-test-generator` | A plan has passed validation and tests should be generated | The plan has no PASS validation report |
+| `playwright-test-planner` | One feature, page, or flow is known and needs scope, evidence, risks, and test-design inputs | The request is service-wide exploration or final technique-based case design |
+| `playwright-test-designer` | A feature plan exists and technique-based test design/final cases are needed | The scope is unknown, service-wide exploration is needed, or code generation is requested |
+| `playwright-test-plan-validator` | A Markdown plan and test design must be validated before generation | The user asks to generate code directly from unvalidated sources |
+| `playwright-test-generator` | A test design has passed validation and tests should be generated | The plan/design has no PASS validation report |
 | `playwright-test-healer` | Existing Playwright tests are failing and need diagnosis or safe repair | There is no failing test, trace, screenshot, log, or test output to inspect |
 
 ## Required workflow
@@ -53,6 +54,7 @@ service-wide request
   -> playwright-service-mapper
   -> FEATURE_BACKLOG.md
   -> playwright-test-planner for one feature
+  -> playwright-test-designer
   -> playwright-test-plan-validator
   -> playwright-test-generator when PASS
   -> playwright-test-healer when generated or existing tests fail
@@ -62,13 +64,14 @@ Feature-only request:
 
 ```text
 playwright-test-planner
+  -> playwright-test-designer
   -> playwright-test-plan-validator
   -> PASS: playwright-test-generator
-  -> FAIL: playwright-test-planner revises and validator runs again
+  -> FAIL: planner/designer revises and validator runs again
   -> failing tests: playwright-test-healer
 ```
 
-Do not collapse mapping, planning, validation, generation, and healing into one vague task. These are separate quality gates.
+Do not collapse mapping, planning, design, validation, generation, and healing into one vague task. These are separate quality gates.
 
 ## Repository conventions
 
@@ -87,6 +90,7 @@ Important paths:
 
 ```text
 specs/<feature>.plan.md
+specs/<feature>.test-design.md
 specs/_reviews/<feature>.validation.md
 tests/<feature>.spec.ts
 artifacts/<scope-or-feature>/HANDOFF.md
@@ -150,7 +154,23 @@ Use narrower checks when appropriate:
 ```bash
 npm run check:artifacts
 npm run check:validation
+npm run check:semantic
+npm run check:test-design
 npm run check:logs
 ```
 
 These checks validate structure only. They do not prove that the explored application was fully covered or that generated tests are semantically correct.
+
+
+## Workflow harness
+
+For feature-level work, prefer the thin harness before manually creating artifact directories:
+
+```bash
+npm run agent:init -- --feature <feature> --request "<request>"
+npm run agent:status -- --feature <feature>
+npm run agent:next -- --feature <feature>
+npm run agent:gate -- --feature <feature> --for generator
+```
+
+The harness only manages artifacts, status, next-step routing, and generator gates. Use `agent:gate` as the generator-readiness decision; do not treat `check:validation` as permission to generate. It must not be treated as an LLM orchestrator or Playwright CLI wrapper.

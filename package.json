@@ -2,13 +2,19 @@
   "name": "agents-playwright",
   "version": "0.1.0",
   "private": true,
-  "description": "Common Playwright CLI skill set with artifact, validation, and runtime log checks.",
+  "description": "Common Playwright CLI skill set with artifact, test design, validation, and runtime log checks.",
   "type": "module",
   "scripts": {
     "check:artifacts": "node scripts/validate-artifact-structure.mjs",
     "check:validation": "node scripts/validate-plan-validation-hash.mjs",
     "check:logs": "node scripts/validate-runtime-logs.mjs",
-    "check:evals": "npm run check:artifacts && npm run check:validation && npm run check:logs"
+    "check:evals": "npm run check:artifacts && npm run check:validation && npm run check:semantic && npm run check:test-design && npm run check:logs",
+    "check:semantic": "node scripts/validate-semantic-fixtures.mjs",
+    "check:test-design": "node scripts/validate-test-design-fixtures.mjs",
+    "agent:init": "node scripts/agent-init-run.mjs",
+    "agent:status": "node scripts/agent-status.mjs",
+    "agent:next": "node scripts/agent-next-step.mjs",
+    "agent:gate": "node scripts/agent-check-gate.mjs"
   },
   "engines": {
     "node": ">=18"
