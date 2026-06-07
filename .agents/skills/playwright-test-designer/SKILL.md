@@ -30,10 +30,11 @@ Read, in this order:
 
 1. `specs/<feature>.plan.md`
 2. relevant service-mapping artifacts and evidence referenced by the plan
-3. `artifacts/<feature>/HANDOFF.md`
-4. `artifacts/<feature>/OPEN_QUESTIONS.md`
-5. `artifacts/<feature>/FINDINGS.md`
-6. `artifacts/<feature>/DECISIONS.md`
+3. relevant `artifacts/spec-catalog/` entries for screens, features, flows, data, roles, and rules
+4. `artifacts/<feature>/HANDOFF.md`
+5. `artifacts/<feature>/OPEN_QUESTIONS.md`
+6. `artifacts/<feature>/FINDINGS.md`
+7. `artifacts/<feature>/DECISIONS.md`
 
 If referenced evidence is missing or a central behavior is unverified, do not invent the design. Mark the output `BLOCKED` and state the missing input.
 
@@ -48,7 +49,8 @@ If referenced evidence is missing or a central behavior is unverified, do not in
 7. Write `specs/<feature>.test-design.md` using `references/test-design-format.md`.
 8. Write designer artifacts under `artifacts/<feature>/runs/<run-id>/02_test_designer/`.
 9. Update feature-level handoff files.
-10. Recommend `playwright-test-plan-validator` as the next skill.
+10. Promote reusable design-relevant specification clarifications into `artifacts/spec-catalog/`, or add catalog open questions when reusable behavior remains unresolved.
+11. Recommend `playwright-test-plan-validator` as the next skill.
 
 ## Output requirements
 
@@ -61,6 +63,7 @@ specs/<feature>.test-design.md
 The design must include:
 
 - source plan path and current plan SHA-256 placeholder or value
+- spec-catalog references used for design decisions
 - evidence references used for design decisions
 - selected and rejected techniques with reasons
 - test conditions
@@ -89,4 +92,4 @@ Return or mark `BLOCKED` when:
 - Do not increase test count for appearance of rigor. Prefer fewer, better-justified cases.
 - Keep every final test case independent and automatable unless explicitly marked otherwise.
 
-See `references/test-techniques.md`, `references/technique-selection-rules.md`, `references/test-design-format.md`, and `references/anti-patterns.md`.
+See `references/test-techniques.md`, `references/technique-selection-rules.md`, `references/test-design-format.md`, `references/anti-patterns.md`, and `docs/spec-catalog.md`.

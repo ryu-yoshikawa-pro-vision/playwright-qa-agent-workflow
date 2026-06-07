@@ -20,6 +20,12 @@
 
 -
 
+## Spec catalog updates
+
+| Catalog entry | Update type                     | Source evidence | Status                           | Follow-up |
+| ------------- | ------------------------------- | --------------- | -------------------------------- | --------- |
+|               | Created / Updated / Not updated |                 | Confirmed / Partial / Unverified |           |
+
 ## Main risks and gaps
 
 -

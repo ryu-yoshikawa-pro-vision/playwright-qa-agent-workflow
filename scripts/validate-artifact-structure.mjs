@@ -33,6 +33,21 @@ function fileExists(relativePath, { nonEmpty = false, warn = false } = {}) {
   return true;
 }
 
+function fileIncludes(relativePath, requiredText) {
+  const absolute = path.join(root, relativePath);
+  checked.push(`${relativePath} contains ${requiredText}`);
+  if (!fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) {
+    errors.push(`Missing file for content check: ${relativePath}`);
+    return false;
+  }
+  const content = fs.readFileSync(absolute, 'utf8');
+  if (!content.includes(requiredText)) {
+    errors.push(`Missing required text in ${relativePath}: ${requiredText}`);
+    return false;
+  }
+  return true;
+}
+
 function dirExists(relativePath, { warn = false } = {}) {
   const absolute = path.join(root, relativePath);
   const exists = fs.existsSync(absolute) && fs.statSync(absolute).isDirectory();
@@ -54,7 +69,9 @@ function listFeatureScopes() {
     .readdirSync(artifactsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
-    .filter((name) => !name.startsWith('_') && name !== 'service-exploration');
+    .filter(
+      (name) => !name.startsWith('_') && !['service-exploration', 'spec-catalog'].includes(name),
+    );
 }
 
 function checkHandoffScope(scopeName, { featureScope = false } = {}) {
@@ -92,6 +109,7 @@ for (const doc of [
   'docs/handoff-conventions.md',
   'docs/validation-gate.md',
   'docs/workflow-harness.md',
+  'docs/spec-catalog.md',
   'docs/git-management.md',
   '.agents/skills/playwright-test-plan-validator/references/semantic-quality-gate.md',
   '.agents/skills/playwright-test-plan-validator/references/test-design-quality-gate.md',
@@ -162,8 +180,39 @@ for (const template of [
   'healer/failure-analysis.md',
   'healer/healing-report.md',
   'healer/patch-log.md',
+  'spec-catalog/INDEX.md',
+  'spec-catalog/OPEN_QUESTIONS.md',
+  'spec-catalog/DECISIONS.md',
+  'spec-catalog/terminology.md',
+  'spec-catalog/screen.md',
+  'spec-catalog/feature.md',
+  'spec-catalog/flow.md',
+  'spec-catalog/data.md',
+  'spec-catalog/rule.md',
+  'spec-catalog/role-permission-matrix.md',
 ]) {
   fileExists(`artifacts/_templates/${template}`, { nonEmpty: true });
+}
+
+// Spec-catalog entry templates must carry source artifact provenance because evidence IDs
+// such as EV-001 can repeat across different runs and evidence indexes.
+for (const template of [
+  'spec-catalog/screen.md',
+  'spec-catalog/feature.md',
+  'spec-catalog/flow.md',
+  'spec-catalog/data.md',
+  'spec-catalog/rule.md',
+  'spec-catalog/role-permission-matrix.md',
+]) {
+  fileIncludes(`artifacts/_templates/${template}`, '- Source artifacts:');
+}
+
+for (const catalogFile of ['INDEX.md', 'OPEN_QUESTIONS.md', 'DECISIONS.md', 'terminology.md']) {
+  fileExists(`artifacts/spec-catalog/${catalogFile}`, { nonEmpty: true });
+}
+
+for (const catalogDir of ['screens', 'features', 'flows', 'data', 'roles', 'rules']) {
+  dirExists(`artifacts/spec-catalog/${catalogDir}`);
 }
 
 for (const fixture of [

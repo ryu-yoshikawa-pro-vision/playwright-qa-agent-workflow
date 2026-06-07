@@ -12,6 +12,17 @@ Decision: PASS | FAIL | BLOCKED
 
 Reason:
 
+## Spec-catalog references
+
+| Catalog ID | Type | Path | Status | Used for | Risk if wrong |
+| ---------- | ---- | ---- | ------ | -------- | ------------- |
+|            |      |      |        |          |               |
+
+Rules:
+
+- Do not derive final expected results from `Unverified` catalog entries unless the case is marked blocked or exploratory.
+- If a selected technique reveals a reusable rule, update `artifacts/spec-catalog/` or add a catalog open question.
+
 ## Design scope
 
 In scope:

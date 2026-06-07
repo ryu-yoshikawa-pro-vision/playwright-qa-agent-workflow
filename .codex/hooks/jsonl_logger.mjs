@@ -28,7 +28,10 @@ function repoRoot(startPath) {
 
   let candidate = current;
   while (true) {
-    if (fs.existsSync(path.join(candidate, 'AGENTS.md')) || fs.existsSync(path.join(candidate, '.git'))) {
+    if (
+      fs.existsSync(path.join(candidate, 'AGENTS.md')) ||
+      fs.existsSync(path.join(candidate, '.git'))
+    ) {
       return candidate;
     }
     const parent = path.dirname(candidate);
@@ -152,11 +155,7 @@ function main() {
     const logPath = process.env.AGENT_RUNTIME_LOG || path.join(logDir, `${sessionId}.jsonl`);
 
     fs.mkdirSync(path.dirname(logPath), { recursive: true });
-    fs.appendFileSync(
-      logPath,
-      `${JSON.stringify(buildRecord(payload), undefined, 0)}\n`,
-      'utf8',
-    );
+    fs.appendFileSync(logPath, `${JSON.stringify(buildRecord(payload), undefined, 0)}\n`, 'utf8');
   } catch (error) {
     process.stderr.write(`codex jsonl logger failed: ${error.message}\n`);
   }

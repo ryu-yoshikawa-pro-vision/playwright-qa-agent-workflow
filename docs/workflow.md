@@ -2,6 +2,19 @@
 
 This repository uses a staged Playwright CLI based workflow.
 
+## Shared specification catalog
+
+Reusable specification knowledge belongs in `artifacts/spec-catalog/`. Service mapping, focused planning, and test design may all contribute to it. Planner and designer should read relevant catalog entries before producing feature-level outputs.
+
+```text
+service mapper / focused planner / designer
+  -> reusable specification finding
+  -> artifacts/spec-catalog/
+  -> future planner and designer inputs
+```
+
+The catalog is not a run log and not a test design. It is the shared specification reference for screens, features, flows, data, roles, and rules. See `docs/spec-catalog.md`.
+
 ## Service-wide workflow
 
 Use this when the user asks to explore the entire application, all screens, all pages, or the whole service.

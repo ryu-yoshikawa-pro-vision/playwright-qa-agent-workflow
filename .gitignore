@@ -21,6 +21,8 @@ blob-report/
 !artifacts/_templates/**
 !artifacts/service-exploration/
 !artifacts/service-exploration/*.md
+!artifacts/spec-catalog/
+!artifacts/spec-catalog/**
 
 # Saved browser authentication state
 artifacts/**/auth/

@@ -8,20 +8,21 @@ It is not a full Playwright test project by itself. It is a reusable skill, arti
 
 ## What this repository provides
 
-| Area                      | Files                                                                                                                                     | Purpose                                                                                |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Common agent instructions | `AGENTS.md`                                                                                                                               | Repository-wide workflow rules                                                         |
-| Common skills             | `.agents/skills/`                                                                                                                         | CLI helper, service mapper, planner, test designer, validator, generator, healer       |
-| Skill details             | `.agents/skills/*/references/`                                                                                                            | Skill-specific output, evidence, technique, and workflow references                    |
-| Workflow docs             | `docs/workflow.md`                                                                                                                        | End-to-end flow and phase boundaries                                                   |
-| Playwright CLI guidance   | `docs/playwright-cli.md`, `.agents/skills/playwright-cli/references/commands.md`, `.agents/skills/playwright-cli/references/use-cases.md` | Browser operation, use-case selection, ad hoc verification, and evidence policy        |
-| Test execution boundary   | `docs/test-execution-boundary.md`                                                                                                         | Separation between Playwright CLI browser operations and target-project test execution |
-| Artifact conventions      | `docs/artifact-conventions.md`                                                                                                            | Where outputs and evidence are stored                                                  |
-| Handoff conventions       | `docs/handoff-conventions.md`                                                                                                             | What future agents must read and update                                                |
-| Git management            | `docs/git-management.md`                                                                                                                  | What to track and what to ignore                                                       |
-| Automatic runtime logging | `.codex/hooks.json`, `.codex/hooks/`, `.opencode/plugins/`, `docs/automatic-runtime-logging.md`                                           | JSONL activity logging outside the model context                                       |
-| Evaluations               | `evals/`                                                                                                                                  | Skill routing and quality checks                                                       |
-| Templates                 | `artifacts/_templates/`, `specs/`                                                                                                         | Initial output templates                                                               |
+| Area                      | Files                                                                                                                                     | Purpose                                                                                     |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Common agent instructions | `AGENTS.md`                                                                                                                               | Repository-wide workflow rules                                                              |
+| Common skills             | `.agents/skills/`                                                                                                                         | CLI helper, service mapper, planner, test designer, validator, generator, healer            |
+| Skill details             | `.agents/skills/*/references/`                                                                                                            | Skill-specific output, evidence, technique, and workflow references                         |
+| Workflow docs             | `docs/workflow.md`                                                                                                                        | End-to-end flow and phase boundaries                                                        |
+| Playwright CLI guidance   | `docs/playwright-cli.md`, `.agents/skills/playwright-cli/references/commands.md`, `.agents/skills/playwright-cli/references/use-cases.md` | Browser operation, use-case selection, ad hoc verification, and evidence policy             |
+| Test execution boundary   | `docs/test-execution-boundary.md`                                                                                                         | Separation between Playwright CLI browser operations and target-project test execution      |
+| Artifact conventions      | `docs/artifact-conventions.md`                                                                                                            | Where outputs and evidence are stored                                                       |
+| Handoff conventions       | `docs/handoff-conventions.md`                                                                                                             | What future agents must read and update                                                     |
+| Spec catalog              | `artifacts/spec-catalog/`, `docs/spec-catalog.md`                                                                                         | Durable shared specification knowledge for screens, features, flows, data, roles, and rules |
+| Git management            | `docs/git-management.md`                                                                                                                  | What to track and what to ignore                                                            |
+| Automatic runtime logging | `.codex/hooks.json`, `.codex/hooks/`, `.opencode/plugins/`, `docs/automatic-runtime-logging.md`                                           | JSONL activity logging outside the model context                                            |
+| Evaluations               | `evals/`                                                                                                                                  | Skill routing and quality checks                                                            |
+| Templates                 | `artifacts/_templates/`, `specs/`                                                                                                         | Initial output templates                                                                    |
 
 ## Primary tool
 
@@ -74,6 +75,12 @@ playwright-test-healer
 ```
 
 Use `playwright-service-mapper` only for service-wide exploration. Use `playwright-test-planner` for one known feature, page, or flow. Use `playwright-test-designer` after planning to apply relevant test techniques and produce final test cases.
+
+## Shared specification catalog
+
+Reusable target-application specifications belong in `artifacts/spec-catalog/`. Service mapping, focused planning, and test design may all update it when durable facts are discovered.
+
+Use the catalog for screen details, feature behavior, flows, data assumptions, role/permission facts, rules, and terminology. Do not treat run-local exploration files or `specs/<feature>.plan.md` as the canonical specification when a catalog entry exists. See `docs/spec-catalog.md`.
 
 ## Handoff layer
 

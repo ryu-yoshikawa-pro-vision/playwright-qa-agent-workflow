@@ -229,3 +229,11 @@ Before completing service mapping, promote durable content into scope-level file
 - decisions to `artifacts/service-exploration/DECISIONS.md`
 - feature candidates to `artifacts/service-exploration/FEATURE_BACKLOG.md`
 - summary and next action to `artifacts/service-exploration/HANDOFF.md`
+
+Also promote reusable specification knowledge into `artifacts/spec-catalog/` when it is useful beyond the current run. Examples include stable screen purpose, entry paths, cross-screen flows, feature behavior, data lifecycle rules, role/permission facts, validation rules, and terminology.
+
+Do not promote every discovered row mechanically. Promote catalog entries when they help future planning or test design. Mark uncertain catalog content as `Partial` or `Unverified`, and add cross-cutting catalog questions to `artifacts/spec-catalog/OPEN_QUESTIONS.md`.
+
+## Spec-catalog provenance reminder
+
+When promoting or relying on reusable catalog entries, include both `Evidence IDs` and `Source artifacts` so local evidence IDs can be traced back to the run-local evidence index or focused exploration artifact that defines them.

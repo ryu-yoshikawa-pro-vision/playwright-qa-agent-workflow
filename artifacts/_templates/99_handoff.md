@@ -38,3 +38,9 @@
 
 | Path | Purpose |
 | ---- | ------- |
+
+## Spec catalog updates
+
+| Catalog entry | Update type                     | Notes |
+| ------------- | ------------------------------- | ----- |
+|               | Created / Updated / Not updated |       |

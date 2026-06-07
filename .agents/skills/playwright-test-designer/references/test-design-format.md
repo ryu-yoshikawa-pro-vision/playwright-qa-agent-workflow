@@ -35,6 +35,19 @@ Decision: PASS | FAIL | BLOCKED
 
 Reason:
 
+## Spec-catalog references
+
+Use catalog entries when technique application depends on reusable specification details such as roles, data lifecycle, states, validations, or business rules.
+
+| Catalog ID | Type | Path | Status | Used for | Risk if wrong |
+| ---------- | ---- | ---- | ------ | -------- | ------------- |
+|            |      |      |        |          |               |
+
+Rules:
+
+- Do not derive final expected results from `Unverified` catalog entries unless the case is marked blocked or exploratory.
+- If a selected technique reveals a reusable rule, update `artifacts/spec-catalog/` or add a catalog open question.
+
 ## Design scope
 
 In scope:
@@ -150,3 +163,7 @@ Each case must be independent. Do not rely on previous test case results.
 - Every excluded case must include a reason.
 - Every `BLOCKED` technique must explain the missing source, evidence, account, role, or behavior.
 - `PASS` is not allowed when there are blocking open questions.
+
+## Spec-catalog provenance reminder
+
+When promoting or relying on reusable catalog entries, include both `Evidence IDs` and `Source artifacts` so local evidence IDs can be traced back to the run-local evidence index or focused exploration artifact that defines them.

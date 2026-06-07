@@ -75,3 +75,16 @@ A skill execution is incomplete if:
 - reusable findings remain only in run-local files
 - important decisions remain only in run-local files
 - the recommended next action is unclear
+
+## Spec catalog promotion
+
+When a reusable specification fact is discovered, update `artifacts/spec-catalog/` instead of leaving it only in a run-local handoff or feature-level plan.
+
+Examples:
+
+- Screen structure or state discovered during service mapping -> `artifacts/spec-catalog/screens/`
+- Feature behavior discovered during planning -> `artifacts/spec-catalog/features/`
+- Role or permission rule -> `artifacts/spec-catalog/roles/`
+- Validation or display rule -> `artifacts/spec-catalog/rules/`
+
+If the reusable fact is uncertain, mark it `Partial` or `Unverified` and add a catalog open question.

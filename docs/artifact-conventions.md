@@ -68,6 +68,28 @@ artifacts/service-exploration/
     99_handoff.md
 ```
 
+## Spec catalog artifacts
+
+Use `artifacts/spec-catalog/` as the durable shared specification layer for the target application. It is separate from run-local service mapping output and feature-level test plans.
+
+```text
+artifacts/spec-catalog/
+  INDEX.md
+  OPEN_QUESTIONS.md
+  DECISIONS.md
+  terminology.md
+  screens/
+  features/
+  flows/
+  data/
+  roles/
+  rules/
+```
+
+Use this catalog for reusable facts discovered through service-wide exploration, focused screen exploration, feature planning, and test design. Catalog entries must cite evidence or source artifacts and must mark uncertain content as `Partial` or `Unverified`.
+
+Do not use `screen-inventory.md`, run-local files, or `specs/<feature>.plan.md` as the long-term canonical specification when a reusable catalog entry exists. See `docs/spec-catalog.md`.
+
 ## Feature-level artifacts
 
 ```text

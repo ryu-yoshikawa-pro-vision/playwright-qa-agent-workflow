@@ -26,7 +26,8 @@ Use this skill for service-wide exploration.
 3. Capture snapshot and screenshot evidence for discovered screens and important states.
 4. Write service maps and inventories under `artifacts/service-exploration/runs/<run-id>/01_service_mapper/` using the required formats in `references/output-formats.md`.
 5. Promote durable findings, questions, decisions, and feature candidates to the scope-level handoff files.
-6. Recommend the next feature for `playwright-test-planner`.
+6. Promote reusable confirmed or partial specification knowledge into `artifacts/spec-catalog/`, or explicitly state that no catalog update was made.
+7. Recommend the next feature for `playwright-test-planner`.
 
 ## Required outputs
 
@@ -34,10 +35,11 @@ See `references/outputs.md` and `references/output-formats.md`.
 
 ## Completion condition
 
-This skill is not complete until `artifacts/service-exploration/HANDOFF.md` and `FEATURE_BACKLOG.md` are updated.
+This skill is not complete until `artifacts/service-exploration/HANDOFF.md` and `FEATURE_BACKLOG.md` are updated, and durable specification findings have either been promoted to `artifacts/spec-catalog/` or explicitly left as run-local only with a reason.
 
 See also:
 
 - `docs/service-mapping.md`
+- `docs/spec-catalog.md`
 - `docs/artifact-conventions.md`
 - `docs/handoff-conventions.md`

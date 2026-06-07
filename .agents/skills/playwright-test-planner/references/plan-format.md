@@ -12,6 +12,7 @@ Include:
 - scope and out of scope
 - entry point and setup assumptions
 - account, role, permission, and data assumptions
+- spec-catalog references
 - evidence references
 - behavior inventory
 - risk assessment
@@ -45,6 +46,20 @@ Separate confirmed facts from assumptions.
 | Item | Confirmed / Assumed / Unverified | Evidence IDs | Impact on design |
 | ---- | -------------------------------- | ------------ | ---------------- |
 |      |                                  |              |                  |
+
+## Spec-catalog references
+
+Read and cite relevant reusable specification entries before writing the plan. Use catalog entries for screen purpose, feature behavior, flows, data, roles, rules, and terminology when available.
+
+| Catalog ID | Type   | Path                                              | Status                           | What the plan uses | Remaining uncertainty |
+| ---------- | ------ | ------------------------------------------------- | -------------------------------- | ------------------ | --------------------- |
+| SCR-001    | screen | `artifacts/spec-catalog/screens/SCR-001-login.md` | Confirmed / Partial / Unverified |                    |                       |
+
+Rules:
+
+- Do not treat `Unverified` catalog entries as confirmed facts.
+- If a required catalog entry is stale or missing, add an open question or perform focused exploration.
+- If focused exploration confirms reusable behavior, update the catalog or note the required catalog update in the feature handoff.
 
 ## Evidence references
 
@@ -100,3 +115,7 @@ Open questions should be actionable. Mark whether each question blocks test desi
 ## What not to include
 
 Do not put the final test case table, detailed boundary values, decision tables, state transition tables, or pairwise selections in the plan. Those belong in `specs/<feature>.test-design.md`.
+
+## Spec-catalog provenance reminder
+
+When promoting or relying on reusable catalog entries, include both `Evidence IDs` and `Source artifacts` so local evidence IDs can be traced back to the run-local evidence index or focused exploration artifact that defines them.

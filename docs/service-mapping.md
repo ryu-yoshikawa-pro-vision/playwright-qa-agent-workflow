@@ -84,3 +84,21 @@ After mapping, choose a feature candidate from `FEATURE_BACKLOG.md` and pass it 
 - evidence links
 - known gaps
 - unverified assumptions
+
+## Spec catalog promotion
+
+Service mapping produces run-local discovery output. Durable reusable specification knowledge should be promoted to `artifacts/spec-catalog/` when it will help future planning or test design.
+
+Promote examples:
+
+- stable screen purpose and entry paths
+- reusable feature behavior
+- cross-screen flows
+- data lifecycle or status rules
+- role and permission facts
+- validation or display rules
+- terminology
+
+Do not promote every discovered screen-inventory row automatically. Promote only entries that are reusable, evidence-backed, and useful outside the current run. Mark uncertain entries as `Partial` or `Unverified`.
+
+See `docs/spec-catalog.md`.

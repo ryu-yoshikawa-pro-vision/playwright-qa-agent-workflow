@@ -25,17 +25,18 @@ The planner defines what should be designed and why. It must not perform full te
 ## Minimal workflow
 
 1. Confirm the feature slug and run ID.
-2. Read relevant handoff files and service-mapping artifacts.
+2. Read relevant handoff files, service-mapping artifacts, and `artifacts/spec-catalog/` entries.
 3. Use `playwright-cli` for focused exploration and evidence capture.
 4. Write `specs/<feature>.plan.md`.
 5. Write planner artifacts under `artifacts/<feature>/runs/<run-id>/01_planner/`.
 6. Update the feature-level handoff files.
-7. Recommend `playwright-test-designer` as the next skill.
+7. Promote newly confirmed reusable specification knowledge into `artifacts/spec-catalog/`, or add catalog open questions when a reusable rule remains unresolved.
+8. Recommend `playwright-test-designer` as the next skill.
 
 ## Plan requirements
 
-The plan must include scope, entry point, setup assumptions, roles/permissions/data assumptions, evidence references, behavior inventory, risk assessment, and test design inputs. Unverified behavior must be marked `Unverified`.
+The plan must include scope, entry point, setup assumptions, roles/permissions/data assumptions, spec-catalog references, evidence references, behavior inventory, risk assessment, and test design inputs. Unverified behavior must be marked `Unverified`.
 
 The plan should not contain the final test-case set. Detailed technique application, final independent cases, excluded cases, and technique-specific tables belong in `specs/<feature>.test-design.md`.
 
-See `references/plan-format.md`, `docs/artifact-conventions.md`, and `docs/handoff-conventions.md`.
+See `references/plan-format.md`, `docs/spec-catalog.md`, `docs/artifact-conventions.md`, and `docs/handoff-conventions.md`.
