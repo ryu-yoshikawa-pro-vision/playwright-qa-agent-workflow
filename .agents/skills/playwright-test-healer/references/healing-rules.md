@@ -3,7 +3,7 @@
 Healing reports should include:
 
 - failing test file and title
-- command used
+- target project test command used, when live execution was available
 - error summary
 - observed behavior
 - expected behavior

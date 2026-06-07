@@ -87,12 +87,25 @@ for (const skill of [
 for (const doc of [
   'docs/workflow.md',
   'docs/playwright-cli.md',
+  '.agents/skills/playwright-cli/references/use-cases.md',
+  '.agents/skills/playwright-cli/references/use-cases/README.md',
+  'docs/test-execution-boundary.md',
   'docs/artifact-conventions.md',
   'docs/handoff-conventions.md',
   'docs/validation-gate.md',
   'docs/git-management.md',
 ]) {
   fileExists(doc, { nonEmpty: true });
+}
+
+for (let index = 1; index <= 17; index += 1) {
+  const prefix = `.agents/skills/playwright-cli/references/use-cases/use-case-${String(index).padStart(2, '0')}-`;
+  const matches = fs.readdirSync(path.join(root, '.agents', 'skills', 'playwright-cli', 'references', 'use-cases'))
+    .filter((name) => name.startsWith(`use-case-${String(index).padStart(2, '0')}-`) && name.endsWith('.md'));
+  checked.push(`${prefix}*.md`);
+  if (matches.length !== 1) {
+    errors.push(`Expected exactly one Playwright CLI use-case file for ${prefix}*.md, found ${matches.length}`);
+  }
 }
 
 for (const template of [

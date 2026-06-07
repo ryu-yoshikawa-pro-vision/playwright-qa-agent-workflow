@@ -19,3 +19,10 @@ Required mapping artifact:
 ```text
 artifacts/<feature>/runs/<run-id>/03_generator/test-mapping.md
 ```
+
+
+Test execution boundary:
+
+- Do not add generic test runner commands to Playwright CLI references.
+- If generated tests need execution instructions, refer to the target project's documented test command.
+- Keep `playwright-cli` usage limited to browser evidence and investigation.

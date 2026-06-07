@@ -6,7 +6,7 @@ Codex can use this repository through common `.agents/skills/` and `AGENTS.md` i
 
 Codex must be able to run shell commands.
 
-Browser exploration and test execution should use Playwright CLI and Playwright Test CLI commands.
+Browser exploration and evidence capture should use `playwright-cli`. Test execution, when needed by generator or healer, should use the target project's documented test command and is outside the Playwright CLI skill.
 
 ## Recommended prompts
 

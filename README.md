@@ -2,7 +2,7 @@
 
 This repository contains common AI-agent skills for Playwright CLI based QA workflows.
 
-It is **Playwright CLI first**. Browser exploration, snapshots, screenshots, traces, and Playwright Test execution should be performed through command-line Playwright tooling.
+It is **Playwright CLI first** for browser exploration, UI interaction, snapshots, screenshots, traces, sessions, diagnostics, and evidence capture. Test execution is a separate target-project concern and is not part of the Playwright CLI skill.
 
 It is not a full Playwright test project by itself. It is a reusable skill, artifact, handoff, and evaluation template layer for AI coding agents.
 
@@ -14,7 +14,8 @@ It is not a full Playwright test project by itself. It is a reusable skill, arti
 | Common skills | `.agents/skills/` | CLI helper, service mapper, planner, validator, generator, healer |
 | Skill details | `.agents/skills/*/references/` | Skill-specific output, evidence, and workflow references |
 | Workflow docs | `docs/workflow.md` | End-to-end flow and phase boundaries |
-| Playwright CLI guidance | `docs/playwright-cli.md` | Browser operation and command policy |
+| Playwright CLI guidance | `docs/playwright-cli.md`, `.agents/skills/playwright-cli/references/commands.md`, `.agents/skills/playwright-cli/references/use-cases.md` | Browser operation, use-case selection, ad hoc verification, and evidence policy |
+| Test execution boundary | `docs/test-execution-boundary.md` | Separation between Playwright CLI browser operations and target-project test execution |
 | Artifact conventions | `docs/artifact-conventions.md` | Where outputs and evidence are stored |
 | Handoff conventions | `docs/handoff-conventions.md` | What future agents must read and update |
 | Git management | `docs/git-management.md` | What to track and what to ignore |
@@ -28,17 +29,16 @@ Use Playwright CLI for browser work.
 
 ## Tool roles
 
-- `playwright-cli`: exploration, UI interaction, snapshots, screenshots, traces, and evidence capture.
-- `npx playwright test`: executing generated or existing Playwright Test suites.
+- `playwright-cli`: exploration, UI interaction, snapshots, screenshots, traces, sessions, diagnostics, and evidence capture.
+- Target project test command: executing generated or existing tests when generator/healer requires it. This command is discovered from the target project and is intentionally not documented in the Playwright CLI skill.
 
 ## Minimum setup check
 
 ```bash
 playwright-cli --help
-npx playwright test --version
 ```
 
-Typical commands:
+Typical Playwright CLI commands:
 
 ```bash
 playwright-cli --help
@@ -47,9 +47,9 @@ playwright-cli snapshot
 playwright-cli screenshot --filename=<path>
 playwright-cli click <ref>
 playwright-cli fill <ref> <value>
-npx playwright test
-npx playwright test <test-file> --trace=retain-on-failure
 ```
+
+For test execution, use the target project's documented test command. See `docs/test-execution-boundary.md`.
 
 If Playwright CLI is unavailable, browser exploration and evidence capture must be reported as `BLOCKED`.
 

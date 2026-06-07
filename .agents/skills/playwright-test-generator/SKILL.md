@@ -34,3 +34,6 @@ If these are not true, stop and report `BLOCKED`.
 
 See `references/generation-rules.md`.
 
+## Test execution boundary
+
+When live project test-suite execution is required, use the target project's documented test command. Use `playwright-cli` only for browser evidence and ad hoc verification needed during generation. See `docs/test-execution-boundary.md`.

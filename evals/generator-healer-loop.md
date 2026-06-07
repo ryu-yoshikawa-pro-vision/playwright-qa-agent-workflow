@@ -24,3 +24,8 @@ Fail when:
 - assertions are removed without replacement
 - arbitrary sleeps are added as the main fix
 - `test.skip()` or `test.fixme()` is added without explicit approval
+
+
+## Test execution boundary check
+
+Generator and healer must not treat `playwright-cli` as the test runner. If live test execution is required, they should use the target project's documented test command and keep Playwright CLI usage to browser evidence, snapshots, screenshots, traces, console, network, sessions, and attach-based investigation.

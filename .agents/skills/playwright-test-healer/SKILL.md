@@ -31,3 +31,6 @@ Use this skill to diagnose and safely fix failing Playwright tests.
 
 See `references/healing-rules.md`.
 
+## Test execution boundary
+
+When live project test-suite execution is required, use the target project's documented test command. Use `playwright-cli` for browser-state evidence, ad hoc reproduction, screenshots, snapshots, traces, console, and network diagnostics. See `docs/test-execution-boundary.md`.

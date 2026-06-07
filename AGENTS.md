@@ -12,12 +12,13 @@ Use **Playwright CLI** as the primary browser operation method.
 
 ## Tool roles
 
-- Use `playwright-cli` for exploration, UI interaction, snapshots, screenshots, traces, and evidence capture.
-- Use `npx playwright test` for executing generated or existing Playwright Test suites.
+- Use `playwright-cli` for exploration, UI interaction, snapshots, screenshots, traces, sessions, and browser evidence capture.
+- Use `playwright-cli` for ad hoc browser verification when the task can be checked by driving the live UI.
+- Do not use the `playwright-cli` skill as a project test-suite runner. Project test execution is outside the Playwright CLI skill and must use the target project's own documented test command when needed by generator or healer.
 
-This repository does not require editor-specific integration. Use shell commands and Playwright CLI as the shared execution layer.
+This repository does not require editor-specific integration. Use shell commands and Playwright CLI as the shared browser-operation layer.
 
-Expected command family:
+Expected Playwright CLI command family:
 
 ```bash
 playwright-cli --help
@@ -26,11 +27,9 @@ playwright-cli snapshot
 playwright-cli screenshot --filename=<path>
 playwright-cli click <ref>
 playwright-cli fill <ref> <value>
-npx playwright test
-npx playwright test <test-file> --trace=retain-on-failure
 ```
 
-If Playwright CLI is unavailable, browser exploration, screenshots, snapshots, traces, live verification, generation from live browser behavior, and live healing must be marked `BLOCKED`. Do not fabricate results.
+If Playwright CLI is unavailable, browser exploration, screenshots, snapshots, traces, live browser evidence gathering, generation from live browser behavior, and browser-dependent healing must be marked `BLOCKED`. Do not fabricate results.
 
 For login-required exploration, follow `docs/playwright-cli.md#authentication-and-session-persistence`.
 
@@ -38,7 +37,7 @@ For login-required exploration, follow `docs/playwright-cli.md#authentication-an
 
 | Skill | Use when | Do not use when |
 |---|---|---|
-| `playwright-cli` | Browser operation, snapshots, screenshots, tracing, and Playwright Test command execution are needed | The task is pure document review and needs no browser or test command |
+| `playwright-cli` | Browser operation, snapshots, screenshots, tracing, sessions, diagnostics, ad hoc browser verification, or browser evidence capture are needed | The task is pure document review or only running a project test-suite command |
 | `playwright-service-mapper` | The request is to explore the whole service, all screens, or the entire application | The scope is already one known feature, page, or flow |
 | `playwright-test-planner` | One feature, page, or flow is known and needs a test plan | The request is service-wide exploration |
 | `playwright-test-plan-validator` | A Markdown plan must be validated before generation | The user asks to generate code directly from an unvalidated plan |
@@ -77,6 +76,8 @@ Follow:
 
 - `docs/workflow.md`
 - `docs/playwright-cli.md`
+- `.agents/skills/playwright-cli/references/use-cases.md` and the relevant `.agents/skills/playwright-cli/references/use-cases/use-case-*.md` file
+- `docs/test-execution-boundary.md`
 - `docs/artifact-conventions.md`
 - `docs/handoff-conventions.md`
 - `docs/git-management.md`

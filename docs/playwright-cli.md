@@ -1,17 +1,19 @@
 # Playwright CLI Usage
 
-This repository uses Playwright CLI as the primary browser automation and evidence collection interface for AI agents.
+This repository uses **Playwright CLI** as the primary browser automation and evidence collection interface for AI agents.
 
-## Tool roles
+This document is intentionally limited to commands that start with `playwright-cli`.
 
-Use two command families for different purposes:
+## Boundary
 
-| Command family | Purpose |
-|---|---|
-| `playwright-cli ...` | browser exploration, interaction, snapshots, screenshots, tracing, evidence capture |
-| `npx playwright test ...` | executing generated or existing Playwright Test suites |
+| Area | In scope for this document | Out of scope for this document |
+|---|---|---|
+| Browser exploration | `playwright-cli` commands | Playwright Test runner commands |
+| Evidence capture | snapshots, screenshots, traces, console, network | test runner reports |
+| Session/auth state | `playwright-cli` sessions and state files | project-specific test fixtures |
+| Ad hoc browser verification | `playwright-cli` browser operations | project test-suite runner commands |
 
-Do not confuse the two. `playwright-cli` is the exploration and evidence tool. `npx playwright test` is the test runner.
+Do not use this document as a project test-runner reference. Generator and healer may execute a project-defined test command, but that command must be discovered from the target project and is not part of the Playwright CLI skill. Ad hoc verification by driving the browser with `playwright-cli` is in scope.
 
 ## Prerequisites
 
@@ -20,22 +22,41 @@ The execution environment needs:
 - Node.js
 - shell command execution
 - Playwright CLI available as `playwright-cli`
-- Playwright Test available in the target project when running generated tests
+- permission to open the target application in a browser
 
 Check availability:
 
 ```bash
 playwright-cli --help
-npx playwright test --version
 ```
 
-If `playwright-cli` is not available, the browser-exploration phase is `BLOCKED`.
+If `playwright-cli` is not available, browser exploration, UI evidence capture, tracing, and live browser verification are `BLOCKED`.
 
-If `npx playwright test` is not available, test execution and healing from live test output are `BLOCKED`, but document review and plan validation may still proceed.
+## Installation guidance
 
-## Typical commands
+Recommended for local agent work:
 
-Exploration and evidence:
+```bash
+npm install -g @playwright/cli@latest
+playwright-cli --help
+```
+
+A project-local installation is also acceptable when the target project manages agent tooling locally. In that case, use the command form documented by the target project.
+
+## Command discovery rule
+
+Do not maintain a full static command list in this repository.
+
+Before using an unfamiliar command or option, check current help:
+
+```bash
+playwright-cli --help
+playwright-cli <command> --help
+```
+
+Use this repository for workflow guidance and QA-specific command selection, not exhaustive CLI documentation.
+
+## Typical browser-operation commands
 
 ```bash
 playwright-cli open <url>
@@ -45,13 +66,7 @@ playwright-cli click <ref>
 playwright-cli fill <ref> <value>
 ```
 
-Test execution:
-
-```bash
-npx playwright test
-npx playwright test <test-file> --trace=retain-on-failure
-npx playwright show-report
-```
+For use-case-specific guidance, start from the Playwright CLI skill reference map: `.agents/skills/playwright-cli/references/use-cases.md`. Open only the relevant `.agents/skills/playwright-cli/references/use-cases/use-case-*.md` file.
 
 ## Authentication and session persistence
 
@@ -69,7 +84,7 @@ Rules:
 
 - Do not commit saved authentication state.
 - Do not log passwords, tokens, cookies, session storage values, or local storage values.
-- If the required role or login state is unavailable, mark the exploration or healing phase as `BLOCKED`.
+- If the required role or login state is unavailable, mark the exploration or browser-dependent healing phase as `BLOCKED`.
 - Record only the fact that a role/session was used, not the secret material behind it.
 
 ## Evidence policy
@@ -91,4 +106,4 @@ Do not fabricate:
 - snapshots
 - traces
 - command outputs
-- test execution results
+- browser states

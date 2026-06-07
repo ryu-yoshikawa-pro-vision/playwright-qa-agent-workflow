@@ -37,9 +37,11 @@ Generation is allowed only after validation returns `PASS`.
 ```text
 validated plan
   -> tests/<feature>.spec.ts
-  -> npx playwright test <test-file> --trace=retain-on-failure
+  -> run the target project's documented test command when available
   -> failure: playwright-test-healer
 ```
+
+Project test-suite execution is outside the Playwright CLI skill. Ad hoc browser verification through `playwright-cli` is in scope. Use `docs/test-execution-boundary.md` to keep browser evidence gathering, ad hoc verification, and project test-runner execution separate.
 
 Healing must diagnose before editing. It must not delete tests, remove assertions, or add `test.skip()` / `test.fixme()` unless explicitly approved by the user.
 
