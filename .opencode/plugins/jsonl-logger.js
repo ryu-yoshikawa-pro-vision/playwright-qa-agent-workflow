@@ -1,7 +1,5 @@
-// Project-level OpenCode plugin that writes automatic tool/session logs to JSONL.
-//
-// Logs are written to .agent-logs/opencode/<session-or-date>.jsonl by default.
-// The plugin does not call the model and does not require the agent to write logs.
+// OpenCode project plugin: automatic JSONL runtime logging.
+// Writes to .agent-logs/opencode/<session-or-date>.jsonl by default.
 
 import { appendFileSync, mkdirSync } from "node:fs"
 import { createHash } from "node:crypto"
@@ -12,20 +10,12 @@ const AGENT = "opencode"
 const MAX_STRING = Number(process.env.AGENT_LOG_MAX_STRING || 1200)
 const MAX_COLLECTION = Number(process.env.AGENT_LOG_MAX_COLLECTION || 80)
 const MAX_DEPTH = Number(process.env.AGENT_LOG_MAX_DEPTH || 6)
-const SENSITIVE_KEY = /(password|passwd|pwd|secret|token|refresh|access[_-]?token|api[_-]?key|authorization|auth|cookie|session|credential|private[_-]?key)/i
-
-function now() {
-  return new Date().toISOString()
-}
+const SENSITIVE_KEY = /(password|passwd|pwd|secret|token|refresh|api[_-]?key|authorization|auth|cookie|session|credential|private[_-]?key)/i
 
 function stableId(value) {
   let raw
-  try {
-    raw = JSON.stringify(value, Object.keys(value || {}).sort())
-  } catch {
-    raw = String(value)
-  }
-  return createHash("sha256").update(raw || "").digest("hex").slice(0, 16)
+  try { raw = JSON.stringify(value ?? {}) } catch { raw = String(value ?? "") }
+  return createHash("sha256").update(raw).digest("hex").slice(0, 16)
 }
 
 function sanitize(value, depth = 0, key = "") {
@@ -38,13 +28,13 @@ function sanitize(value, depth = 0, key = "") {
   }
   if (typeof value === "number" || typeof value === "boolean") return value
   if (Array.isArray(value)) {
-    const items = value.slice(0, MAX_COLLECTION).map((item) => sanitize(item, depth + 1))
-    if (value.length > MAX_COLLECTION) items.push(`[TRUNCATED ${value.length - MAX_COLLECTION} items]`)
-    return items
+    const result = value.slice(0, MAX_COLLECTION).map((item) => sanitize(item, depth + 1))
+    if (value.length > MAX_COLLECTION) result.push(`[TRUNCATED ${value.length - MAX_COLLECTION} items]`)
+    return result
   }
   if (typeof value === "object") {
-    const entries = Object.entries(value)
     const result = {}
+    const entries = Object.entries(value)
     for (const [index, [childKey, childValue]] of entries.entries()) {
       if (index >= MAX_COLLECTION) {
         result.__truncated_keys__ = entries.length - MAX_COLLECTION
@@ -57,80 +47,69 @@ function sanitize(value, depth = 0, key = "") {
   return String(value)
 }
 
-function projectRoot(ctx = {}) {
+function root(ctx = {}) {
   return ctx.worktree || ctx.directory || process.cwd()
 }
 
-function logPath(ctx = {}, input = {}) {
+function outputPath(ctx = {}, input = {}) {
   if (process.env.AGENT_RUNTIME_LOG) return process.env.AGENT_RUNTIME_LOG
-  const root = projectRoot(ctx)
-  const dir = process.env.AGENT_RUNTIME_LOG_DIR || path.join(root, ".agent-logs", AGENT)
-  const session = input.sessionID || input.sessionId || input.session_id || input.session?.id || new Date().toISOString().slice(0, 10)
+  const dir = process.env.AGENT_RUNTIME_LOG_DIR || path.join(root(ctx), ".agent-logs", AGENT)
+  const session = input.sessionID || input.sessionId || input.session?.id || new Date().toISOString().slice(0, 10)
   const safeSession = String(session).replace(/[^A-Za-z0-9_.-]+/g, "-").slice(0, 120)
   return path.join(dir, `${safeSession}.jsonl`)
 }
 
 function append(ctx, input, record) {
-  const filePath = logPath(ctx, input)
-  mkdirSync(path.dirname(filePath), { recursive: true })
-  appendFileSync(filePath, JSON.stringify(record) + "\n", "utf8")
+  const file = outputPath(ctx, input)
+  mkdirSync(path.dirname(file), { recursive: true })
+  appendFileSync(file, JSON.stringify(record) + "\n", "utf8")
 }
 
-function baseRecord(ctx, input, event) {
+function base(input, event) {
   return {
     schema: SCHEMA,
-    ts: now(),
+    ts: new Date().toISOString(),
     agent: AGENT,
     event,
-    sessionId: input?.sessionID || input?.sessionId || input?.session_id || input?.session?.id,
-    messageId: input?.messageID || input?.messageId || input?.message_id || input?.message?.id,
-    cwd: input?.cwd || projectRoot(ctx),
+    sessionId: input?.sessionID || input?.sessionId || input?.session?.id,
+    messageId: input?.messageID || input?.messageId || input?.message?.id,
     model: input?.model,
+    cwd: input?.cwd || process.cwd(),
     logSource: ".opencode/plugins/jsonl-logger.js",
   }
 }
 
-export const JsonlLogger = async (ctx) => {
-  return {
-    "tool.execute.before": async (input, output) => {
-      try {
-        append(ctx, input, {
-          ...baseRecord(ctx, input, "tool.execute.before"),
-          toolName: input?.tool,
-          callId: input?.callID || input?.callId || input?.id,
-          args: sanitize(output?.args ?? input?.args),
-          argsHash: stableId(output?.args ?? input?.args),
-        })
-      } catch {
-        // Logging must never block OpenCode tool execution.
-      }
-    },
-
-    "tool.execute.after": async (input, output) => {
-      try {
-        append(ctx, input, {
-          ...baseRecord(ctx, input, "tool.execute.after"),
-          toolName: input?.tool,
-          callId: input?.callID || input?.callId || input?.id,
-          args: sanitize(output?.args ?? input?.args),
-          argsHash: stableId(output?.args ?? input?.args),
-          result: sanitize(output?.result ?? output?.output ?? output),
-          resultHash: stableId(output?.result ?? output?.output ?? output),
-        })
-      } catch {
-        // Logging must never block OpenCode tool execution.
-      }
-    },
-
-    "session.idle": async (input) => {
-      try {
-        append(ctx, input, {
-          ...baseRecord(ctx, input, "session.idle"),
-          state: sanitize(input),
-        })
-      } catch {
-        // Logging must never block OpenCode session handling.
-      }
-    },
-  }
-}
+export const JsonlLogger = async (ctx) => ({
+  "tool.execute.before": async (input, output) => {
+    try {
+      const args = output?.args ?? input?.args
+      append(ctx, input, {
+        ...base(input, "tool.execute.before"),
+        toolName: input?.tool,
+        callId: input?.callID || input?.callId || input?.id,
+        args: sanitize(args),
+        argsHash: stableId(args),
+      })
+    } catch {}
+  },
+  "tool.execute.after": async (input, output) => {
+    try {
+      const result = output?.result ?? output?.output ?? output
+      append(ctx, input, {
+        ...base(input, "tool.execute.after"),
+        toolName: input?.tool,
+        callId: input?.callID || input?.callId || input?.id,
+        result: sanitize(result),
+        resultHash: stableId(result),
+      })
+    } catch {}
+  },
+  "session.idle": async (input) => {
+    try {
+      append(ctx, input, {
+        ...base(input, "session.idle"),
+        state: sanitize(input),
+      })
+    } catch {}
+  },
+})

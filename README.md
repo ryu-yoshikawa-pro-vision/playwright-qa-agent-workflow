@@ -1,276 +1,139 @@
-# Playwright Test Agents Compatibility Template
+# Playwright CLI Agent Skills
 
-This repository contains Playwright Test Agent definitions and a common compatibility layer for using the same workflow across AI coding agents.
+This repository contains common AI-agent skills for Playwright CLI based QA workflows.
 
-It is not a full Playwright test project by itself. It is a template layer for agents that can map, plan, validate, generate, and heal Playwright tests. The common workflow now defaults to Playwright CLI shell commands for browser automation, with Playwright Test MCP kept as an optional integration path.
+It is **Playwright CLI first**. Browser exploration, snapshots, screenshots, traces, and Playwright Test execution should be performed through command-line Playwright tooling.
+
+It is not a full Playwright test project by itself. It is a reusable skill, artifact, handoff, and evaluation template layer for AI coding agents.
 
 ## What this repository provides
 
 | Area | Files | Purpose |
 |---|---|---|
-| Common agent layer | `AGENTS.md`, `.agents/skills/`, `docs/` | Shared workflow used by Codex, OpenCode, and other shell-capable coding agents |
-| Playwright CLI browser automation | `.agents/skills/playwright-cli/SKILL.md`, `docs/playwright-cli.md` | Default browser automation path without requiring MCP client setup |
-| Codex optional config | `.codex/config.toml` | Optional Codex project config, including optional Playwright Test MCP configuration |
-| Other MCP clients | `.mcp.json`, `.vscode/mcp.json` | Reference MCP configuration only; not required for the common Playwright CLI workflow |
+| Common agent instructions | `AGENTS.md` | Repository-wide workflow rules |
+| Common skills | `.agents/skills/` | CLI helper, service mapper, planner, validator, generator, healer |
+| Skill details | `.agents/skills/*/references/` | Skill-specific output, evidence, and workflow references |
+| Workflow docs | `docs/workflow.md` | End-to-end flow and phase boundaries |
+| Playwright CLI guidance | `docs/playwright-cli.md` | Browser operation and command policy |
+| Artifact conventions | `docs/artifact-conventions.md` | Where outputs and evidence are stored |
+| Handoff conventions | `docs/handoff-conventions.md` | What future agents must read and update |
+| Git management | `docs/git-management.md` | What to track and what to ignore |
+| Automatic runtime logging | `.codex/hooks.json`, `.codex/hooks/`, `.opencode/plugins/`, `docs/automatic-runtime-logging.md` | JSONL activity logging outside the model context |
+| Evaluations | `evals/` | Skill routing and quality checks |
+| Templates | `artifacts/_templates/`, `specs/` | Initial output templates |
 
-Future customizations should usually be made in the common agent layer. Do not add Claude Code / GitHub Copilot / OpenCode-specific prompt files unless explicitly requested.
+## Primary tool
 
-## Agent workflow
+Use Playwright CLI for browser work.
 
-The common workflow has five roles.
+## Tool roles
 
-### 1. Service Mapper
+- `playwright-cli`: exploration, UI interaction, snapshots, screenshots, traces, and evidence capture.
+- `npx playwright test`: executing generated or existing Playwright Test suites.
 
-Explores the whole service and creates service-level discovery artifacts.
-
-Use when:
-
-- the user asks to explore the whole service
-- all screens/pages need to be discovered
-- the application must be mapped before feature-level test planning
-- feature candidates need to be identified and prioritized
-
-Outputs are written under:
-
-```text
-artifacts/service-exploration/runs/<run-id>/
-```
-
-The service mapper does not create one giant service-wide test plan. It creates a screen inventory, navigation map, service map, and feature inventory.
-
-### 2. Planner
-
-Explores one feature, page, or flow and writes a Markdown test plan under `specs/`.
-
-Use when:
-
-- there is no feature-level test plan yet
-- the UI needs to be explored for one target feature
-- test scenarios need to be designed before code generation
-
-### 3. Plan Validator
-
-Reviews the planner output before generation.
-
-Use immediately after the planner creates or updates a plan.
-
-The validator returns one decision:
-
-- `PASS`: the plan is ready for generation
-- `FAIL`: the planner must re-explore or revise the plan
-- `BLOCKED`: required inputs are missing or inaccessible
-
-Validation reports are saved under:
-
-```text
-specs/_reviews/<feature>.validation.md
-```
-
-### 4. Generator
-
-Converts a validated Markdown test plan into Playwright Test code.
-
-Use only when:
-
-- a plan exists under `specs/`
-- the matching validation report exists under `specs/_reviews/`
-- the validation decision is `PASS`
-
-### 5. Healer
-
-Runs, diagnoses, and safely repairs failing Playwright tests.
-
-Use when:
-
-- existing tests fail
-- selectors or assertions need repair
-- a trace/debug session needs analysis
-
-The healer must not hide failures by skipping tests unless explicitly approved.
-
-## Quality gate loop
-
-Use this loop for whole-service discovery:
-
-```text
-service-mapper -> planner -> plan-validator -> PASS -> generator -> healer, if tests fail
-```
-
-Use this loop for one known feature:
-
-```text
-planner -> plan-validator -> PASS -> generator -> healer, if tests fail
-```
-
-Use this loop when planning quality is insufficient:
-
-```text
-planner -> plan-validator -> FAIL -> planner refinement -> plan-validator again
-```
-
-Do not ask the generator to create tests from an unvalidated plan. The validator exists to prevent shallow, generic, or invented plans from becoming brittle Playwright tests.
-
-
-
-## Browser automation mode
-
-The common workflow defaults to Playwright CLI. This means OpenCode or another shell-first agent can use the repository without an OpenCode-specific MCP configuration.
-
-Use:
+## Minimum setup check
 
 ```bash
+playwright-cli --help
+npx playwright test --version
+```
+
+Typical commands:
+
+```bash
+playwright-cli --help
 playwright-cli open <url>
 playwright-cli snapshot
 playwright-cli screenshot --filename=<path>
 playwright-cli click <ref>
-playwright-cli fill <ref> <text>
+playwright-cli fill <ref> <value>
+npx playwright test
+npx playwright test <test-file> --trace=retain-on-failure
 ```
 
-Fallback:
+If Playwright CLI is unavailable, browser exploration and evidence capture must be reported as `BLOCKED`.
+
+For login-required exploration, see `docs/playwright-cli.md#authentication-and-session-persistence`.
+
+## Skill workflow
+
+```text
+playwright-cli
+  ↓
+playwright-service-mapper
+  ↓
+playwright-test-planner
+  ↓
+playwright-test-plan-validator
+  ↓ PASS
+playwright-test-generator
+  ↓ test failure
+playwright-test-healer
+```
+
+Use `playwright-service-mapper` only for service-wide exploration. Use `playwright-test-planner` for one known feature, page, or flow.
+
+## Handoff layer
+
+Each run produces detailed artifacts under `runs/<run-id>/`, but durable information must also be promoted to scope-level handoff files.
+
+Service-wide work uses:
+
+```text
+artifacts/service-exploration/HANDOFF.md
+artifacts/service-exploration/OPEN_QUESTIONS.md
+artifacts/service-exploration/FINDINGS.md
+artifacts/service-exploration/DECISIONS.md
+artifacts/service-exploration/FEATURE_BACKLOG.md
+```
+
+Feature-level work uses:
+
+```text
+artifacts/<feature>/HANDOFF.md
+artifacts/<feature>/OPEN_QUESTIONS.md
+artifacts/<feature>/FINDINGS.md
+artifacts/<feature>/DECISIONS.md
+```
+
+Every skill also writes `runs/<run-id>/99_handoff.md` before completion.
+
+## Automatic runtime logging
+
+Codex hooks and the OpenCode plugin write local JSONL runtime logs under `.agent-logs/` without asking the model to write logs. See `docs/automatic-runtime-logging.md`.
+
+## Evaluation
+
+Use `evals/` to check whether the correct skill is selected and whether the required artifacts are produced.
+
+Minimum checks:
+
+- service-wide request routes to `playwright-service-mapper`
+- feature-level planning routes to `playwright-test-planner`
+- generation is blocked until validation returns `PASS`
+- healer does not weaken tests to make failures disappear
+
+## Git management
+
+Track durable lightweight artifacts such as plans, validation reports, handoff files, templates, docs, and skills.
+
+Do not track heavy runtime evidence such as screenshots, traces, videos, Playwright reports, runtime JSONL logs, or `artifacts/**/runs/` directories by default. Promote important findings into scope-level handoff files instead.
+
+See `docs/git-management.md`.
+
+## Known limitations
+
+This repository does not include a full Playwright project setup. A target project still needs its own package setup, Playwright Test dependencies, configuration, authentication strategy, and target URLs.
+
+## Automated structure checks
+
+This repository includes lightweight structure checks for the common Playwright CLI workflow.
 
 ```bash
-npx playwright-cli <command>
+npm run check:artifacts
+npm run check:validation
+npm run check:logs
+npm run check:evals
 ```
 
-Use the standard Playwright Test CLI for test execution:
-
-```bash
-npx playwright test tests/<feature>.spec.ts --trace=retain-on-failure
-```
-
-MCP remains optional. Use MCP only when the selected agent/client is already configured for it or the user explicitly requests it. See `docs/playwright-cli.md`.
-
-## Visual evidence policy
-
-Exploration and healing must not rely on Playwright snapshots alone.
-
-Use both evidence types when tooling allows it:
-
-- snapshots for roles, labels, accessible names, locator candidates, and DOM-accessible text
-- screenshots for actual visual state, layout, visibility, modal/drawer state, loading/empty/error states, and UI overlap or clipping
-
-A discovered screen or major UI state should not be marked as fully explored unless it has screenshot or trace evidence, or the missing visual evidence is explicitly explained.
-
-The common evidence index format is defined in `docs/artifact-conventions.md`.
-
-## Artifact locations
-
-See `docs/artifact-conventions.md` for the complete convention.
-
-Important paths:
-
-```text
-# Service-wide exploration
-artifacts/service-exploration/runs/<run-id>/
-
-# Feature plan
-specs/<feature>.plan.md
-
-# Feature-level planning evidence
-artifacts/<feature>/runs/<run-id>/01_planner/
-
-# Validation
-specs/_reviews/<feature>.validation.md
-artifacts/<feature>/runs/<run-id>/02_validator/
-
-# Generated tests
-tests/<feature>.spec.ts
-artifacts/<feature>/runs/<run-id>/03_generator/
-
-# Healing evidence
-artifacts/<feature>/runs/<run-id>/04_healer/
-```
-
-## Optional Playwright Test MCP server
-
-The common workflow does not require MCP. If MCP is explicitly requested, the Playwright Test MCP server can be started with:
-
-```bash
-npx playwright run-test-mcp-server
-```
-
-The existing MCP configurations are reference examples only:
-
-- `.mcp.json`
-- `.vscode/mcp.json`
-- `.codex/config.toml`
-
-## Using with Codex or common agents
-
-Common support is implemented through:
-
-```text
-AGENTS.md
-.codex/config.toml
-.agents/skills/playwright-cli/SKILL.md
-.agents/skills/playwright-service-mapper/SKILL.md
-.agents/skills/playwright-test-planner/SKILL.md
-.agents/skills/playwright-test-plan-validator/SKILL.md
-.agents/skills/playwright-test-generator/SKILL.md
-.agents/skills/playwright-test-healer/SKILL.md
-```
-
-Recommended usage examples:
-
-```text
-Use the playwright-service-mapper skill to explore the whole service and create service mapping artifacts.
-```
-
-```text
-Use the playwright-test-planner skill to create a feature-level test plan for `conversation-detail` using the latest service mapping run.
-```
-
-```text
-Use the playwright-test-plan-validator skill to validate specs/<feature>.plan.md. If it fails, send the refinement request back to the planner instead of generating tests.
-```
-
-```text
-Use the playwright-test-generator skill to generate Playwright tests from specs/<feature>.plan.md after validation passes.
-```
-
-```text
-Use the playwright-test-healer skill to diagnose and fix the failing Playwright tests.
-```
-
-Codex loads project-scoped config from `.codex/config.toml` only for trusted projects. Machine-local provider, auth, and profile settings should stay in `~/.codex/config.toml`.
-
-## Using with other agents
-
-For shell-capable agents such as OpenCode, use the `playwright-cli` skill and shell commands. MCP setup is not required.
-
-For MCP-capable agents where MCP is explicitly desired, configure an MCP server with:
-
-```json
-{
-  "command": "npx",
-  "args": ["playwright", "run-test-mcp-server"]
-}
-```
-
-Then provide the role instructions from either:
-
-- `AGENTS.md`
-- `.agents/skills/*/SKILL.md`
-
-See `docs/agent-compatibility.md` for guidance.
-
-## Repository conventions
-
-- Service-wide discovery artifacts go under `artifacts/service-exploration/`.
-- Test plans go under `specs/`.
-- Validation reports go under `specs/_reviews/`.
-- Generated tests should go under `tests/` unless another path is specified.
-- `seed.spec.ts` is the default seed test.
-- Generated tests should preserve traceability to their source plan and validation report.
-- Compatibility additions should usually be made in `AGENTS.md`, `.agents/skills/`, or `docs/`.
-
-## Important limitation
-
-This repository does not currently include:
-
-- `package.json`
-- `playwright.config.ts`
-- real application fixtures
-- real generated test suites
-
-If you want this to become a runnable Playwright project, add those files separately.
+These checks validate required artifact files, validation report hashes, and runtime JSONL log structure. They do not replace human QA review or real Playwright test execution.

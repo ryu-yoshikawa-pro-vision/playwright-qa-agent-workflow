@@ -1,136 +1,94 @@
 # Playwright CLI Usage
 
-This repository prefers Playwright CLI for common agent browser automation because it works through shell commands and does not require each AI client to support MCP configuration.
+This repository uses Playwright CLI as the primary browser automation and evidence collection interface for AI agents.
 
-## Default browser automation mode
+## Tool roles
 
-Use this order unless the user explicitly asks otherwise:
+Use two command families for different purposes:
 
-1. Playwright CLI through the `playwright-cli` skill
-2. Playwright Test CLI for running generated tests
-3. Playwright Test MCP only when explicitly configured or requested
+| Command family | Purpose |
+|---|---|
+| `playwright-cli ...` | browser exploration, interaction, snapshots, screenshots, tracing, evidence capture |
+| `npx playwright test ...` | executing generated or existing Playwright Test suites |
 
-## Two different CLIs
+Do not confuse the two. `playwright-cli` is the exploration and evidence tool. `npx playwright test` is the test runner.
 
-There are two command families that should not be mixed up.
+## Prerequisites
 
-### `playwright-cli`
+The execution environment needs:
 
-Use for interactive browser automation and evidence capture:
+- Node.js
+- shell command execution
+- Playwright CLI available as `playwright-cli`
+- Playwright Test available in the target project when running generated tests
+
+Check availability:
+
+```bash
+playwright-cli --help
+npx playwright test --version
+```
+
+If `playwright-cli` is not available, the browser-exploration phase is `BLOCKED`.
+
+If `npx playwright test` is not available, test execution and healing from live test output are `BLOCKED`, but document review and plan validation may still proceed.
+
+## Typical commands
+
+Exploration and evidence:
 
 ```bash
 playwright-cli open <url>
 playwright-cli snapshot
 playwright-cli screenshot --filename=<path>
 playwright-cli click <ref>
-playwright-cli fill <ref> <text>
-playwright-cli tracing-start
-playwright-cli tracing-stop
+playwright-cli fill <ref> <value>
 ```
 
-Fallback:
-
-```bash
-npx playwright-cli <command>
-```
-
-### `npx playwright test`
-
-Use for running Playwright Test suites:
+Test execution:
 
 ```bash
 npx playwright test
-npx playwright test tests/<feature>.spec.ts
-npx playwright test tests/<feature>.spec.ts --trace=retain-on-failure
-npx playwright test tests/<feature>.spec.ts --debug
+npx playwright test <test-file> --trace=retain-on-failure
+npx playwright show-report
 ```
 
-Do not use `playwright-cli` as a replacement for the Playwright Test runner.
+## Authentication and session persistence
 
-## Installation
+When exploration requires login state, prefer a named Playwright CLI session or saved browser state. Keep authentication state out of Git.
 
-Preferred global installation:
+Examples:
 
 ```bash
-npm install -g @playwright/cli@latest
-playwright-cli --help
+PLAYWRIGHT_CLI_SESSION=<scope-or-feature> playwright-cli open <url>
+playwright-cli state-save artifacts/<scope-or-feature>/auth/state.json
+playwright-cli state-load artifacts/<scope-or-feature>/auth/state.json
 ```
 
-Local npx usage:
+Rules:
 
-```bash
-npx playwright-cli --help
-```
+- Do not commit saved authentication state.
+- Do not log passwords, tokens, cookies, session storage values, or local storage values.
+- If the required role or login state is unavailable, mark the exploration or healing phase as `BLOCKED`.
+- Record only the fact that a role/session was used, not the secret material behind it.
 
-Install browser when needed:
+## Evidence policy
 
-```bash
-playwright-cli install-browser
-```
+Use snapshots for locator and accessibility information.
 
-or:
+Use screenshots and traces for visual behavior.
 
-```bash
-npx playwright-cli install-browser
-```
+Do not claim that a screen or UI state was fully explored if only a snapshot was checked and the behavior depends on visual layout, visibility, disabled state, modals, drawers, loading states, validation messages, or responsive layout.
 
-## Session convention
+## Failure policy
 
-Use one stable session per run:
+If the necessary command is unavailable, report `BLOCKED`.
 
-```bash
-PLAYWRIGHT_CLI_SESSION=<scope-or-feature>-<run-id>
-```
+Do not fabricate:
 
-Recommended value examples:
-
-```text
-service-exploration-20260607-153000
-login-20260607-161200
-conversation-detail-20260607-170500
-```
-
-If environment variables are not preserved, use the `-s=<name>` form when available:
-
-```bash
-playwright-cli -s=<scope-or-feature>-<run-id> open <url>
-```
-
-## Evidence convention
-
-Save evidence under the existing artifact run directory:
-
-```text
-artifacts/<scope-or-feature>/runs/<run-id>/evidence/
-  screenshots/
-  snapshots/
-  traces/
-  console/
-  network/
-  storage/
-```
-
-Record every important evidence file in the role's `evidence-index.md`.
-
-## When to prefer Playwright CLI over MCP
-
-Prefer Playwright CLI when:
-
-- using OpenCode or another shell-first coding agent
-- avoiding client-specific MCP setup
-- working in a large codebase where lower token usage matters
-- browser commands can be represented as concise shell commands
-- the agent can manage files and logs in the repository
-
-## When MCP may still be better
-
-Use MCP when:
-
-- the chosen client already has a working MCP setup
-- the workflow relies on specialized Playwright Test Agent MCP tools
-- a long-running specialized agent loop benefits from MCP-managed tool calls
-- the user explicitly asks to use MCP
-
-## Blocking rule
-
-If neither `playwright-cli` nor `npx playwright-cli` is available and installation is not allowed, do not fabricate exploration results. Mark the current phase as `BLOCKED` and record the missing capability in the relevant log.
+- exploration results
+- screenshots
+- snapshots
+- traces
+- command outputs
+- test execution results

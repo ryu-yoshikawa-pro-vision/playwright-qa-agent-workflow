@@ -1,26 +1,12 @@
 {
   "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup|resume|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .codex/hooks/jsonl_logger.py",
-            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
-            "timeout": 10,
-            "statusMessage": "Recording Codex session start"
-          }
-        ]
-      }
-    ],
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .codex/hooks/jsonl_logger.py",
-            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
+            "command": "sh -lc 'root=\"$(git rev-parse --show-toplevel 2>/dev/null || { d=\"$PWD\"; while [ \"$d\" != \"/\" ]; do [ -f \"$d/AGENTS.md\" ] && { echo \"$d\"; exit 0; }; d=\"$(dirname \"$d\")\"; done; pwd; })\"; python3 \"$root/.codex/hooks/jsonl_logger.py\"'",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$root = (git rev-parse --show-toplevel 2>$null); if (-not $root) { $dir = (Get-Location).Path; while ($dir -and -not (Test-Path (Join-Path $dir 'AGENTS.md'))) { $parent = Split-Path $dir -Parent; if ($parent -eq $dir) { break }; $dir = $parent }; $root = $dir }; py -3 (Join-Path $root '.codex/hooks/jsonl_logger.py')\"",
             "timeout": 10,
             "statusMessage": "Recording Codex prompt event"
           }
@@ -33,8 +19,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .codex/hooks/jsonl_logger.py",
-            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
+            "command": "sh -lc 'root=\"$(git rev-parse --show-toplevel 2>/dev/null || { d=\"$PWD\"; while [ \"$d\" != \"/\" ]; do [ -f \"$d/AGENTS.md\" ] && { echo \"$d\"; exit 0; }; d=\"$(dirname \"$d\")\"; done; pwd; })\"; python3 \"$root/.codex/hooks/jsonl_logger.py\"'",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$root = (git rev-parse --show-toplevel 2>$null); if (-not $root) { $dir = (Get-Location).Path; while ($dir -and -not (Test-Path (Join-Path $dir 'AGENTS.md'))) { $parent = Split-Path $dir -Parent; if ($parent -eq $dir) { break }; $dir = $parent }; $root = $dir }; py -3 (Join-Path $root '.codex/hooks/jsonl_logger.py')\"",
             "timeout": 10,
             "statusMessage": "Recording Codex tool start"
           }
@@ -47,24 +33,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .codex/hooks/jsonl_logger.py",
-            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
+            "command": "sh -lc 'root=\"$(git rev-parse --show-toplevel 2>/dev/null || { d=\"$PWD\"; while [ \"$d\" != \"/\" ]; do [ -f \"$d/AGENTS.md\" ] && { echo \"$d\"; exit 0; }; d=\"$(dirname \"$d\")\"; done; pwd; })\"; python3 \"$root/.codex/hooks/jsonl_logger.py\"'",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$root = (git rev-parse --show-toplevel 2>$null); if (-not $root) { $dir = (Get-Location).Path; while ($dir -and -not (Test-Path (Join-Path $dir 'AGENTS.md'))) { $parent = Split-Path $dir -Parent; if ($parent -eq $dir) { break }; $dir = $parent }; $root = $dir }; py -3 (Join-Path $root '.codex/hooks/jsonl_logger.py')\"",
             "timeout": 10,
             "statusMessage": "Recording Codex tool end"
-          }
-        ]
-      }
-    ],
-    "PermissionRequest": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .codex/hooks/jsonl_logger.py",
-            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
-            "timeout": 10,
-            "statusMessage": "Recording Codex permission request"
           }
         ]
       }
@@ -74,10 +46,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .codex/hooks/jsonl_logger.py",
-            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
+            "command": "sh -lc 'root=\"$(git rev-parse --show-toplevel 2>/dev/null || { d=\"$PWD\"; while [ \"$d\" != \"/\" ]; do [ -f \"$d/AGENTS.md\" ] && { echo \"$d\"; exit 0; }; d=\"$(dirname \"$d\")\"; done; pwd; })\"; python3 \"$root/.codex/hooks/jsonl_logger.py\"'",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$root = (git rev-parse --show-toplevel 2>$null); if (-not $root) { $dir = (Get-Location).Path; while ($dir -and -not (Test-Path (Join-Path $dir 'AGENTS.md'))) { $parent = Split-Path $dir -Parent; if ($parent -eq $dir) { break }; $dir = $parent }; $root = $dir }; py -3 (Join-Path $root '.codex/hooks/jsonl_logger.py')\"",
             "timeout": 10,
-            "statusMessage": "Recording Codex session stop"
+            "statusMessage": "Recording Codex stop event"
           }
         ]
       }

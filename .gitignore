@@ -1,2 +1,35 @@
 # Local automatic agent runtime logs
-.agent-logs/
+.agent-logs/*
+!.agent-logs/README.md
+
+# Run-local artifacts and heavy evidence
+artifacts/**/runs/
+artifacts/**/evidence/
+
+# Playwright outputs
+test-results/
+playwright-report/
+blob-report/
+
+# Heavy media / traces
+*.webm
+*.mp4
+*.trace.zip
+
+# Keep durable artifact templates and scope-level handoff files
+!artifacts/_templates/
+!artifacts/_templates/**
+!artifacts/service-exploration/
+!artifacts/service-exploration/*.md
+
+# Saved browser authentication state
+artifacts/**/auth/
+*.auth.json
+storage-state*.json
+
+# Runtime / language caches
+node_modules/
+__pycache__/
+*.pyc
+
+.playwright-cli/

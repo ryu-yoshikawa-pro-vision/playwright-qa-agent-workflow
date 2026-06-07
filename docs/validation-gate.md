@@ -2,20 +2,7 @@
 
 The plan validator prevents shallow planning output from being converted into brittle Playwright tests.
 
-## Why this gate exists
-
-Planner output can look plausible while still being too weak for automation. Common failure modes include:
-
-- generic test ideas with no evidence from the target UI
-- missing starting states or test data
-- expected results that say only “works correctly”
-- scenarios that depend on previous scenarios
-- unverified behavior presented as confirmed behavior
-- missing locator hints or observable assertions
-
-The validator catches these issues before the generator writes code.
-
-## Gate decisions
+## Decisions
 
 | Decision | Meaning | Next action |
 |---|---|---|
@@ -26,8 +13,8 @@ The validator catches these issues before the generator writes code.
 ## Required loop
 
 ```text
-1. Planner explores and writes specs/<plan>.md
-2. Validator writes specs/_reviews/<plan-stem>.validation.md
+1. Planner explores and writes specs/<feature>.plan.md
+2. Validator writes specs/_reviews/<feature>.validation.md
 3. If PASS, generator creates tests
 4. If FAIL, planner refines the same plan using the validation report
 5. Validator runs again
@@ -46,21 +33,53 @@ A plan should pass only when it includes:
 - failure indicators
 - relevant happy/error/boundary/state coverage
 - unverified assumptions marked as `Unverified`
+- visual evidence for visual claims
 - enough detail for the generator to avoid guessing
 
-## Report location
+## Validation report source metadata
 
-Validation reports should be saved under:
+Every validation report must include a source metadata block.
 
-```text
-specs/_reviews/<plan-stem>.validation.md
+```markdown
+## Source metadata
+
+- Plan path: `specs/<feature>.plan.md`
+- Plan SHA-256: `<sha256-of-current-plan-file>`
+- Validated at: `<ISO-8601 timestamp>`
+- Validator run: `artifacts/<feature>/runs/<run-id>/02_validator/`
+- Decision: `PASS | FAIL | BLOCKED`
 ```
+
+The SHA-256 must be calculated from the exact plan file content at validation time.
+
+## Handoff completeness checks
+
+Fail or warn when:
+
+- `99_handoff.md` is missing for the relevant run
+- scope-level `HANDOFF.md` was not updated
+- open questions exist only in run-local files
+- findings exist only in run-local files
+- important decisions exist only in run-local files
+- the recommended next action is unclear
 
 ## Generator rule
 
-The generator should stop if:
+The generator must stop if:
 
 - no validation report exists
 - the report decision is `FAIL`
 - the report decision is `BLOCKED`
-- the plan was changed after the validation report and has not been revalidated
+- the validation report has no `Plan SHA-256`
+- the current plan SHA-256 differs from the SHA-256 recorded in the validation report
+- the plan changed after validation and has not been revalidated
+
+## Automated hash check
+
+Run this after planner/validator work and before generation:
+
+```bash
+npm run check:validation
+```
+
+The check compares the current `specs/*.plan.md` content to the `Plan SHA-256` recorded in `specs/_reviews/*.validation.md`.
