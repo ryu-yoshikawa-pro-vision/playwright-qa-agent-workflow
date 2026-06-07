@@ -4,11 +4,11 @@ The validator prevents shallow planning or weak test design from being converted
 
 ## Decisions
 
-| Decision | Meaning | Next action |
-|---|---|---|
-| `PASS` | Plan and test design are ready for generation | Run `playwright-test-generator` |
-| `FAIL` | Plan or design is not ready | Send the report back to `playwright-test-planner` or `playwright-test-designer` |
-| `BLOCKED` | Validation cannot run | Resolve missing file/context/evidence and rerun validation |
+| Decision  | Meaning                                       | Next action                                                                     |
+| --------- | --------------------------------------------- | ------------------------------------------------------------------------------- |
+| `PASS`    | Plan and test design are ready for generation | Run `playwright-test-generator`                                                 |
+| `FAIL`    | Plan or design is not ready                   | Send the report back to `playwright-test-planner` or `playwright-test-designer` |
+| `BLOCKED` | Validation cannot run                         | Resolve missing file/context/evidence and rerun validation                      |
 
 ## Required loop
 

@@ -55,17 +55,26 @@ ensureDir(paths.runsDir);
 ensureDir(runDir);
 created.push(toPosixRelative(root, runDir));
 
-const replacements = (content) => content
-  .replaceAll('<feature>', feature)
-  .replaceAll('<run-id>', runId)
-  .replaceAll('<request>', request || 'TBD');
+const replacements = (content) =>
+  content
+    .replaceAll('<feature>', feature)
+    .replaceAll('<run-id>', runId)
+    .replaceAll('<request>', request || 'TBD');
 
 for (const name of ['HANDOFF.md', 'OPEN_QUESTIONS.md', 'FINDINGS.md', 'DECISIONS.md']) {
-  const template = readTemplate(root, name, `# ${name.replace(/\.md$/, '').replaceAll('_', ' ')}\n\nTBD\n`);
+  const template = readTemplate(
+    root,
+    name,
+    `# ${name.replace(/\.md$/, '').replaceAll('_', ' ')}\n\nTBD\n`,
+  );
   trackWrite(path.join(paths.featureArtifactDir, name), replacements(template));
 }
 
-const requestTemplate = readTemplate(root, '00_request.md', `# Request\n\n- Feature: <feature>\n- Run ID: <run-id>\n- Request: <request>\n`);
+const requestTemplate = readTemplate(
+  root,
+  '00_request.md',
+  `# Request\n\n- Feature: <feature>\n- Run ID: <run-id>\n- Request: <request>\n`,
+);
 trackWrite(path.join(runDir, '00_request.md'), replacements(requestTemplate));
 
 const handoffTemplate = readTemplate(root, '99_handoff.md', '# Run Handoff\n\nTBD\n');

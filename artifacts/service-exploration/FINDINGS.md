@@ -1,4 +1,4 @@
 # Findings
 
-| ID | Finding | Category | Confidence | Evidence | Impact | Source run |
-|---|---|---|---|---|---|---|
+| ID  | Finding | Category | Confidence | Evidence | Impact | Source run |
+| --- | ------- | -------- | ---------- | -------- | ------ | ---------- |

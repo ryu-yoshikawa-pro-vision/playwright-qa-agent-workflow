@@ -4,17 +4,17 @@ Select techniques based on feature characteristics, not by habit. The designer m
 
 ## Selection matrix
 
-| Feature characteristic | Prefer these techniques | Notes |
-|---|---|---|
-| Input fields, numeric ranges, dates, lengths, file sizes, search terms | Equivalence partitioning, boundary value analysis | Boundary values require known or observable limits. |
-| Multiple conditions interact to determine visibility, validation, routing, or outcome | Decision table testing | Avoid for a single independent condition. |
-| Entity or workflow has statuses | State transition testing | Include invalid transitions when meaningful. |
-| Behavior changes by role, owner, tenant, account, or permission | Role / permission matrix | Do not assert unverified permissions. |
-| Feature creates, reads, updates, or deletes persistent data | CRUD coverage | Include observation and cleanup strategy. |
-| Many independent factors create too many cases | Combination / pairwise selection | State factors, values, and chosen combinations. |
-| High impact area, destructive action, privacy, billing, contract, external communication | Risk-based testing | Use to prioritize depth and avoid low-value case explosion. |
-| Common defect patterns not explicit in spec | Error guessing | Label inferred risks and avoid claiming them as requirements. |
-| Unknown or poorly understood area | Exploratory testing charter | Use to learn, not to replace required deterministic cases. |
+| Feature characteristic                                                                   | Prefer these techniques                           | Notes                                                         |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------- |
+| Input fields, numeric ranges, dates, lengths, file sizes, search terms                   | Equivalence partitioning, boundary value analysis | Boundary values require known or observable limits.           |
+| Multiple conditions interact to determine visibility, validation, routing, or outcome    | Decision table testing                            | Avoid for a single independent condition.                     |
+| Entity or workflow has statuses                                                          | State transition testing                          | Include invalid transitions when meaningful.                  |
+| Behavior changes by role, owner, tenant, account, or permission                          | Role / permission matrix                          | Do not assert unverified permissions.                         |
+| Feature creates, reads, updates, or deletes persistent data                              | CRUD coverage                                     | Include observation and cleanup strategy.                     |
+| Many independent factors create too many cases                                           | Combination / pairwise selection                  | State factors, values, and chosen combinations.               |
+| High impact area, destructive action, privacy, billing, contract, external communication | Risk-based testing                                | Use to prioritize depth and avoid low-value case explosion.   |
+| Common defect patterns not explicit in spec                                              | Error guessing                                    | Label inferred risks and avoid claiming them as requirements. |
+| Unknown or poorly understood area                                                        | Exploratory testing charter                       | Use to learn, not to replace required deterministic cases.    |
 
 ## Rejection rules
 

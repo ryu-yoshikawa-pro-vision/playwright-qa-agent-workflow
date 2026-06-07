@@ -73,21 +73,21 @@ playwright-cli attach <session-name>
 
 Use `references/use-cases.md` as the map and open the relevant `references/use-cases/use-case-*.md` file instead of reading the full reference every time.
 
-| Need | Reference |
-|---|---|
-| Command help/current syntax | `references/use-cases/use-case-01-command-discovery-and-freshness.md` |
-| Start exploration or navigate | `references/use-cases/use-case-03-browser-launch-navigation-and-reload.md` |
-| Snapshot/ref workflow | `references/use-cases/use-case-04-snapshot-and-ref-driven-exploration.md` |
-| Screenshot evidence | `references/use-cases/use-case-05-visual-evidence-with-screenshots.md` |
-| Forms/UI operations | `references/use-cases/use-case-06-form-and-ui-interaction-patterns.md` |
-| Login/session state | `references/use-cases/use-case-07-authentication-and-session-persistence.md` |
-| Service-wide exploration | `references/use-cases/use-case-08-service-wide-mapping-workflow.md` |
-| Feature planning | `references/use-cases/use-case-09-feature-level-planning-workflow.md` |
-| Tracing/debugging | `references/use-cases/use-case-10-tracing-important-flows.md` |
-| Console/network | `references/use-cases/use-case-11-console-and-network-diagnostics.md` |
-| Failure investigation | `references/use-cases/use-case-12-test-failure-investigation-with-playwright-cli-evidence.md` |
-| Dialogs | `references/use-cases/use-case-13-dialogs-alerts-and-blocking-ui.md` |
-| Vision/coordinates | `references/use-cases/use-case-14-vision-mode-and-coordinate-interactions.md` |
-| Existing browser attach | `references/use-cases/use-case-15-existing-browser-attach.md` |
-| Advanced commands | `references/use-cases/use-case-16-mocking-eval-and-run-code-as-advanced-tools.md` |
-| Safety and anti-patterns | `references/use-cases/use-case-17-safety-rules-and-anti-patterns.md` |
+| Need                          | Reference                                                                                     |
+| ----------------------------- | --------------------------------------------------------------------------------------------- |
+| Command help/current syntax   | `references/use-cases/use-case-01-command-discovery-and-freshness.md`                         |
+| Start exploration or navigate | `references/use-cases/use-case-03-browser-launch-navigation-and-reload.md`                    |
+| Snapshot/ref workflow         | `references/use-cases/use-case-04-snapshot-and-ref-driven-exploration.md`                     |
+| Screenshot evidence           | `references/use-cases/use-case-05-visual-evidence-with-screenshots.md`                        |
+| Forms/UI operations           | `references/use-cases/use-case-06-form-and-ui-interaction-patterns.md`                        |
+| Login/session state           | `references/use-cases/use-case-07-authentication-and-session-persistence.md`                  |
+| Service-wide exploration      | `references/use-cases/use-case-08-service-wide-mapping-workflow.md`                           |
+| Feature planning              | `references/use-cases/use-case-09-feature-level-planning-workflow.md`                         |
+| Tracing/debugging             | `references/use-cases/use-case-10-tracing-important-flows.md`                                 |
+| Console/network               | `references/use-cases/use-case-11-console-and-network-diagnostics.md`                         |
+| Failure investigation         | `references/use-cases/use-case-12-test-failure-investigation-with-playwright-cli-evidence.md` |
+| Dialogs                       | `references/use-cases/use-case-13-dialogs-alerts-and-blocking-ui.md`                          |
+| Vision/coordinates            | `references/use-cases/use-case-14-vision-mode-and-coordinate-interactions.md`                 |
+| Existing browser attach       | `references/use-cases/use-case-15-existing-browser-attach.md`                                 |
+| Advanced commands             | `references/use-cases/use-case-16-mocking-eval-and-run-code-as-advanced-tools.md`             |
+| Safety and anti-patterns      | `references/use-cases/use-case-17-safety-rules-and-anti-patterns.md`                          |

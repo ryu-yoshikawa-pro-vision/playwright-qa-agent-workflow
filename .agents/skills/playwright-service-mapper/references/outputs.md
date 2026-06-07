@@ -22,7 +22,6 @@ Required scope-level outputs:
 - `artifacts/service-exploration/DECISIONS.md`
 - `artifacts/service-exploration/FEATURE_BACKLOG.md`
 
-
 ## Required format rule
 
 Run-local outputs must follow `output-formats.md`. Stable IDs such as `SCR-001`, `NAV-001`, `FEAT-001`, and `EV-001` are required so the planner can cite exact screens, flows, features, and evidence without guessing.

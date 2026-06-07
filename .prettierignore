@@ -1,0 +1,9 @@
+node_modules
+playwright-report
+test-results
+artifacts/**/runs
+artifacts/**/evidence
+.agent-logs
+coverage
+package-lock.json
+*.zip

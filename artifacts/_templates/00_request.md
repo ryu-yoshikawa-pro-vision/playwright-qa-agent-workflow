@@ -11,12 +11,12 @@ TBD
 
 ## Constraints
 
-| Constraint | Notes |
-|---|---|
-| Target scope | TBD |
-| Out of scope | TBD |
-| Required evidence | TBD |
-| Blocking questions | TBD |
+| Constraint         | Notes |
+| ------------------ | ----- |
+| Target scope       | TBD   |
+| Out of scope       | TBD   |
+| Required evidence  | TBD   |
+| Blocking questions | TBD   |
 
 ## Initial next action
 

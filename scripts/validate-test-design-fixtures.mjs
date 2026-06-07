@@ -22,7 +22,9 @@ function read(relativePath) {
 function extractExpectedDecision(text, fileName) {
   const match = text.match(/Expected Test Design Review Decision:\s*(PASS|FAIL|BLOCKED)/i);
   if (!match) {
-    errors.push(`Fixture ${fileName} must contain marker: Expected Test Design Review Decision: PASS|FAIL|BLOCKED`);
+    errors.push(
+      `Fixture ${fileName} must contain marker: Expected Test Design Review Decision: PASS|FAIL|BLOCKED`,
+    );
     return null;
   }
   return match[1].toUpperCase();
@@ -34,8 +36,12 @@ let fixtures = [];
 if (!fs.existsSync(fixturesDir) || !fs.statSync(fixturesDir).isDirectory()) {
   errors.push('Missing directory: evals/fixtures');
 } else {
-  fixtures = fs.readdirSync(fixturesDir).filter((name) => name.endsWith('.test-design.md')).sort();
-  if (fixtures.length === 0) errors.push('No test design fixtures found under evals/fixtures/*.test-design.md');
+  fixtures = fs
+    .readdirSync(fixturesDir)
+    .filter((name) => name.endsWith('.test-design.md'))
+    .sort();
+  if (fixtures.length === 0)
+    errors.push('No test design fixtures found under evals/fixtures/*.test-design.md');
 }
 
 const decisionCounts = new Map();
@@ -52,7 +58,9 @@ for (const fileName of fixtures) {
     errors.push(`evals/test-design-techniques.md does not reference fixture: ${fileName}`);
   }
   if (decision && !evalDoc.includes(`\`${decision}\``)) {
-    warnings.push(`evals/test-design-techniques.md may not document expected decision: ${decision}`);
+    warnings.push(
+      `evals/test-design-techniques.md may not document expected decision: ${decision}`,
+    );
   }
   if (!/^#\s+/m.test(text)) {
     errors.push(`Fixture ${fileName} must contain a Markdown title`);
@@ -75,7 +83,8 @@ for (const fileName of fixtures) {
       'Source technique',
       'Automatable?',
     ]) {
-      if (!text.includes(required)) errors.push(`PASS fixture ${fileName} missing required section/text: ${required}`);
+      if (!text.includes(required))
+        errors.push(`PASS fixture ${fileName} missing required section/text: ${required}`);
     }
   }
 }

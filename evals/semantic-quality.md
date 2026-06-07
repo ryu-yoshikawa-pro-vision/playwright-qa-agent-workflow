@@ -22,13 +22,13 @@ This eval is plan-focused. Detailed final test cases, assertions, boundary table
 
 Each fixture must declare its expected result at the top using `<!-- Expected Semantic Review Decision: PASS|FAIL|BLOCKED -->`. `npm run check:semantic` reads this marker so new fixtures can be added without changing the script.
 
-| Fixture | Expected semantic decision | Reason |
-|---|---|---|
-| `good-login.plan.md` | `PASS` | Clear scope, setup, evidence, behavior inventory, risk assessment, and design inputs |
-| `bad-thin-login.plan.md` | `FAIL` | Too shallow; missing usable scope, evidence, behavior inventory, and risk/design inputs |
-| `bad-unverified-visual-claim.plan.md` | `FAIL` | Visual/design claim is asserted without screenshot or trace evidence |
-| `bad-non-independent-scenarios.plan.md` | `FAIL` | The plan tries to hand off dependent scenario design instead of stable behavior/setup inputs |
-| `bad-unverified-permission.plan.md` | `BLOCKED` | Permission behavior is central but unverified by role/account evidence |
+| Fixture                                 | Expected semantic decision | Reason                                                                                       |
+| --------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------------- |
+| `good-login.plan.md`                    | `PASS`                     | Clear scope, setup, evidence, behavior inventory, risk assessment, and design inputs         |
+| `bad-thin-login.plan.md`                | `FAIL`                     | Too shallow; missing usable scope, evidence, behavior inventory, and risk/design inputs      |
+| `bad-unverified-visual-claim.plan.md`   | `FAIL`                     | Visual/design claim is asserted without screenshot or trace evidence                         |
+| `bad-non-independent-scenarios.plan.md` | `FAIL`                     | The plan tries to hand off dependent scenario design instead of stable behavior/setup inputs |
+| `bad-unverified-permission.plan.md`     | `BLOCKED`                  | Permission behavior is central but unverified by role/account evidence                       |
 
 ## Review questions
 

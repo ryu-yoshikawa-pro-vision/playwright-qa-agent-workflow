@@ -16,14 +16,14 @@ The goal is not to score AI quality. The goal is to catch workflow-breaking mist
 
 Use these files for human review of skill behavior:
 
-| File | Purpose |
-|---|---|
-| `skill-routing.md` | Confirm prompts route to the expected skill |
-| `service-mapper-cases.md` | Confirm service-wide exploration outputs are complete |
-| `planner-validator-loop.md` | Confirm planner, designer, and validator loop behavior |
-| `generator-healer-loop.md` | Confirm generation and healing safety |
-| `semantic-quality.md` | Confirm the validator rejects shallow, unverified, or dependent plans |
-| `test-design-techniques.md` | Confirm the designer/validator reject poor technique application |
+| File                        | Purpose                                                               |
+| --------------------------- | --------------------------------------------------------------------- |
+| `skill-routing.md`          | Confirm prompts route to the expected skill                           |
+| `service-mapper-cases.md`   | Confirm service-wide exploration outputs are complete                 |
+| `planner-validator-loop.md` | Confirm planner, designer, and validator loop behavior                |
+| `generator-healer-loop.md`  | Confirm generation and healing safety                                 |
+| `semantic-quality.md`       | Confirm the validator rejects shallow, unverified, or dependent plans |
+| `test-design-techniques.md` | Confirm the designer/validator reject poor technique application      |
 
 ## Automated structure checks
 
@@ -38,14 +38,14 @@ npm run check:test-design
 npm run check:evals
 ```
 
-| Command | Backing script | Purpose |
-|---|---|---|
-| `npm run check:artifacts` | `scripts/validate-artifact-structure.mjs` | Required skills, docs, templates, and handoff files exist |
-| `npm run check:validation` | `scripts/validate-plan-validation-hash.mjs` | Plan and test-design SHA-256 values in validation reports match current source files |
-| `npm run check:logs` | `scripts/validate-runtime-logs.mjs` | JSONL runtime logs are parseable and minimally safe |
-| `npm run check:semantic` | `scripts/validate-semantic-fixtures.mjs` | Semantic-quality fixtures exist and document expected decisions |
-| `npm run check:test-design` | `scripts/validate-test-design-fixtures.mjs` | Test-design fixtures exist and document expected decisions |
-| `npm run check:evals` | all of the above | Run the full lightweight check suite |
+| Command                     | Backing script                              | Purpose                                                                              |
+| --------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `npm run check:artifacts`   | `scripts/validate-artifact-structure.mjs`   | Required skills, docs, templates, and handoff files exist                            |
+| `npm run check:validation`  | `scripts/validate-plan-validation-hash.mjs` | Plan and test-design SHA-256 values in validation reports match current source files |
+| `npm run check:logs`        | `scripts/validate-runtime-logs.mjs`         | JSONL runtime logs are parseable and minimally safe                                  |
+| `npm run check:semantic`    | `scripts/validate-semantic-fixtures.mjs`    | Semantic-quality fixtures exist and document expected decisions                      |
+| `npm run check:test-design` | `scripts/validate-test-design-fixtures.mjs` | Test-design fixtures exist and document expected decisions                           |
+| `npm run check:evals`       | all of the above                            | Run the full lightweight check suite                                                 |
 
 ## Scope of these checks
 

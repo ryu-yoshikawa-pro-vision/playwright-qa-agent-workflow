@@ -11,18 +11,15 @@
 
 ## Error summary
 
-
 ## Observed behavior
-
 
 ## Expected behavior
 
-
 ## Evidence references
 
-| Evidence ID | Type | Path / reference | What it shows | Limitation |
-|---|---|---|---|---|
-| EV-001 | trace / screenshot / snapshot / log |  |  |  |
+| Evidence ID | Type                                | Path / reference | What it shows | Limitation |
+| ----------- | ----------------------------------- | ---------------- | ------------- | ---------- |
+| EV-001      | trace / screenshot / snapshot / log |                  |               |            |
 
 ## Failure classification
 

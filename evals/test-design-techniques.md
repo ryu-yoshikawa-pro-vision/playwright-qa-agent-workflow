@@ -4,13 +4,13 @@ Use these fixtures to check whether `playwright-test-designer` and the validator
 
 The goal is not to prove AI quality automatically. The goal is to make bad test-design patterns explicit so reviewers can confirm the designer/validator rejects them.
 
-| Fixture | Expected Test Design Review Decision | Purpose |
-|---|---|---|
-| `good-login.test-design.md` | `PASS` | Good technique selection, concrete final cases, justified exclusions |
-| `bad-technique-stuffing.test-design.md` | `FAIL` | Rejects applying every technique mechanically |
-| `bad-missing-boundary-values.test-design.md` | `FAIL` | Rejects missing boundary values when a known input limit exists |
-| `bad-unjustified-exclusions.test-design.md` | `FAIL` | Rejects unexplained exclusions of meaningful risk |
-| `bad-unverified-permission-matrix.test-design.md` | `BLOCKED` | Blocks confirmed-looking permission design without evidence |
+| Fixture                                           | Expected Test Design Review Decision | Purpose                                                              |
+| ------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------- |
+| `good-login.test-design.md`                       | `PASS`                               | Good technique selection, concrete final cases, justified exclusions |
+| `bad-technique-stuffing.test-design.md`           | `FAIL`                               | Rejects applying every technique mechanically                        |
+| `bad-missing-boundary-values.test-design.md`      | `FAIL`                               | Rejects missing boundary values when a known input limit exists      |
+| `bad-unjustified-exclusions.test-design.md`       | `FAIL`                               | Rejects unexplained exclusions of meaningful risk                    |
+| `bad-unverified-permission-matrix.test-design.md` | `BLOCKED`                            | Blocks confirmed-looking permission design without evidence          |
 
 ## Review prompts
 

@@ -1,8 +1,8 @@
 # Exploration Log
 
 | Time | Action | Location | Evidence ID | Result | Follow-up |
-|---|---|---|---|---|---|
-|  |  |  | EV-001 |  |  |
+| ---- | ------ | -------- | ----------- | ------ | --------- |
+|      |        |          | EV-001      |        |           |
 
 ## Notes
 

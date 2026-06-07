@@ -35,15 +35,15 @@ For login-required exploration, follow `docs/playwright-cli.md#authentication-an
 
 ## Skills
 
-| Skill | Use when | Do not use when |
-|---|---|---|
-| `playwright-cli` | Browser operation, snapshots, screenshots, tracing, sessions, diagnostics, ad hoc browser verification, or browser evidence capture are needed | The task is pure document review or only running a project test-suite command |
-| `playwright-service-mapper` | The request is to explore the whole service, all screens, or the entire application | The scope is already one known feature, page, or flow |
-| `playwright-test-planner` | One feature, page, or flow is known and needs scope, evidence, risks, and test-design inputs | The request is service-wide exploration or final technique-based case design |
-| `playwright-test-designer` | A feature plan exists and technique-based test design/final cases are needed | The scope is unknown, service-wide exploration is needed, or code generation is requested |
-| `playwright-test-plan-validator` | A Markdown plan and test design must be validated before generation | The user asks to generate code directly from unvalidated sources |
-| `playwright-test-generator` | A test design has passed validation and tests should be generated | The plan/design has no PASS validation report |
-| `playwright-test-healer` | Existing Playwright tests are failing and need diagnosis or safe repair | There is no failing test, trace, screenshot, log, or test output to inspect |
+| Skill                            | Use when                                                                                                                                       | Do not use when                                                                           |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `playwright-cli`                 | Browser operation, snapshots, screenshots, tracing, sessions, diagnostics, ad hoc browser verification, or browser evidence capture are needed | The task is pure document review or only running a project test-suite command             |
+| `playwright-service-mapper`      | The request is to explore the whole service, all screens, or the entire application                                                            | The scope is already one known feature, page, or flow                                     |
+| `playwright-test-planner`        | One feature, page, or flow is known and needs scope, evidence, risks, and test-design inputs                                                   | The request is service-wide exploration or final technique-based case design              |
+| `playwright-test-designer`       | A feature plan exists and technique-based test design/final cases are needed                                                                   | The scope is unknown, service-wide exploration is needed, or code generation is requested |
+| `playwright-test-plan-validator` | A Markdown plan and test design must be validated before generation                                                                            | The user asks to generate code directly from unvalidated sources                          |
+| `playwright-test-generator`      | A test design has passed validation and tests should be generated                                                                              | The plan/design has no PASS validation report                                             |
+| `playwright-test-healer`         | Existing Playwright tests are failing and need diagnosis or safe repair                                                                        | There is no failing test, trace, screenshot, log, or test output to inspect               |
 
 ## Required workflow
 
@@ -160,7 +160,6 @@ npm run check:logs
 ```
 
 These checks validate structure only. They do not prove that the explored application was fully covered or that generated tests are semantically correct.
-
 
 ## Workflow harness
 

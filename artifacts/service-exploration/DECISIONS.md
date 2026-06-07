@@ -1,4 +1,4 @@
 # Decisions
 
-| ID | Decision | Reason | Evidence | Risk | Date / Run |
-|---|---|---|---|---|---|
+| ID  | Decision | Reason | Evidence | Risk | Date / Run |
+| --- | -------- | ------ | -------- | ---- | ---------- |

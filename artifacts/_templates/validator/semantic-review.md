@@ -7,26 +7,32 @@ This review is plan-focused. It checks whether `specs/<feature>.plan.md` gives t
 ## Semantic Quality Review
 
 ### 1. Feature understanding
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 
 ### 2. Scope and setup clarity
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 
 ### 3. Evidence traceability
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 
 ### 4. Behavior inventory adequacy
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 
 ### 5. Risk and design-input adequacy
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 
 ### 6. Blockers and open questions
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 

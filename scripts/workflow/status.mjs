@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { latestRunId, repoPaths, toPosixRelative } from './paths.mjs';
 import { validatePlanDesignGate } from './validation.mjs';
 
@@ -23,7 +22,7 @@ export function getFeatureStatus({ root = process.cwd(), feature }) {
   const gate = validatePlanDesignGate({ root, feature });
 
   let nextAction = null;
-  let nextSkill = 'playwright-test-planner';
+  let nextSkill;
   let nextSkillAfterAction = null;
   const reasons = [];
 
@@ -32,7 +31,9 @@ export function getFeatureStatus({ root = process.cwd(), feature }) {
     nextSkill = 'playwright-test-planner';
     nextSkillAfterAction = 'playwright-test-planner';
     reasons.push(`missing ${toPosixRelative(root, paths.featureArtifactDir)}`);
-    reasons.push('run agent:init before using the planner so artifact and run directories are created consistently');
+    reasons.push(
+      'run agent:init before using the planner so artifact and run directories are created consistently',
+    );
   } else if (!plan.exists) {
     nextSkill = 'playwright-test-planner';
     reasons.push(`missing ${toPosixRelative(root, paths.planPath)}`);

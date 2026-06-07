@@ -11,7 +11,7 @@ Purpose: chronological record of exploration work.
 Required columns:
 
 | Time | Action | Location | Evidence ID | Result | Follow-up |
-|---|---|---|---|---|---|
+| ---- | ------ | -------- | ----------- | ------ | --------- |
 
 Rules:
 
@@ -35,12 +35,12 @@ Required sections:
 ## Primary areas
 
 | Area ID | Area name | Purpose | Entry point | Related screen IDs | Confidence |
-|---|---|---|---|---|---|
+| ------- | --------- | ------- | ----------- | ------------------ | ---------- |
 
 ## Major cross-area flows
 
 | Flow ID | Name | Start | End | Related screen IDs | Evidence IDs | Confidence |
-|---|---|---|---|---|---|---|
+| ------- | ---- | ----- | --- | ------------------ | ------------ | ---------- |
 
 ## Known exclusions
 
@@ -54,7 +54,7 @@ Purpose: list discovered screens and important states.
 Required columns:
 
 | Screen ID | Screen name | URL / route | Entry path | Main purpose | Key UI elements | States observed | Evidence IDs | Confidence | Notes |
-|---|---|---|---|---|---|---|---|---|---|
+| --------- | ----------- | ----------- | ---------- | ------------ | --------------- | --------------- | ------------ | ---------- | ----- |
 
 Rules:
 
@@ -69,7 +69,7 @@ Purpose: map how users move through the service.
 Required columns:
 
 | Nav ID | From screen | Trigger / control | To screen / state | Preconditions | Expected transition | Evidence IDs | Status |
-|---|---|---|---|---|---|---|---|
+| ------ | ----------- | ----------------- | ----------------- | ------------- | ------------------- | ------------ | ------ |
 
 Status values:
 
@@ -91,7 +91,7 @@ Purpose: convert screens and flows into candidate feature-level planning scopes.
 Required columns:
 
 | Feature ID | Feature slug | Feature name | User goal | Related screens | Related flows | Risk | Suggested priority | Evidence IDs | Known gaps | Recommended next action |
-|---|---|---|---|---|---|---|---|---|---|---|
+| ---------- | ------------ | ------------ | --------- | --------------- | ------------- | ---- | ------------------ | ------------ | ---------- | ----------------------- |
 
 Risk values:
 
@@ -113,7 +113,7 @@ Purpose: summarize role-specific access and behavior.
 Required columns:
 
 | Role / account | Screen or feature | Access observed | Allowed actions | Blocked actions | Evidence IDs | Confidence | Notes |
-|---|---|---|---|---|---|---|---|
+| -------------- | ----------------- | --------------- | --------------- | --------------- | ------------ | ---------- | ----- |
 
 Rules:
 
@@ -127,7 +127,7 @@ Purpose: show what was explored, partially explored, blocked, or not explored.
 Required columns:
 
 | Area / feature | Screens covered | Flows covered | States covered | Evidence IDs | Coverage status | Gaps | Planner readiness |
-|---|---|---|---|---|---|---|---|
+| -------------- | --------------- | ------------- | -------------- | ------------ | --------------- | ---- | ----------------- |
 
 Coverage status values:
 
@@ -149,7 +149,7 @@ Purpose: run-local questions that may need promotion to scope-level `OPEN_QUESTI
 Required columns:
 
 | Question ID | Question | Related screen / feature | Why it matters | Evidence IDs | Owner | Status | Promote to scope-level? |
-|---|---|---|---|---|---|---|---|
+| ----------- | -------- | ------------------------ | -------------- | ------------ | ----- | ------ | ----------------------- |
 
 Rules:
 
@@ -163,7 +163,7 @@ Purpose: central index of screenshots, snapshots, traces, console logs, network 
 Required columns:
 
 | Evidence ID | Type | Path / reference | Captured at | Related screen / flow | What it proves | Limitations |
-|---|---|---|---|---|---|---|
+| ----------- | ---- | ---------------- | ----------- | --------------------- | -------------- | ----------- |
 
 Evidence types:
 
@@ -202,7 +202,7 @@ Required sections:
 ## Recommended feature planning candidates
 
 | Priority | Feature ID | Feature slug | Reason | Required follow-up |
-|---|---|---|---|---|
+| -------- | ---------- | ------------ | ------ | ------------------ |
 
 ## Recommended next action
 ```

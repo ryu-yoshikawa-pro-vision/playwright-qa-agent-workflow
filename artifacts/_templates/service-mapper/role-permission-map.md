@@ -1,8 +1,8 @@
 # Role / Permission Map
 
-| Role / account | Screen or feature | Access observed | Allowed actions | Blocked actions | Evidence IDs | Confidence | Notes |
-|---|---|---|---|---|---|---|---|
-|  |  | Confirmed / Unverified / Blocked |  |  | EV-001 | Low / Medium / High |  |
+| Role / account | Screen or feature | Access observed                  | Allowed actions | Blocked actions | Evidence IDs | Confidence          | Notes |
+| -------------- | ----------------- | -------------------------------- | --------------- | --------------- | ------------ | ------------------- | ----- |
+|                |                   | Confirmed / Unverified / Blocked |                 |                 | EV-001       | Low / Medium / High |       |
 
 ## Rules
 

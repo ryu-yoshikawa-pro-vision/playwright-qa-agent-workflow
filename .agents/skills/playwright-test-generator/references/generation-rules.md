@@ -48,7 +48,7 @@ artifacts/<feature>/runs/<run-id>/04_generator/test-mapping.md
 The mapping should include:
 
 | Test design ID | Generated test title | Source technique | Evidence IDs | Notes |
-|---|---|---|---|---|
+| -------------- | -------------------- | ---------------- | ------------ | ----- |
 
 ## Safety rules
 

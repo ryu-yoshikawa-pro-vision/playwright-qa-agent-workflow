@@ -35,9 +35,9 @@ playwright-test-planner
 
 Planner and designer have different responsibilities:
 
-| Skill | Responsibility |
-|---|---|
-| `playwright-test-planner` | Decide what should be designed: scope, evidence, assumptions, behavior inventory, risks, and design inputs. |
+| Skill                      | Responsibility                                                                                                          |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `playwright-test-planner`  | Decide what should be designed: scope, evidence, assumptions, behavior inventory, risks, and design inputs.             |
 | `playwright-test-designer` | Decide how it should be tested: technique selection, technique application, final cases, exclusions, and residual risk. |
 
 ## Test generation and healing
@@ -98,7 +98,6 @@ npm run check:evals
 ```
 
 These commands verify artifact structure, validation report hashes, fixture structure, and runtime JSONL format. They are structural checks, not proof of feature coverage or test correctness.
-
 
 ## Harness-assisted feature workflow
 

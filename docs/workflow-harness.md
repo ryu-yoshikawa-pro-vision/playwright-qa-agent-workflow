@@ -11,12 +11,12 @@ Its purpose is to keep humans and agents aligned on:
 
 ## Commands
 
-| Command | Purpose | Writes files? |
-|---|---|---|
-| `npm run agent:init -- --feature <slug> --request "..."` | Create the feature workspace and a new run directory | Yes |
-| `npm run agent:status -- --feature <slug>` | Show current plan/design/validation status | No |
-| `npm run agent:next -- --feature <slug>` | Show the next recommended skill | No |
-| `npm run agent:gate -- --feature <slug> --for generator` | Check whether generator may run | No |
+| Command                                                  | Purpose                                              | Writes files? |
+| -------------------------------------------------------- | ---------------------------------------------------- | ------------- |
+| `npm run agent:init -- --feature <slug> --request "..."` | Create the feature workspace and a new run directory | Yes           |
+| `npm run agent:status -- --feature <slug>`               | Show current plan/design/validation status           | No            |
+| `npm run agent:next -- --feature <slug>`                 | Show the next recommended skill                      | No            |
+| `npm run agent:gate -- --feature <slug> --for generator` | Check whether generator may run                      | No            |
 
 ## Feature slug rules
 
@@ -101,14 +101,14 @@ npm run agent:next -- --feature login
 
 The next-step rule is intentionally simple:
 
-| State | Next skill |
-|---|---|
-| Artifact scope missing | `agent:init`, then `playwright-test-planner` |
-| Plan missing | `playwright-test-planner` |
-| Plan exists, test design missing | `playwright-test-designer` |
-| Plan and test design exist, validation missing | `playwright-test-plan-validator` |
+| State                                                                           | Next skill                                                                                |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Artifact scope missing                                                          | `agent:init`, then `playwright-test-planner`                                              |
+| Plan missing                                                                    | `playwright-test-planner`                                                                 |
+| Plan exists, test design missing                                                | `playwright-test-designer`                                                                |
+| Plan and test design exist, validation missing                                  | `playwright-test-plan-validator`                                                          |
 | Validation exists but is stale, missing decisions, non-PASS, or hash-mismatched | `playwright-test-plan-validator` or revise the source file named by the validation report |
-| Validation gate passes | `playwright-test-generator` |
+| Validation gate passes                                                          | `playwright-test-generator`                                                               |
 
 The harness does not inspect generated Playwright test files yet because the target project test layout is intentionally not fixed at this stage.
 

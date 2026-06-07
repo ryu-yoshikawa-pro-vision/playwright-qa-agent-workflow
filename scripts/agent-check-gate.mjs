@@ -14,7 +14,9 @@ try {
 
 const target = typeof args.for === 'string' ? args.for : 'generator';
 if (target !== 'generator') {
-  console.error(`agent:gate: FAIL\nUnsupported gate target: ${target}. Currently supported: generator.`);
+  console.error(
+    `agent:gate: FAIL\nUnsupported gate target: ${target}. Currently supported: generator.`,
+  );
   process.exit(1);
 }
 
@@ -33,7 +35,11 @@ if (status.nextAction) {
 if (!pass) {
   console.log('\nReasons:');
   const reasons = [
-    ...(status.artifactScopeExists ? [] : [`missing artifact scope: artifacts/${feature}. Run agent:init before generator gate checks.`]),
+    ...(status.artifactScopeExists
+      ? []
+      : [
+          `missing artifact scope: artifacts/${feature}. Run agent:init before generator gate checks.`,
+        ]),
     ...status.gate.errors,
     ...status.gate.warnings,
   ];

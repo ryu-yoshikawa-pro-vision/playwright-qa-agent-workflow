@@ -18,10 +18,6 @@ const errors = [];
 const warnings = [];
 const checked = [];
 
-function rel(filePath) {
-  return path.relative(root, filePath).replaceAll(path.sep, '/');
-}
-
 function fileExists(relativePath, { nonEmpty = false, warn = false } = {}) {
   const absolute = path.join(root, relativePath);
   const exists = fs.existsSync(absolute) && fs.statSync(absolute).isFile();
@@ -54,7 +50,8 @@ function checkRequiredSkill(skillName) {
 function listFeatureScopes() {
   const artifactsDir = path.join(root, 'artifacts');
   if (!fs.existsSync(artifactsDir)) return [];
-  return fs.readdirSync(artifactsDir, { withFileTypes: true })
+  return fs
+    .readdirSync(artifactsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .filter((name) => !name.startsWith('_') && name !== 'service-exploration');
@@ -107,7 +104,6 @@ for (const doc of [
   fileExists(doc, { nonEmpty: true });
 }
 
-
 for (const harnessFile of [
   'scripts/agent-init-run.mjs',
   'scripts/agent-status.mjs',
@@ -122,11 +118,17 @@ for (const harnessFile of [
 
 for (let index = 1; index <= 17; index += 1) {
   const prefix = `.agents/skills/playwright-cli/references/use-cases/use-case-${String(index).padStart(2, '0')}-`;
-  const matches = fs.readdirSync(path.join(root, '.agents', 'skills', 'playwright-cli', 'references', 'use-cases'))
-    .filter((name) => name.startsWith(`use-case-${String(index).padStart(2, '0')}-`) && name.endsWith('.md'));
+  const matches = fs
+    .readdirSync(path.join(root, '.agents', 'skills', 'playwright-cli', 'references', 'use-cases'))
+    .filter(
+      (name) =>
+        name.startsWith(`use-case-${String(index).padStart(2, '0')}-`) && name.endsWith('.md'),
+    );
   checked.push(`${prefix}*.md`);
   if (matches.length !== 1) {
-    errors.push(`Expected exactly one Playwright CLI use-case file for ${prefix}*.md, found ${matches.length}`);
+    errors.push(
+      `Expected exactly one Playwright CLI use-case file for ${prefix}*.md, found ${matches.length}`,
+    );
   }
 }
 
@@ -207,7 +209,9 @@ if (feature) {
 } else {
   const featureScopes = listFeatureScopes();
   if (featureScopes.length === 0) {
-    warnings.push('No feature-level artifact scopes found under artifacts/<feature>/. This is fine before feature planning starts.');
+    warnings.push(
+      'No feature-level artifact scopes found under artifacts/<feature>/. This is fine before feature planning starts.',
+    );
   } else {
     for (const featureScope of featureScopes) {
       checkHandoffScope(featureScope, { featureScope: true });

@@ -22,7 +22,9 @@ function read(relativePath) {
 function extractExpectedDecision(text, fileName) {
   const match = text.match(/Expected Semantic Review Decision:\s*(PASS|FAIL|BLOCKED)/i);
   if (!match) {
-    errors.push(`Fixture ${fileName} must contain marker: Expected Semantic Review Decision: PASS|FAIL|BLOCKED`);
+    errors.push(
+      `Fixture ${fileName} must contain marker: Expected Semantic Review Decision: PASS|FAIL|BLOCKED`,
+    );
     return null;
   }
   return match[1].toUpperCase();
@@ -34,8 +36,12 @@ let fixtures = [];
 if (!fs.existsSync(fixturesDir) || !fs.statSync(fixturesDir).isDirectory()) {
   errors.push('Missing directory: evals/fixtures');
 } else {
-  fixtures = fs.readdirSync(fixturesDir).filter((name) => name.endsWith('.plan.md')).sort();
-  if (fixtures.length === 0) errors.push('No semantic fixtures found under evals/fixtures/*.plan.md');
+  fixtures = fs
+    .readdirSync(fixturesDir)
+    .filter((name) => name.endsWith('.plan.md'))
+    .sort();
+  if (fixtures.length === 0)
+    errors.push('No semantic fixtures found under evals/fixtures/*.plan.md');
 }
 
 const decisionCounts = new Map();
@@ -69,7 +75,8 @@ for (const fileName of fixtures) {
       '## Unverified assumptions',
       '## Open questions',
     ]) {
-      if (!text.includes(required)) errors.push(`PASS fixture ${fileName} missing required section/text: ${required}`);
+      if (!text.includes(required))
+        errors.push(`PASS fixture ${fileName} missing required section/text: ${required}`);
     }
     for (const disallowed of [
       '## Scenarios',
@@ -78,7 +85,10 @@ for (const fileName of fixtures) {
       'Expected results:',
       'Failure indicators:',
     ]) {
-      if (text.includes(disallowed)) errors.push(`PASS fixture ${fileName} contains design-level content that belongs in test-design fixture: ${disallowed}`);
+      if (text.includes(disallowed))
+        errors.push(
+          `PASS fixture ${fileName} contains design-level content that belongs in test-design fixture: ${disallowed}`,
+        );
     }
   }
 }

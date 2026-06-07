@@ -15,19 +15,19 @@ TBD
 ## Completed areas
 
 | Area / Feature | Status | Latest evidence / artifact | Notes |
-|---|---|---|---|
+| -------------- | ------ | -------------------------- | ----- |
 
 ## Incomplete or blocked areas
 
 | Area / Feature | Reason | Impact | Next action |
-|---|---|---|---|
+| -------------- | ------ | ------ | ----------- |
 
 ## High-risk unknowns
 
-| ID | Unknown | Risk | Required confirmation |
-|---|---|---|---|
+| ID  | Unknown | Risk | Required confirmation |
+| --- | ------- | ---- | --------------------- |
 
 ## Recommended next actions
 
 | Priority | Action | Next skill / owner | Reason |
-|---:|---|---|---|
+| -------: | ------ | ------------------ | ------ |

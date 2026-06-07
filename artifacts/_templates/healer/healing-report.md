@@ -29,10 +29,10 @@
 
 ## Remaining risks
 
-- 
+-
 
 ## Follow-up required
 
-| Owner | Action | Reason |
-|---|---|---|
-| planner / validator / generator / product owner / environment owner |  |  |
+| Owner                                                               | Action | Reason |
+| ------------------------------------------------------------------- | ------ | ------ |
+| planner / validator / generator / product owner / environment owner |        |        |

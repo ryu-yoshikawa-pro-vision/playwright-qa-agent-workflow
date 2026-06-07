@@ -6,12 +6,12 @@ This document is intentionally limited to commands that start with `playwright-c
 
 ## Boundary
 
-| Area | In scope for this document | Out of scope for this document |
-|---|---|---|
-| Browser exploration | `playwright-cli` commands | Playwright Test runner commands |
-| Evidence capture | snapshots, screenshots, traces, console, network | test runner reports |
-| Session/auth state | `playwright-cli` sessions and state files | project-specific test fixtures |
-| Ad hoc browser verification | `playwright-cli` browser operations | project test-suite runner commands |
+| Area                        | In scope for this document                       | Out of scope for this document     |
+| --------------------------- | ------------------------------------------------ | ---------------------------------- |
+| Browser exploration         | `playwright-cli` commands                        | Playwright Test runner commands    |
+| Evidence capture            | snapshots, screenshots, traces, console, network | test runner reports                |
+| Session/auth state          | `playwright-cli` sessions and state files        | project-specific test fixtures     |
+| Ad hoc browser verification | `playwright-cli` browser operations              | project test-suite runner commands |
 
 Do not use this document as a project test-runner reference. Generator and healer may execute a project-defined test command, but that command must be discovered from the target project and is not part of the Playwright CLI skill. Ad hoc verification by driving the browser with `playwright-cli` is in scope.
 

@@ -15,13 +15,31 @@ try {
 const status = getFeatureStatus({ root, feature });
 console.log('agent:status: PASS');
 console.log(`Feature: ${feature}`);
-console.log(`Artifact scope: ${status.artifactScopeExists ? 'exists' : 'missing'} (${toPosixRelative(root, status.paths.featureArtifactDir)})`);
+console.log(
+  `Artifact scope: ${status.artifactScopeExists ? 'exists' : 'missing'} (${toPosixRelative(root, status.paths.featureArtifactDir)})`,
+);
 console.log(`Latest run: ${status.latestRun ?? 'none'}`);
 console.log('');
-console.log(formatFileStatus('Plan', status.files.plan, toPosixRelative(root, status.paths.planPath)));
-console.log(formatFileStatus('Test design', status.files.testDesign, toPosixRelative(root, status.paths.testDesignPath)));
-console.log(formatFileStatus('Validation', status.files.validation, toPosixRelative(root, status.paths.validationPath)));
-console.log(status.artifactScopeExists ? formatGateStatus(status.gate) : 'Gate for generator: BLOCKED');
+console.log(
+  formatFileStatus('Plan', status.files.plan, toPosixRelative(root, status.paths.planPath)),
+);
+console.log(
+  formatFileStatus(
+    'Test design',
+    status.files.testDesign,
+    toPosixRelative(root, status.paths.testDesignPath),
+  ),
+);
+console.log(
+  formatFileStatus(
+    'Validation',
+    status.files.validation,
+    toPosixRelative(root, status.paths.validationPath),
+  ),
+);
+console.log(
+  status.artifactScopeExists ? formatGateStatus(status.gate) : 'Gate for generator: BLOCKED',
+);
 if (status.nextAction) {
   console.log(`Next action: ${status.nextAction}`);
   console.log(`Next skill after action: ${status.nextSkillAfterAction ?? status.nextSkill}`);

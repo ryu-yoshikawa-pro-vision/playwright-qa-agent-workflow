@@ -3,7 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const decisionValuePattern = '(PASS|FAIL|BLOCKED)';
-const unresolvedDecisionPlaceholderLinePattern = /^\s*-?\s*(?:[A-Za-z ]+\s+)?Decision:\s*`?\s*PASS\s*\|\s*FAIL\s*\|\s*BLOCKED\s*`?\s*$/i;
+const unresolvedDecisionPlaceholderLinePattern =
+  /^\s*-?\s*(?:[A-Za-z ]+\s+)?Decision:\s*`?\s*PASS\s*\|\s*FAIL\s*\|\s*BLOCKED\s*`?\s*$/i;
 
 export function sha256(filePath) {
   return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
@@ -18,7 +19,14 @@ export function collectUnresolvedDecisionPlaceholders(text) {
 
 function decisionLineRegex(label = 'Decision') {
   const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`(?:^|\\n)\\s*-?\\s*${escapedLabel}:\\s*` + '`?' + `\\s*${decisionValuePattern}\\s*` + '`?' + `\\s*(?=\\n|$)`, 'i');
+  return new RegExp(
+    `(?:^|\\n)\\s*-?\\s*${escapedLabel}:\\s*` +
+      '`?' +
+      `\\s*${decisionValuePattern}\\s*` +
+      '`?' +
+      `\\s*(?=\\n|$)`,
+    'i',
+  );
 }
 
 export function extractStrictDecisionLine(text, label = 'Decision') {
@@ -28,7 +36,9 @@ export function extractStrictDecisionLine(text, label = 'Decision') {
 
 export function extractHash(text, label) {
   const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = text.match(new RegExp(`${escapedLabel}:\\s*` + '`?' + `([a-fA-F0-9]{64})` + '`?', 'i'));
+  const match = text.match(
+    new RegExp(`${escapedLabel}:\\s*` + '`?' + `([a-fA-F0-9]{64})` + '`?', 'i'),
+  );
   return match ? match[1].toLowerCase() : null;
 }
 
@@ -39,23 +49,34 @@ export function extractOverallDecision(text) {
     if (metadataDecision) return metadataDecision;
   }
 
-  const beforeReviews = text.split(/\n##\s*(Semantic Quality Review|Test Design Quality Review)\b/i)[0];
+  const beforeReviews = text.split(
+    /\n##\s*(Semantic Quality Review|Test Design Quality Review)\b/i,
+  )[0];
   const metadataDecision = extractStrictDecisionLine(beforeReviews, 'Decision');
   if (metadataDecision) return metadataDecision;
 
-  const headingDecision = beforeReviews.match(/##\s*Decision\s*\n+\s*`?\s*(PASS|FAIL|BLOCKED)\s*`?\s*(?=\n|$)/i);
+  const headingDecision = beforeReviews.match(
+    /##\s*Decision\s*\n+\s*`?\s*(PASS|FAIL|BLOCKED)\s*`?\s*(?=\n|$)/i,
+  );
   if (headingDecision) return headingDecision[1].toUpperCase();
   return null;
 }
 
 export function extractDecisionSection(text, heading) {
-  const sectionMatch = text.match(new RegExp(`##\\s*${heading}\\s*\\n([\\s\\S]*?)(?=\\n##\\s+|$)`, 'i'));
+  const sectionMatch = text.match(
+    new RegExp(`##\\s*${heading}\\s*\\n([\\s\\S]*?)(?=\\n##\\s+|$)`, 'i'),
+  );
   if (!sectionMatch) return null;
   return extractStrictDecisionLine(sectionMatch[1], 'Decision');
 }
 
 export function extractSubsectionDecisions(text, reviewHeading, stopHeading) {
-  const reviewMatch = text.match(new RegExp(`##\\s*${reviewHeading}\\s*\\n([\\s\\S]*?)(?=\\n##\\s*${stopHeading}\\b|\\n##\\s+|$)`, 'i'));
+  const reviewMatch = text.match(
+    new RegExp(
+      `##\\s*${reviewHeading}\\s*\\n([\\s\\S]*?)(?=\\n##\\s*${stopHeading}\\b|\\n##\\s+|$)`,
+      'i',
+    ),
+  );
   if (!reviewMatch) return null;
   const decisions = [];
   const subsectionRegex = /###\s+[^\n]+\n([\s\S]*?)(?=\n###\s+|$)/gi;
@@ -68,7 +89,9 @@ export function extractSubsectionDecisions(text, reviewHeading, stopHeading) {
 }
 
 export function planStem(planName) {
-  return planName.endsWith('.plan.md') ? planName.slice(0, -'.plan.md'.length) : planName.replace(/\.md$/, '');
+  return planName.endsWith('.plan.md')
+    ? planName.slice(0, -'.plan.md'.length)
+    : planName.replace(/\.md$/, '');
 }
 
 export function listPlanNames(root, feature) {
@@ -76,7 +99,8 @@ export function listPlanNames(root, feature) {
   const errors = [];
   if (!fs.existsSync(specsDir)) return { plans: [], errors };
 
-  let plans = fs.readdirSync(specsDir, { withFileTypes: true })
+  let plans = fs
+    .readdirSync(specsDir, { withFileTypes: true })
     .filter((entry) => entry.isFile())
     .map((entry) => entry.name)
     .filter((name) => name.endsWith('.plan.md'));
@@ -101,11 +125,25 @@ export function validatePlanDesignGate({ root = process.cwd(), feature } = {}) {
   const plans = listed.plans;
 
   if (!fs.existsSync(specsDir)) {
-    return { ok: true, errors, warnings, checked, plans, message: 'No specs/ directory exists yet.' };
+    return {
+      ok: true,
+      errors,
+      warnings,
+      checked,
+      plans,
+      message: 'No specs/ directory exists yet.',
+    };
   }
 
   if (plans.length === 0 && errors.length === 0) {
-    return { ok: true, errors, warnings, checked, plans, message: 'No specs/*.plan.md files found yet.' };
+    return {
+      ok: true,
+      errors,
+      warnings,
+      checked,
+      plans,
+      message: 'No specs/*.plan.md files found yet.',
+    };
   }
 
   for (const planName of plans) {
@@ -131,7 +169,9 @@ export function validatePlanDesignGate({ root = process.cwd(), feature } = {}) {
     const report = fs.readFileSync(validationPath, 'utf8');
     const unresolvedDecisionPlaceholders = collectUnresolvedDecisionPlaceholders(report);
     if (unresolvedDecisionPlaceholders.length > 0) {
-      errors.push(`Validation report contains unresolved PASS/FAIL/BLOCKED decision placeholder(s) in ${relativeValidation}: ${unresolvedDecisionPlaceholders.join(' ; ')}`);
+      errors.push(
+        `Validation report contains unresolved PASS/FAIL/BLOCKED decision placeholder(s) in ${relativeValidation}: ${unresolvedDecisionPlaceholders.join(' ; ')}`,
+      );
     }
 
     const recordedPlanHash = extractHash(report, 'Plan SHA-256');
@@ -139,43 +179,65 @@ export function validatePlanDesignGate({ root = process.cwd(), feature } = {}) {
     const decision = extractOverallDecision(report);
     const semanticDecision = extractDecisionSection(report, 'Semantic Review Decision');
     const testDesignDecision = extractDecisionSection(report, 'Test Design Review Decision');
-    const semanticSubsectionDecisions = extractSubsectionDecisions(report, 'Semantic Quality Review', 'Semantic Review Decision');
-    const testDesignSubsectionDecisions = extractSubsectionDecisions(report, 'Test Design Quality Review', 'Test Design Review Decision');
+    const semanticSubsectionDecisions = extractSubsectionDecisions(
+      report,
+      'Semantic Quality Review',
+      'Semantic Review Decision',
+    );
+    const testDesignSubsectionDecisions = extractSubsectionDecisions(
+      report,
+      'Test Design Quality Review',
+      'Test Design Review Decision',
+    );
     const currentPlanHash = sha256(planPath);
     const currentDesignHash = sha256(designPath);
 
     if (!recordedPlanHash) {
       errors.push(`Validation report missing Plan SHA-256: ${relativeValidation}`);
     } else if (recordedPlanHash !== currentPlanHash) {
-      errors.push(`Plan hash mismatch for ${relativePlan}: current ${currentPlanHash}, validation report ${recordedPlanHash}`);
+      errors.push(
+        `Plan hash mismatch for ${relativePlan}: current ${currentPlanHash}, validation report ${recordedPlanHash}`,
+      );
     }
 
     if (!recordedDesignHash) {
       errors.push(`Validation report missing Test design SHA-256: ${relativeValidation}`);
     } else if (recordedDesignHash !== currentDesignHash) {
-      errors.push(`Test design hash mismatch for ${relativeDesign}: current ${currentDesignHash}, validation report ${recordedDesignHash}`);
+      errors.push(
+        `Test design hash mismatch for ${relativeDesign}: current ${currentDesignHash}, validation report ${recordedDesignHash}`,
+      );
     }
 
     if (!decision) {
-      errors.push(`Validation report missing overall Decision PASS/FAIL/BLOCKED: ${relativeValidation}`);
+      errors.push(
+        `Validation report missing overall Decision PASS/FAIL/BLOCKED: ${relativeValidation}`,
+      );
     } else if (decision !== 'PASS') {
-      warnings.push(`Validation decision for ${relativePlan} is ${decision}. Generator must not run until PASS.`);
+      warnings.push(
+        `Validation decision for ${relativePlan} is ${decision}. Generator must not run until PASS.`,
+      );
     }
 
     if (!report.match(/##\s*Semantic Quality Review\b/i)) {
-      errors.push(`Validation report missing Semantic Quality Review section: ${relativeValidation}`);
+      errors.push(
+        `Validation report missing Semantic Quality Review section: ${relativeValidation}`,
+      );
     }
 
     if (!semanticSubsectionDecisions) {
       errors.push(`Validation report missing semantic subsection decisions: ${relativeValidation}`);
     } else {
       if (semanticSubsectionDecisions.length < 6) {
-        errors.push(`Validation report must include six semantic subsection decisions for ${relativeValidation}; found ${semanticSubsectionDecisions.length}`);
+        errors.push(
+          `Validation report must include six semantic subsection decisions for ${relativeValidation}; found ${semanticSubsectionDecisions.length}`,
+        );
       }
       if (decision === 'PASS') {
         const nonPass = semanticSubsectionDecisions.filter((item) => item !== 'PASS');
         if (nonPass.length > 0) {
-          errors.push(`Overall PASS is invalid because semantic subsections include non-PASS decisions in ${relativeValidation}: ${nonPass.join(', ')}`);
+          errors.push(
+            `Overall PASS is invalid because semantic subsections include non-PASS decisions in ${relativeValidation}: ${nonPass.join(', ')}`,
+          );
         }
       }
     }
@@ -183,25 +245,37 @@ export function validatePlanDesignGate({ root = process.cwd(), feature } = {}) {
     if (!semanticDecision) {
       errors.push(`Validation report missing Semantic Review Decision: ${relativeValidation}`);
     } else if (decision === 'PASS' && semanticDecision !== 'PASS') {
-      errors.push(`Overall PASS is invalid because Semantic Review Decision is ${semanticDecision}: ${relativeValidation}`);
+      errors.push(
+        `Overall PASS is invalid because Semantic Review Decision is ${semanticDecision}: ${relativeValidation}`,
+      );
     } else if (semanticDecision !== 'PASS') {
-      warnings.push(`Semantic Review Decision for ${relativePlan} is ${semanticDecision}. Generator must not run until PASS.`);
+      warnings.push(
+        `Semantic Review Decision for ${relativePlan} is ${semanticDecision}. Generator must not run until PASS.`,
+      );
     }
 
     if (!report.match(/##\s*Test Design Quality Review\b/i)) {
-      errors.push(`Validation report missing Test Design Quality Review section: ${relativeValidation}`);
+      errors.push(
+        `Validation report missing Test Design Quality Review section: ${relativeValidation}`,
+      );
     }
 
     if (!testDesignSubsectionDecisions) {
-      errors.push(`Validation report missing test design subsection decisions: ${relativeValidation}`);
+      errors.push(
+        `Validation report missing test design subsection decisions: ${relativeValidation}`,
+      );
     } else {
       if (testDesignSubsectionDecisions.length < 6) {
-        errors.push(`Validation report must include six test design subsection decisions for ${relativeValidation}; found ${testDesignSubsectionDecisions.length}`);
+        errors.push(
+          `Validation report must include six test design subsection decisions for ${relativeValidation}; found ${testDesignSubsectionDecisions.length}`,
+        );
       }
       if (decision === 'PASS') {
         const nonPass = testDesignSubsectionDecisions.filter((item) => item !== 'PASS');
         if (nonPass.length > 0) {
-          errors.push(`Overall PASS is invalid because test design subsections include non-PASS decisions in ${relativeValidation}: ${nonPass.join(', ')}`);
+          errors.push(
+            `Overall PASS is invalid because test design subsections include non-PASS decisions in ${relativeValidation}: ${nonPass.join(', ')}`,
+          );
         }
       }
     }
@@ -209,9 +283,13 @@ export function validatePlanDesignGate({ root = process.cwd(), feature } = {}) {
     if (!testDesignDecision) {
       errors.push(`Validation report missing Test Design Review Decision: ${relativeValidation}`);
     } else if (decision === 'PASS' && testDesignDecision !== 'PASS') {
-      errors.push(`Overall PASS is invalid because Test Design Review Decision is ${testDesignDecision}: ${relativeValidation}`);
+      errors.push(
+        `Overall PASS is invalid because Test Design Review Decision is ${testDesignDecision}: ${relativeValidation}`,
+      );
     } else if (testDesignDecision !== 'PASS') {
-      warnings.push(`Test Design Review Decision for ${relativeDesign} is ${testDesignDecision}. Generator must not run until PASS.`);
+      warnings.push(
+        `Test Design Review Decision for ${relativeDesign} is ${testDesignDecision}. Generator must not run until PASS.`,
+      );
     }
   }
 

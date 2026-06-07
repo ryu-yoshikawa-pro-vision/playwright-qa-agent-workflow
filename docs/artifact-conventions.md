@@ -121,7 +121,7 @@ tests/<feature>.spec.ts
 
 ```markdown
 | Evidence ID | Screen / State ID | Evidence type | Path | Captured after action | What it proves | Notes |
-|---|---|---|---|---|---|---|
+| ----------- | ----------------- | ------------- | ---- | --------------------- | -------------- | ----- |
 ```
 
 Evidence types:

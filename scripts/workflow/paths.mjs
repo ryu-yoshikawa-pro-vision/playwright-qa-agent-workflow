@@ -33,10 +33,14 @@ export function requireFeatureSlug(feature) {
     throw new Error('Missing required --feature <slug>.');
   }
   if (!FEATURE_SLUG_PATTERN.test(feature)) {
-    throw new Error(`Invalid feature slug: ${feature}. Use lowercase kebab-case segments matching ${FEATURE_SLUG_PATTERN}.`);
+    throw new Error(
+      `Invalid feature slug: ${feature}. Use lowercase kebab-case segments matching ${FEATURE_SLUG_PATTERN}.`,
+    );
   }
   if (feature === 'service-exploration' || feature.startsWith('_')) {
-    throw new Error(`Invalid feature slug: ${feature}. Reserved artifact scopes cannot be used as feature slugs.`);
+    throw new Error(
+      `Invalid feature slug: ${feature}. Reserved artifact scopes cannot be used as feature slugs.`,
+    );
   }
   return feature;
 }
@@ -96,7 +100,8 @@ export function nowRunId(date = new Date()) {
 
 export function listRunIds(runsDir) {
   if (!fs.existsSync(runsDir)) return [];
-  return fs.readdirSync(runsDir, { withFileTypes: true })
+  return fs
+    .readdirSync(runsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .filter((name) => /^\d{8}-\d{6}$/.test(name))

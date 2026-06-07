@@ -22,26 +22,32 @@ Every validation report must include this block.
 ## Test Design Quality Review
 
 ### 1. Source alignment
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 
 ### 2. Technique selection
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 
 ### 3. Technique application
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 
 ### 4. Final test cases
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 
 ### 5. Exclusions and residual risk
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 
 ### 6. Generator readiness
+
 Decision: PASS | FAIL | BLOCKED
 Notes:
 

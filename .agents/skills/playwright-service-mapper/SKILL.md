@@ -41,4 +41,3 @@ See also:
 - `docs/service-mapping.md`
 - `docs/artifact-conventions.md`
 - `docs/handoff-conventions.md`
-

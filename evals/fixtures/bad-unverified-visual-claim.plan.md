@@ -1,4 +1,5 @@
 <!-- Expected Semantic Review Decision: FAIL -->
+
 # Dashboard Visual Plan
 
 ## Feature summary
@@ -11,9 +12,9 @@ Dashboard layout and visual design.
 
 ## Evidence references
 
-| Evidence ID | Type | What it proves |
-|---|---|---|
-| EV-001 | snapshot | Main dashboard DOM contains a heading and cards |
+| Evidence ID | Type     | What it proves                                  |
+| ----------- | -------- | ----------------------------------------------- |
+| EV-001      | snapshot | Main dashboard DOM contains a heading and cards |
 
 ## Scenario
 

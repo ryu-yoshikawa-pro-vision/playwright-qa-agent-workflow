@@ -43,59 +43,59 @@ Include:
 Separate confirmed facts from assumptions.
 
 | Item | Confirmed / Assumed / Unverified | Evidence IDs | Impact on design |
-|---|---|---|---|
-|  |  |  |  |
+| ---- | -------------------------------- | ------------ | ---------------- |
+|      |                                  |              |                  |
 
 ## Evidence references
 
 Use stable evidence IDs from exploration outputs, such as `EV-001`, `SCR-001`, `NAV-001`, or `FEAT-001`.
 
-| Evidence ID | Type | What it proves | Relevant behavior |
-|---|---|---|---|
-| EV-001 | snapshot / screenshot / trace / log / source |  |  |
+| Evidence ID | Type                                         | What it proves | Relevant behavior |
+| ----------- | -------------------------------------------- | -------------- | ----------------- |
+| EV-001      | snapshot / screenshot / trace / log / source |                |                   |
 
 ## Behavior inventory
 
 List the behaviors that need test design. This is not the final test-case list.
 
 | Behavior ID | Behavior | Source evidence | Notes |
-|---|---|---|---|
-| BEH-001 |  | EV-001 |  |
+| ----------- | -------- | --------------- | ----- |
+| BEH-001     |          | EV-001          |       |
 
 ## Risk assessment
 
-| Risk | Level | Why it matters | Related behavior IDs | Notes |
-|---|---|---|---|---|
-|  | High / Medium / Low |  | BEH-001 |  |
+| Risk | Level               | Why it matters | Related behavior IDs | Notes |
+| ---- | ------------------- | -------------- | -------------------- | ----- |
+|      | High / Medium / Low |                | BEH-001              |       |
 
 ## Test design inputs
 
 Use this section to hand off design material to `playwright-test-designer`. Suggested techniques are allowed, but the designer decides the final technique selection.
 
-| Area | Why it matters | Evidence IDs | Suggested technique | Notes |
-|---|---|---|---|---|
-| Input validation |  | EV-001 | Equivalence partitioning / boundary value analysis |  |
-| Conditional behavior |  |  | Decision table |  |
-| State changes |  |  | State transition testing |  |
-| Role / permission differences |  |  | Role / permission matrix |  |
-| Data lifecycle |  |  | CRUD coverage |  |
-| High-risk behavior |  |  | Risk-based testing / error guessing |  |
+| Area                          | Why it matters | Evidence IDs | Suggested technique                                | Notes |
+| ----------------------------- | -------------- | ------------ | -------------------------------------------------- | ----- |
+| Input validation              |                | EV-001       | Equivalence partitioning / boundary value analysis |       |
+| Conditional behavior          |                |              | Decision table                                     |       |
+| State changes                 |                |              | State transition testing                           |       |
+| Role / permission differences |                |              | Role / permission matrix                           |       |
+| Data lifecycle                |                |              | CRUD coverage                                      |       |
+| High-risk behavior            |                |              | Risk-based testing / error guessing                |       |
 
 ## Unverified assumptions
 
 List assumptions that are not blockers for test design. If an assumption must be answered before design or generation, put it in open questions and mark it blocking.
 
 | Assumption | Why acceptable for now | Evidence gap |
-|---|---|---|
-|  |  |  |
+| ---------- | ---------------------- | ------------ |
+|            |                        |              |
 
 ## Open questions
 
 Open questions should be actionable. Mark whether each question blocks test design.
 
 | Question | Blocking for design? | Owner / next action |
-|---|---|---|
-|  | Yes / No |  |
+| -------- | -------------------- | ------------------- |
+|          | Yes / No             |                     |
 
 ## What not to include
 

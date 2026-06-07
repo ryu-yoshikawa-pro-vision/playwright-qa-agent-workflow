@@ -6,13 +6,18 @@ const root = process.cwd();
 const args = process.argv.slice(2);
 const strict = args.includes('--strict');
 const logRootArgIndex = args.indexOf('--log-root');
-const logRoot = logRootArgIndex >= 0 && logRootArgIndex + 1 < args.length ? args[logRootArgIndex + 1] : '.agent-logs';
+const logRoot =
+  logRootArgIndex >= 0 && logRootArgIndex + 1 < args.length
+    ? args[logRootArgIndex + 1]
+    : '.agent-logs';
 const absoluteLogRoot = path.resolve(root, logRoot);
 
 const errors = [];
 const warnings = [];
-const sensitiveKey = /(password|passwd|pwd|secret|token|refresh|access[_-]?token|api[_-]?key|authorization|auth|cookie|session|credential|private[_-]?key)/i;
+const sensitiveKey =
+  /(password|passwd|pwd|secret|token|refresh|access[_-]?token|api[_-]?key|authorization|auth|cookie|session|credential|private[_-]?key)/i;
 const allowedAgents = new Set(['codex', 'opencode', 'gemini-cli']);
+const allowedSensitiveLikeKeys = new Set(['sessionId', 'session_id', 'sessionID']);
 
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -39,7 +44,13 @@ function checkSensitive(value, trail, file, line) {
   if (typeof value === 'object') {
     for (const [key, child] of Object.entries(value)) {
       const nextTrail = trail ? `${trail}.${key}` : key;
-      if (sensitiveKey.test(key) && child !== '[REDACTED]' && child !== undefined && child !== null) {
+      if (
+        sensitiveKey.test(key) &&
+        !allowedSensitiveLikeKeys.has(key) &&
+        child !== '[REDACTED]' &&
+        child !== undefined &&
+        child !== null
+      ) {
         errors.push(`${rel(file)}:${line} sensitive-looking key is not redacted: ${nextTrail}`);
       }
       checkSensitive(child, nextTrail, file, line);
@@ -50,7 +61,9 @@ function checkSensitive(value, trail, file, line) {
 const logFiles = walk(absoluteLogRoot);
 if (logFiles.length === 0) {
   console.log('Runtime log check: PASS');
-  console.log(`No JSONL logs found under ${logRoot}. This is expected before Codex/OpenCode has run.`);
+  console.log(
+    `No JSONL logs found under ${logRoot}. This is expected before Codex/OpenCode has run.`,
+  );
   process.exit(0);
 }
 

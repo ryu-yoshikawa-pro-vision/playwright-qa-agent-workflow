@@ -1,4 +1,5 @@
 <!-- Expected Semantic Review Decision: BLOCKED -->
+
 # Delete User Permission Plan
 
 ## Feature summary
@@ -16,9 +17,9 @@ User deletion permission checks.
 
 ## Evidence references
 
-| Evidence ID | Type | What it proves |
-|---|---|---|
-| EV-001 | snapshot | User list contains a Delete button when explored with one account |
+| Evidence ID | Type     | What it proves                                                    |
+| ----------- | -------- | ----------------------------------------------------------------- |
+| EV-001      | snapshot | User list contains a Delete button when explored with one account |
 
 ## Scenarios
 

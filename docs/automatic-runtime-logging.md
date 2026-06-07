@@ -8,7 +8,7 @@ Codex automatic logging files:
 
 ```text
 .codex/hooks.json
-.codex/hooks/jsonl_logger.py
+.codex/hooks/jsonl_logger.mjs
 ```
 
 Default output:
