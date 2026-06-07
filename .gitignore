@@ -33,3 +33,9 @@ __pycache__/
 *.pyc
 
 .playwright-cli/
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
