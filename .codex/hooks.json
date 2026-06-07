@@ -1,0 +1,86 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/jsonl_logger.py",
+            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
+            "timeout": 10,
+            "statusMessage": "Recording Codex session start"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/jsonl_logger.py",
+            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
+            "timeout": 10,
+            "statusMessage": "Recording Codex prompt event"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/jsonl_logger.py",
+            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
+            "timeout": 10,
+            "statusMessage": "Recording Codex tool start"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/jsonl_logger.py",
+            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
+            "timeout": 10,
+            "statusMessage": "Recording Codex tool end"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/jsonl_logger.py",
+            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
+            "timeout": 10,
+            "statusMessage": "Recording Codex permission request"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/jsonl_logger.py",
+            "commandWindows": "py -3 .codex\\hooks\\jsonl_logger.py",
+            "timeout": 10,
+            "statusMessage": "Recording Codex session stop"
+          }
+        ]
+      }
+    ]
+  }
+}
