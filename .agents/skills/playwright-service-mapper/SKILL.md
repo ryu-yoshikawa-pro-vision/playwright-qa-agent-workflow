@@ -1,6 +1,6 @@
 ---
 name: playwright-service-mapper
-description: Explore an entire web service with Playwright Test MCP and produce a service map, screen inventory, navigation map, and feature inventory before feature-level planning. Use when the user asks to explore the whole service, all screens, all pages, or the overall application.
+description: Explore an entire web service with Playwright CLI and produce a service map, screen inventory, navigation map, and feature inventory before feature-level planning. Use when the user asks to explore the whole service, all screens, all pages, or the overall application.
 ---
 
 # Playwright Service Mapper
@@ -29,8 +29,9 @@ Do not create one giant `full-service.plan.md`. That usually produces shallow, a
 
 ## Preconditions
 
-- Use the `playwright-test` MCP server when browser exploration is needed.
-- Call the appropriate Playwright Test MCP setup tool before browser exploration, when that tool is available.
+- Use the `playwright-cli` skill as the default browser automation capability.
+- Use shell commands such as `playwright-cli open`, `playwright-cli snapshot`, and `playwright-cli screenshot --filename=<path>` to explore and capture evidence.
+- Use Playwright Test MCP only when it is explicitly configured or requested by the user.
 - Use `seed.spec.ts` as the default setup reference unless the user provides another seed file.
 - If the user provides accounts, roles, URLs, credentials, seed files, or scope constraints, record them in `00_request.md`.
 - Avoid destructive operations unless the user explicitly allows them. For destructive or irreversible actions, record the path as discovered but do not execute the final destructive action.

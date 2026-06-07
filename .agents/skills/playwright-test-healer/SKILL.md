@@ -37,7 +37,7 @@ If the feature slug or run ID cannot be identified, infer the safest path from t
 ## Diagnosis workflow
 
 1. Identify the smallest failing test scope.
-2. Run or inspect the failing test using Playwright Test MCP tools when available.
+2. Run or inspect the failing test using the standard Playwright Test CLI and the `playwright-cli` skill for browser evidence when available.
 3. Use debug output, page snapshot, screenshots, traces, console messages, network evidence, and locator generation to determine the root cause.
 4. Classify the failure before editing:
    - selector drift

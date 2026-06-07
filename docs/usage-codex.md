@@ -1,22 +1,41 @@
-# Using Playwright Test Agents with Codex
+# Using This Workflow with Codex
 
-This repository adds Codex support as a common compatibility layer on top of the Playwright-generated agent files.
+This repository supports Codex through the common-agent layer. The default browser automation path is Playwright CLI shell commands. MCP is optional.
 
 ## Files used by Codex
 
 ```text
 AGENTS.md
-.codex/config.toml
+.agents/skills/playwright-cli/SKILL.md
 .agents/skills/playwright-service-mapper/SKILL.md
 .agents/skills/playwright-test-planner/SKILL.md
 .agents/skills/playwright-test-plan-validator/SKILL.md
 .agents/skills/playwright-test-generator/SKILL.md
 .agents/skills/playwright-test-healer/SKILL.md
+.codex/config.toml  # optional MCP config
 ```
 
-## MCP server
+## Default browser automation
 
-The project-scoped Codex MCP config is:
+Use Playwright CLI first:
+
+```bash
+playwright-cli --help
+npx playwright-cli --help
+playwright-cli open <url>
+playwright-cli snapshot
+playwright-cli screenshot --filename=<path>
+```
+
+Run generated tests with the standard Playwright Test CLI:
+
+```bash
+npx playwright test tests/<feature>.spec.ts --trace=retain-on-failure
+```
+
+## Optional MCP server
+
+`.codex/config.toml` contains optional MCP configuration:
 
 ```toml
 [mcp_servers.playwright-test]
@@ -29,20 +48,20 @@ required = false
 default_tools_approval_mode = "prompt"
 ```
 
-Codex loads `.codex/config.toml` only when the project is trusted. If the server does not appear, copy the same block into `~/.codex/config.toml` or add it with the Codex MCP CLI.
+Codex loads `.codex/config.toml` only when the project is trusted. If MCP is not available, continue with the `playwright-cli` skill instead of blocking the workflow.
 
 ## Recommended prompts
 
 Service mapping:
 
 ```text
-Use the playwright-service-mapper skill to explore the whole service and write service mapping artifacts under artifacts/service-exploration/runs/<run-id>/.
+Use the playwright-service-mapper skill and the playwright-cli skill to explore the whole service. Write service mapping artifacts under artifacts/service-exploration/runs/<run-id>/.
 ```
 
 Feature planning:
 
 ```text
-Use the playwright-test-planner skill to create a feature-level test plan for `<feature>` under specs/. Reference the latest service mapping run if relevant.
+Use the playwright-test-planner skill and the playwright-cli skill to create a feature-level test plan for `<feature>` under specs/. Reference the latest service mapping run if relevant.
 ```
 
 Validation:
@@ -54,13 +73,13 @@ Use the playwright-test-plan-validator skill to validate specs/<feature>.plan.md
 Generation:
 
 ```text
-Use the playwright-test-generator skill to generate Playwright tests from specs/<feature>.plan.md after the matching validation report under specs/_reviews/ returns PASS.
+Use the playwright-test-generator skill to generate Playwright tests from specs/<feature>.plan.md after the matching validation report under specs/_reviews/ returns PASS. Use playwright-cli for any live UI verification needed during generation.
 ```
 
 Healing:
 
 ```text
-Use the playwright-test-healer skill to run the failing tests, diagnose the root cause, and apply only safe minimal fixes.
+Use the playwright-test-healer skill to run the failing tests, diagnose the root cause, and apply only safe minimal fixes. Use npx playwright test for test execution and playwright-cli for browser evidence.
 ```
 
 ## Operational rule
@@ -118,12 +137,6 @@ if PASS:
 
 if FAIL:
   planner reads the validation report
-  planner re-explores or revises specs/<feature>.plan.md
-  validator runs again
-
-if BLOCKED:
-  resolve the missing input or repository issue
+  planner re-explores or revises
   validator runs again
 ```
-
-The generator should stop if no matching validation report exists or if the report decision is not `PASS`.

@@ -18,7 +18,8 @@ Use these inputs:
 - planner artifacts under `artifacts/<feature>/runs/<run-id>/01_planner/`, when available
 - seed file, defaulting to `seed.spec.ts`
 - existing Playwright conventions in the repository
-- Playwright Test MCP generator/browser logs when available
+- Playwright CLI exploration logs, snapshots, screenshots, and traces when available
+- Playwright Test MCP generator/browser logs only when MCP is explicitly used
 
 ## Artifact location
 
@@ -35,6 +36,18 @@ artifacts/<feature>/runs/<run-id>/
 
 If file writing is unavailable, return the same artifact contents in the response and clearly say which files should be written.
 
+## Browser automation capability
+
+Use the `playwright-cli` skill by default when live UI verification is needed during generation. Prefer:
+
+```bash
+playwright-cli snapshot
+playwright-cli screenshot --filename=<path>
+npx playwright test tests/<feature>.spec.ts --trace=retain-on-failure
+```
+
+Use Playwright Test MCP only when explicitly configured or requested.
+
 ## Generation workflow
 
 For each scenario:
@@ -44,7 +57,7 @@ For each scenario:
 3. If the validation report is missing or not `PASS`, stop and ask to run `playwright-test-plan-validator` first.
 4. Review planner evidence when available.
 5. Set up the page using the generator setup tool when available.
-6. Execute each step with Playwright Test MCP browser tools where possible.
+6. Rehearse or verify important steps with the `playwright-cli` skill where possible, especially when locator choices or visual assertions depend on live UI evidence.
 7. Read the generator log when available.
 8. Generate one focused Playwright test file or append to the correct suite, depending on existing project structure.
 9. Keep the generated test traceable to its source plan and validation report.

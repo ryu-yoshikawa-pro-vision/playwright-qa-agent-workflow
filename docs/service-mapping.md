@@ -9,7 +9,7 @@ A whole service is too broad to treat as one feature. If an agent creates one gi
 Service mapping solves this by separating discovery from feature-level planning.
 
 ```text
-service-mapper -> feature inventory -> planner -> validator -> generator -> healer
+playwright-cli -> service-mapper -> feature inventory -> planner -> validator -> generator -> healer
 ```
 
 ## Role responsibility
@@ -29,6 +29,24 @@ It should not:
 - generate Playwright tests
 - claim full coverage without evidence
 - execute destructive final confirmations without explicit approval
+
+
+## Browser automation
+
+Use the `playwright-cli` skill as the default browser automation mechanism during service mapping.
+
+Typical command pattern:
+
+```bash
+playwright-cli open <entry-url>
+playwright-cli snapshot
+playwright-cli screenshot --filename=artifacts/service-exploration/runs/<run-id>/evidence/screenshots/SCR-001-<state>.png
+playwright-cli click <ref>
+playwright-cli snapshot
+playwright-cli screenshot --filename=artifacts/service-exploration/runs/<run-id>/evidence/screenshots/SCR-002-<state>.png
+```
+
+Use MCP only when explicitly configured or requested.
 
 ## Output location
 

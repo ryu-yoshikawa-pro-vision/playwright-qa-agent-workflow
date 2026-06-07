@@ -2,20 +2,18 @@
 
 This repository contains Playwright Test Agent definitions and a common compatibility layer for using the same workflow across AI coding agents.
 
-It is not a full Playwright test project by itself. It is a template layer for agents that can map, plan, validate, generate, and heal Playwright tests through the Playwright Test MCP server.
+It is not a full Playwright test project by itself. It is a template layer for agents that can map, plan, validate, generate, and heal Playwright tests. The common workflow now defaults to Playwright CLI shell commands for browser automation, with Playwright Test MCP kept as an optional integration path.
 
 ## What this repository provides
 
 | Area | Files | Purpose |
 |---|---|---|
-| Common agent layer | `AGENTS.md`, `.agents/skills/`, `docs/` | Shared workflow used by Codex and other agents |
-| Codex | `.codex/config.toml`, `.agents/skills/` | Codex-compatible MCP and skill setup |
-| Claude Code | `.claude/agents/` | Playwright-generated subagent definitions |
-| GitHub Copilot / VS Code | `.github/agents/`, `.vscode/mcp.json` | Playwright-generated agent/MCP setup |
-| OpenCode | `.opencode/prompts/`, `opencode.json` | Playwright-generated prompts and MCP setup |
-| Other MCP clients | `.mcp.json`, `.vscode/mcp.json`, `docs/agent-compatibility.md` | Reference configuration and adaptation guidance |
+| Common agent layer | `AGENTS.md`, `.agents/skills/`, `docs/` | Shared workflow used by Codex, OpenCode, and other shell-capable coding agents |
+| Playwright CLI browser automation | `.agents/skills/playwright-cli/SKILL.md`, `docs/playwright-cli.md` | Default browser automation path without requiring MCP client setup |
+| Codex optional config | `.codex/config.toml` | Optional Codex project config, including optional Playwright Test MCP configuration |
+| Other MCP clients | `.mcp.json`, `.vscode/mcp.json` | Reference MCP configuration only; not required for the common Playwright CLI workflow |
 
-Future customizations should usually be made in the common agent layer, not in the tool-specific generated files.
+Future customizations should usually be made in the common agent layer. Do not add Claude Code / GitHub Copilot / OpenCode-specific prompt files unless explicitly requested.
 
 ## Agent workflow
 
@@ -113,6 +111,35 @@ planner -> plan-validator -> FAIL -> planner refinement -> plan-validator again
 Do not ask the generator to create tests from an unvalidated plan. The validator exists to prevent shallow, generic, or invented plans from becoming brittle Playwright tests.
 
 
+
+## Browser automation mode
+
+The common workflow defaults to Playwright CLI. This means OpenCode or another shell-first agent can use the repository without an OpenCode-specific MCP configuration.
+
+Use:
+
+```bash
+playwright-cli open <url>
+playwright-cli snapshot
+playwright-cli screenshot --filename=<path>
+playwright-cli click <ref>
+playwright-cli fill <ref> <text>
+```
+
+Fallback:
+
+```bash
+npx playwright-cli <command>
+```
+
+Use the standard Playwright Test CLI for test execution:
+
+```bash
+npx playwright test tests/<feature>.spec.ts --trace=retain-on-failure
+```
+
+MCP remains optional. Use MCP only when the selected agent/client is already configured for it or the user explicitly requests it. See `docs/playwright-cli.md`.
+
 ## Visual evidence policy
 
 Exploration and healing must not rely on Playwright snapshots alone.
@@ -154,19 +181,18 @@ artifacts/<feature>/runs/<run-id>/03_generator/
 artifacts/<feature>/runs/<run-id>/04_healer/
 ```
 
-## Playwright Test MCP server
+## Optional Playwright Test MCP server
 
-All agent variants are based on the Playwright Test MCP server:
+The common workflow does not require MCP. If MCP is explicitly requested, the Playwright Test MCP server can be started with:
 
 ```bash
 npx playwright run-test-mcp-server
 ```
 
-The existing MCP configurations are:
+The existing MCP configurations are reference examples only:
 
 - `.mcp.json`
 - `.vscode/mcp.json`
-- `opencode.json`
 - `.codex/config.toml`
 
 ## Using with Codex or common agents
@@ -176,6 +202,7 @@ Common support is implemented through:
 ```text
 AGENTS.md
 .codex/config.toml
+.agents/skills/playwright-cli/SKILL.md
 .agents/skills/playwright-service-mapper/SKILL.md
 .agents/skills/playwright-test-planner/SKILL.md
 .agents/skills/playwright-test-plan-validator/SKILL.md
@@ -209,7 +236,9 @@ Codex loads project-scoped config from `.codex/config.toml` only for trusted pro
 
 ## Using with other agents
 
-For MCP-capable agents, configure an MCP server with:
+For shell-capable agents such as OpenCode, use the `playwright-cli` skill and shell commands. MCP setup is not required.
+
+For MCP-capable agents where MCP is explicitly desired, configure an MCP server with:
 
 ```json
 {
@@ -222,7 +251,6 @@ Then provide the role instructions from either:
 
 - `AGENTS.md`
 - `.agents/skills/*/SKILL.md`
-- the official generated prompt files under `.claude/`, `.github/`, or `.opencode/`
 
 See `docs/agent-compatibility.md` for guidance.
 
@@ -234,7 +262,6 @@ See `docs/agent-compatibility.md` for guidance.
 - Generated tests should go under `tests/` unless another path is specified.
 - `seed.spec.ts` is the default seed test.
 - Generated tests should preserve traceability to their source plan and validation report.
-- Official Playwright-generated definitions should be treated as upstream generated files.
 - Compatibility additions should usually be made in `AGENTS.md`, `.agents/skills/`, or `docs/`.
 
 ## Important limitation

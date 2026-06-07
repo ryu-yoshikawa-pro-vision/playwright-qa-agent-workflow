@@ -1,6 +1,6 @@
 ---
 name: playwright-test-planner
-description: Explore one feature, page, or flow with Playwright Test MCP and create a comprehensive Markdown test plan under specs/. Use when the user asks to analyze a specific UI area, discover a feature flow, or prepare Playwright test scenarios before code generation.
+description: Explore one feature, page, or flow with Playwright CLI and create a comprehensive Markdown test plan under specs/. Use when the user asks to analyze a specific UI area, discover a feature flow, or prepare Playwright test scenarios before code generation.
 ---
 
 # Playwright Test Planner
@@ -13,8 +13,9 @@ If the user asks to explore the whole service, all screens, all pages, or the en
 
 ## Preconditions
 
-- Use the `playwright-test` MCP server when browser exploration is needed.
-- Call the planner setup tool before using other Playwright Test MCP browser tools, when that tool is available.
+- Use the `playwright-cli` skill as the default browser automation capability.
+- Use shell commands such as `playwright-cli open`, `playwright-cli snapshot`, and `playwright-cli screenshot --filename=<path>` to explore and capture evidence.
+- Use Playwright Test MCP only when it is explicitly configured or requested by the user.
 - Use `seed.spec.ts` as the default setup reference unless the user provides another seed file.
 - If a service mapping run exists, use it as input when it is relevant to the target feature.
 - Save the final feature plan under `specs/`.

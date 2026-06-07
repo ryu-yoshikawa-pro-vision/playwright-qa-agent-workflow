@@ -26,7 +26,7 @@ Use these inputs:
 - the target Markdown plan under `specs/`
 - `seed.spec.ts`, unless another seed file is referenced
 - related context files, README files, PRDs, tickets, or existing tests when available
-- screenshots, traces, MCP exploration notes, or planner notes when available
+- screenshots, traces, Playwright CLI snapshots/logs, MCP exploration notes, or planner notes when available
 - the user's original request, if present in the conversation or plan
 
 ## Artifact location

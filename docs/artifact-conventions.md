@@ -75,6 +75,7 @@ artifacts/service-exploration/runs/<run-id>/
     snapshots/
     console/
     network/
+    storage/
 ```
 
 Service mapping outputs are not test plans. They are discovery artifacts used to decide which feature plans to create next.
@@ -99,6 +100,7 @@ artifacts/<feature>/runs/<run-id>/
     snapshots/
     console/
     network/
+    storage/
 ```
 
 The plan under `specs/` is the handoff artifact. The files under `artifacts/` are supporting evidence.
@@ -151,6 +153,31 @@ artifacts/<feature>/runs/<run-id>/
 ```
 
 The healer must explain whether the fix changed the test intent or weakened assertions.
+
+
+## Playwright CLI command logs
+
+When using the `playwright-cli` skill, every command that materially affects exploration, planning, generation, or healing must be logged in the current role log.
+
+Minimum table:
+
+```markdown
+| Step | Command | Purpose | Observation | Evidence | Next |
+|---:|---|---|---|---|---|
+```
+
+Save command outputs when useful:
+
+```text
+evidence/snapshots/      # playwright-cli snapshot output
+evidence/screenshots/    # playwright-cli screenshot files
+evidence/console/        # playwright-cli console output
+evidence/network/        # playwright-cli network output
+evidence/traces/         # tracing output
+evidence/storage/        # state-save output; treat as sensitive
+```
+
+Do not record secrets, tokens, cookies, or raw storage values in Markdown logs.
 
 ## Evidence rules
 

@@ -12,23 +12,40 @@ The common workflow has five roles:
 4. **Generator**: converts a validated test plan into Playwright Test files.
 5. **Healer**: runs failing Playwright tests, diagnoses failures, and proposes safe fixes.
 
-The official Playwright-generated agent definitions are kept under:
-
-- `.claude/agents/`
-- `.github/agents/`
-- `.opencode/prompts/`
-- `opencode.json`
-
-Treat those files as upstream-generated unless the user explicitly asks to customize them.
-
 The repository-level common compatibility layer is kept under:
 
-- `.codex/config.toml`
+- `AGENTS.md`
 - `.agents/skills/`
 - `docs/`
-- `AGENTS.md`
+- `.codex/config.toml` when Codex-specific configuration is needed
 
-Prefer implementing future workflow changes in the common layer.
+Prefer implementing future workflow changes in the common layer. Do not add tool-specific agent prompts unless the user explicitly asks for them.
+
+
+## Browser automation mode
+
+Default to **Playwright CLI** for browser automation in common-agent workflows. Use the `playwright-cli` skill whenever service mapping, feature planning, generation, or healing needs live browser interaction, snapshots, screenshots, tracing, console logs, network logs, storage state, or focused test execution.
+
+Preferred browser automation order:
+
+1. `playwright-cli` skill and shell commands
+2. standard Playwright Test CLI, `npx playwright test`, for running test suites
+3. Playwright Test MCP only when explicitly configured or requested
+
+Do not require VS Code, OpenCode MCP configuration, or any other MCP client to run the common workflow. MCP is optional.
+
+Key commands:
+
+```bash
+playwright-cli --help
+npx playwright-cli --help
+playwright-cli open <url>
+playwright-cli snapshot
+playwright-cli screenshot --filename=<path>
+npx playwright test tests/<feature>.spec.ts --trace=retain-on-failure
+```
+
+See `docs/playwright-cli.md` and `.agents/skills/playwright-cli/SKILL.md`.
 
 ## Required workflow
 
@@ -136,23 +153,17 @@ A reviewer should be able to trace a generated test back to:
 - the generator mapping
 - any healer patch rationale
 
-## Playwright Test MCP server
+## Optional Playwright Test MCP server
 
-The expected MCP server name is `playwright-test`.
+The common workflow no longer requires MCP. Use Playwright CLI first.
 
-It is started with:
+If the user explicitly asks to use MCP, the expected MCP server name is `playwright-test` and it is started with:
 
 ```bash
 npx playwright run-test-mcp-server
 ```
 
-When using Codex, the project-scoped MCP configuration lives in `.codex/config.toml`.
-
-When using other MCP clients, adapt one of these existing files:
-
-- `.mcp.json`
-- `.vscode/mcp.json`
-- `opencode.json`
+When using Codex, the project-scoped MCP configuration lives in `.codex/config.toml`. Treat MCP as optional unless the user or environment requires it.
 
 ## Repository conventions
 
@@ -213,4 +224,4 @@ For future changes, prefer adding or editing common guidance in:
 - `.agents/skills/`
 - `docs/`
 
-Only edit official generated agent files when the user explicitly asks to customize those agent definitions.
+Do not add or maintain Claude Code / GitHub Copilot / OpenCode-specific agent prompt files unless the user explicitly asks.
