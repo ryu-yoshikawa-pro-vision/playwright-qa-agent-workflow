@@ -10,6 +10,17 @@ The workflow is designed for QA work where an agent explores a web application, 
 
 Use **Playwright CLI** as the primary browser operation method.
 
+## Language policy
+
+* Use English for internal analysis, planning, comparison, and decision-making when it helps improve accuracy and consistency.
+* Create user-facing QA deliverables in Japanese.
+* Artifacts under `artifacts/`, `specs/`, and `specs/_reviews/` must be written in Japanese.
+* This includes feature plans, test designs, validation reports, findings, decisions, open questions, handoff notes, task summaries, and review results.
+* Do not leave English scratch notes, untranslated drafts, or internal planning notes in committed deliverables.
+* If an intermediate note is saved as a repository artifact, treat it as a deliverable and write it in Japanese.
+* Keep code identifiers, file names, directory names, commands, package names, API names, product names, status labels, UI labels, logs, errors, and direct source excerpts in their original language when translating them would reduce accuracy.
+* When quoting logs, errors, command output, source code, or UI text, preserve the original text and add Japanese explanation when needed.
+
 ## Tool roles
 
 - Use `playwright-cli` for exploration, UI interaction, snapshots, screenshots, traces, sessions, and browser evidence capture.
