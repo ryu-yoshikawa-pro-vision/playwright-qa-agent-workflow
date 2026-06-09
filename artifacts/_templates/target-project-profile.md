@@ -1,101 +1,102 @@
-# Target Project Profile
+# 対象プロジェクトプロファイル
 
-## 1. Target application
+このファイルは、対象アプリケーションを AI エージェントに扱わせる前に、接続方法、実行方法、認証、データ制約、生成方針を明文化するためのテンプレートです。
 
-| Item                | Value |
-| ------------------- | ----- |
-| Application name    | TBD   |
-| Target repository   | TBD   |
-| Target branch       | TBD   |
-| Local project path  | TBD   |
-| Primary environment | TBD   |
-| Base URL            | TBD   |
+## 1. 対象アプリケーション
 
-## 2. Repository and setup
+- アプリケーション名: 未記入
+- 対象リポジトリ: 未記入
+- 対象ブランチ: 未記入
+- ローカルプロジェクトパス: 未記入
+- 主な利用環境: 未記入
+- Base URL: 未記入
 
-| Item                           | Value |
-| ------------------------------ | ----- |
-| Install command                | TBD   |
-| Local start command            | TBD   |
-| Required environment variables | TBD   |
-| Setup notes                    | TBD   |
+## 2. リポジトリとセットアップ
 
-## 3. Browser and Playwright CLI access
+- 依存関係インストールコマンド: 未記入
+- ローカル起動コマンド: 未記入
+- 必要な環境変数: 未記入
+- セットアップ補足: 未記入
 
-| Item                           | Value                                                        |
-| ------------------------------ | ------------------------------------------------------------ |
-| Preferred browser/session      | TBD                                                          |
-| Playwright CLI session name    | TBD                                                          |
-| Existing browser attach method | TBD                                                          |
-| Screenshot/snapshot policy     | Use both snapshot and screenshot for important visual states |
-| Evidence output scope          | `artifacts/<feature>/runs/<run-id>/evidence/`                |
+## 3. ブラウザと Playwright CLI の利用方針
 
-## 4. Authentication and roles
+- 優先するブラウザまたはセッション: 未記入
+- Playwright CLI セッション名: 未記入
+- 既存ブラウザへの接続方法: 未記入
+- スクリーンショット / スナップショット方針: 重要な視覚状態は snapshot と screenshot の両方で確認する
+- 証跡の出力先: `artifacts/<feature>/runs/<run-id>/evidence/`
 
-| Role | Account/source | Allowed usage | Notes |
-| ---- | -------------- | ------------- | ----- |
-| TBD  | TBD            | TBD           | TBD   |
+## 4. 認証とロール
 
-Rules:
+### 利用可能なロール・アカウント
 
-- Do not write passwords, tokens, cookies, refresh tokens, API keys, or session storage values in this file.
-- Saved authentication state must stay outside Git.
-- If required role access is unavailable, mark the affected browser-dependent work as `BLOCKED`.
+- ロール: 未記入
+  - アカウントまたは取得元: 未記入
+  - 利用可能な作業: 未記入
+  - 補足: 未記入
 
-## 5. Test execution
+### ルール
 
-| Item                | Value |
-| ------------------- | ----- |
-| Full test command   | TBD   |
-| Single spec command | TBD   |
-| Debug command       | TBD   |
-| Report output       | TBD   |
-| CI command          | TBD   |
+- パスワード、トークン、Cookie、リフレッシュトークン、API キー、session storage の値をこのファイルに書かない。
+- 保存済み認証状態は Git 管理しない。
+- 必要なロールでアクセスできない場合、該当するブラウザ依存作業は `BLOCKED` とする。
 
-Rules:
+## 5. テスト実行
 
-- Use this target project's documented test command.
-- Do not treat `playwright-cli` as the project test-suite runner.
-- If no target-project test command is available, mark live test execution as `BLOCKED` and continue with static review or browser evidence review when possible.
+- 全体テストコマンド: 未記入
+- 単一 spec 実行コマンド: 未記入
+- デバッグ用コマンド: 未記入
+- レポート出力先: 未記入
+- CI コマンド: 未記入
 
-## 6. Test data policy
+### ルール
 
-| Data type | Allowed? | Setup method | Cleanup method | Notes |
-| --------- | -------- | ------------ | -------------- | ----- |
-| TBD       | TBD      | TBD          | TBD            | TBD   |
+- 対象プロジェクトで定義されているテスト実行コマンドを使用する。
+- `playwright-cli` をプロジェクトのテストスイート実行コマンドとして扱わない。
+- 対象プロジェクトのテスト実行コマンドが不明な場合、ライブテスト実行は `BLOCKED` とし、可能な範囲で静的レビューまたはブラウザ証跡レビューを継続する。
 
-## 7. Safe and unsafe operations
+## 6. テストデータ方針
 
-### Safe operations
+### データ種別ごとの扱い
 
-- TBD
+- データ種別: 未記入
+  - 利用可否: 未記入
+  - セットアップ方法: 未記入
+  - クリーンアップ方法: 未記入
+  - 補足: 未記入
 
-### Requires explicit approval
+## 7. 安全な操作と危険な操作
 
-- TBD
+### 安全に実行してよい操作
 
-### Prohibited operations
+- 未記入
 
-- TBD
+### 明示的な承認が必要な操作
 
-## 8. Generation policy
+- 未記入
 
-| Item                     | Value                      |
-| ------------------------ | -------------------------- |
-| Generated test path      | `tests/<feature>.spec.ts`  |
-| Helper/POM policy        | TBD                        |
-| Locator preference       | User-facing locators first |
-| Assertion policy         | TBD                        |
-| Cleanup/isolation policy | TBD                        |
+### 禁止する操作
 
-## 9. Known constraints and blockers
+- 未記入
 
-| ID      | Constraint / blocker | Impact | Next action |
-| ------- | -------------------- | ------ | ----------- |
-| TPB-001 | TBD                  | TBD    | TBD         |
+## 8. テスト生成方針
 
-## 10. Change history
+- 生成するテストの配置先: `tests/<feature>.spec.ts`
+- helper / POM の方針: 未記入
+- locator の優先方針: ユーザーから見える role、label、accessible name を優先する
+- assertion 方針: 未記入
+- cleanup / isolation 方針: 未記入
 
-| Date | Updated by | Change          | Reason |
-| ---- | ---------- | --------------- | ------ |
-| TBD  | TBD        | Initial profile | TBD    |
+## 9. 既知の制約とブロッカー
+
+- ID: TPB-001
+  - 制約またはブロッカー: 未記入
+  - 影響: 未記入
+  - 次の対応: 未記入
+
+## 10. 変更履歴
+
+- 日付: 未記入
+  - 更新者: 未記入
+  - 変更内容: 初版作成
+  - 理由: 未記入
