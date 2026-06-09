@@ -101,6 +101,7 @@ for (const skill of [
 
 for (const doc of [
   'docs/workflow.md',
+  'docs/target-project-profile.md',
   'docs/playwright-cli.md',
   '.agents/skills/playwright-cli/references/use-cases.md',
   '.agents/skills/playwright-cli/references/use-cases/README.md',
@@ -131,6 +132,7 @@ for (const harnessFile of [
   'scripts/workflow/status.mjs',
   'scripts/workflow/validation.mjs',
   'scripts/validate-coverage.mjs',
+  'scripts/check-playwright-cli-compat.mjs',
 ]) {
   fileExists(harnessFile, { nonEmpty: true });
 }
@@ -160,6 +162,7 @@ for (const template of [
   'FEATURE_BACKLOG.md',
   '00_request.md',
   'coverage.md',
+  'target-project-profile.md',
 ]) {
   fileExists(`artifacts/_templates/${template}`, { nonEmpty: true });
 }
