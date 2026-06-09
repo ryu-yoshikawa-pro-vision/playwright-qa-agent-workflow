@@ -69,8 +69,16 @@ playwright-cli --help
 
 次に、対象アプリの前提情報を作成します。
 
+サービス全体を探索する場合は、次に作成します。
+
 ```text
 artifacts/service-exploration/TARGET_PROJECT_PROFILE.md
+```
+
+1機能だけを扱う場合は、次に作成しても構いません。
+
+```text
+artifacts/<feature>/TARGET_PROJECT_PROFILE.md
 ```
 
 その後、サービス全体を探索するか、1機能に絞って進めます。
