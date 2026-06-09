@@ -15,7 +15,10 @@
 
 - 依存関係インストールコマンド: npm install
 - ローカル起動コマンド: npm run dev
-- 必要な環境変数: `.env.example` を参照
+- 必要な環境変数:
+  - `MINI_SAAS_LOGIN_EMAIL`
+  - `MINI_SAAS_LOGIN_SECRET`
+  - `MINI_SAAS_INVALID_LOGIN_SECRET`
 - セットアップ補足: サンプルのため実際の起動確認は行わない
 
 ## 3. ブラウザと Playwright CLI の利用方針
