@@ -18,6 +18,7 @@
     "check:evals": "npm run check:artifacts && npm run check:validation && npm run check:coverage && npm run check:semantic && npm run check:test-design && npm run check:logs",
     "check:semantic": "node scripts/validate-semantic-fixtures.mjs",
     "check:test-design": "node scripts/validate-test-design-fixtures.mjs",
+    "check:playwright-cli": "node scripts/check-playwright-cli-compat.mjs",
     "agent:init": "node scripts/agent-init-run.mjs",
     "agent:status": "node scripts/agent-status.mjs",
     "agent:next": "node scripts/agent-next-step.mjs",
