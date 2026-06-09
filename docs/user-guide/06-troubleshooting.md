@@ -72,7 +72,7 @@ npm run agent:gate -- --feature <feature> --for generator
 | test-design の SHA が一致しない | validation report | validator を再実行する |
 | Semantic Review Decision が `PASS` ではない | validation report | plan 側の品質を直す |
 | Test Design Review Decision が `PASS` ではない | validation report | test-design 側の品質を直す |
-| `PASS | FAIL | BLOCKED` のプレースホルダが残っている | validation report | 1つの判定に置き換える |
+| 判定プレースホルダが残っている | validation report | `PASS`、`FAIL`、`BLOCKED` のいずれか1つに置き換える |
 
 `agent:gate` は、generator に進んでよいかを判断するためのコマンドです。
 
