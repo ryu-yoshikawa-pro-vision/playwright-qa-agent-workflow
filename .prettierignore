@@ -7,3 +7,4 @@ artifacts/**/evidence
 coverage
 package-lock.json
 *.zip
+docs/user-guide/**/*.md
