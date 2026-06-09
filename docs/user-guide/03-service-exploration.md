@@ -86,10 +86,10 @@ playwright-cli --help
 
 ## AI エージェントへの依頼例
 
-サービス全体探索を依頼する場合は、次のように依頼します。
+サービス全体探索を依頼する場合は、共通指示ではなく対象情報と成果物を明確にします。
 
 ```text
-AGENTS.md を読んでください。
+対象は <対象アプリ名> です。
 artifacts/service-exploration/TARGET_PROJECT_PROFILE.md を確認してください。
 playwright-service-mapper スキルに従い、対象アプリ全体を Playwright CLI で探索してください。
 
@@ -101,6 +101,7 @@ playwright-service-mapper スキルに従い、対象アプリ全体を Playwrig
 - artifacts/service-exploration/FEATURE_BACKLOG.md
 - artifacts/service-exploration/runs/<run-id>/01_service_mapper/
 - artifacts/service-exploration/runs/<run-id>/evidence/
+- artifacts/service-exploration/runs/<run-id>/99_handoff.md
 
 確認できた再利用可能な仕様は artifacts/spec-catalog/ に反映してください。
 確認できていないことは推測で書かず、Unverified または OPEN_QUESTIONS.md に残してください。
