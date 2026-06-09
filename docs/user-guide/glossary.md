@@ -58,15 +58,15 @@ AI エージェントに特定の作業をさせるための手順書です。
 
 このリポジトリには、次のような skill があります。
 
-| skill | 役割 |
-| --- | --- |
-| `playwright-cli` | ブラウザ操作と証跡取得 |
-| `playwright-service-mapper` | サービス全体探索 |
-| `playwright-test-planner` | 機能単位のテスト計画 |
-| `playwright-test-designer` | テスト技法に基づくテスト設計 |
-| `playwright-test-plan-validator` | 生成前レビュー |
-| `playwright-test-generator` | Playwright Test 生成 |
-| `playwright-test-healer` | 失敗テストの診断と修復 |
+| skill                            | 役割                         |
+| -------------------------------- | ---------------------------- |
+| `playwright-cli`                 | ブラウザ操作と証跡取得       |
+| `playwright-service-mapper`      | サービス全体探索             |
+| `playwright-test-planner`        | 機能単位のテスト計画         |
+| `playwright-test-designer`       | テスト技法に基づくテスト設計 |
+| `playwright-test-plan-validator` | 生成前レビュー               |
+| `playwright-test-generator`      | Playwright Test 生成         |
+| `playwright-test-healer`         | 失敗テストの診断と修復       |
 
 ## service mapping
 
@@ -114,10 +114,10 @@ specs/_reviews/<feature>.validation.md
 
 判定は次の3つです。
 
-| 判定 | 意味 |
-| --- | --- |
-| `PASS` | 生成に進める |
-| `FAIL` | plan または test-design の修正が必要 |
+| 判定      | 意味                                           |
+| --------- | ---------------------------------------------- |
+| `PASS`    | 生成に進める                                   |
+| `FAIL`    | plan または test-design の修正が必要           |
 | `BLOCKED` | 情報、証跡、ファイルなどが不足して判定できない |
 
 ## generator
@@ -367,9 +367,9 @@ Playwright Test が画面要素を見つけるための指定方法です。
 例です。
 
 ```ts
-page.getByRole('button', { name: 'ログイン' })
-page.getByLabel('メールアドレス')
-page.getByText('保存しました')
+page.getByRole('button', { name: 'ログイン' });
+page.getByLabel('メールアドレス');
+page.getByText('保存しました');
 ```
 
 原則として、ユーザーから見える role、label、text、test id を優先します。

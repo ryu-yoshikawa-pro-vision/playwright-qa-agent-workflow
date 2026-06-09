@@ -30,12 +30,12 @@ artifacts/service-exploration/OPEN_QUESTIONS.md
 
 成果物は、大きく次の4種類に分かれます。
 
-| 種類 | 目的 | 主な場所 |
-| --- | --- | --- |
-| 引き継ぎ | 次の作業者が現在状態を理解する | `artifacts/<scope>/HANDOFF.md` |
-| 正本 | 現在有効な計画、設計、coverage を示す | `specs/` |
-| 実行履歴 | 1回の作業で何をしたかを残す | `artifacts/<scope>/runs/<run-id>/` |
-| 仕様カタログ | 再利用可能な仕様情報を残す | `artifacts/spec-catalog/` |
+| 種類         | 目的                                  | 主な場所                           |
+| ------------ | ------------------------------------- | ---------------------------------- |
+| 引き継ぎ     | 次の作業者が現在状態を理解する        | `artifacts/<scope>/HANDOFF.md`     |
+| 正本         | 現在有効な計画、設計、coverage を示す | `specs/`                           |
+| 実行履歴     | 1回の作業で何をしたかを残す           | `artifacts/<scope>/runs/<run-id>/` |
+| 仕様カタログ | 再利用可能な仕様情報を残す            | `artifacts/spec-catalog/`          |
 
 ## 1. 現在状態を知りたい
 
@@ -267,13 +267,13 @@ artifacts/<feature>/runs/<run-id>/evidence/
 
 代表的な証跡です。
 
-| 種類 | 目的 |
-| --- | --- |
-| screenshots | 見た目、表示状態、モーダル、disabled、loading など |
-| snapshots | role、label、accessible name、テキスト構造、locator 候補 |
-| traces | 操作の流れ、失敗調査、遷移確認 |
-| console | ブラウザエラー、警告 |
-| network | API エラー、通信失敗 |
+| 種類        | 目的                                                     |
+| ----------- | -------------------------------------------------------- |
+| screenshots | 見た目、表示状態、モーダル、disabled、loading など       |
+| snapshots   | role、label、accessible name、テキスト構造、locator 候補 |
+| traces      | 操作の流れ、失敗調査、遷移確認                           |
+| console     | ブラウザエラー、警告                                     |
+| network     | API エラー、通信失敗                                     |
 
 証跡ファイルは重くなりやすく、機密情報を含む可能性があります。
 

@@ -105,15 +105,15 @@ npm run agent:next -- --feature login
 
 代表的な状態と次の作業です。
 
-| 状態 | 次の作業 |
-| --- | --- |
-| artifact scope がない | `agent:init` を実行する |
-| plan がない | `playwright-test-planner` を使う |
-| plan はあるが test-design がない | `playwright-test-designer` を使う |
-| plan と test-design はあるが validation がない | `playwright-test-plan-validator` を使う |
-| validation が PASS していない | planner または designer を修正し、validator を再実行する |
-| validation が PASS して実装がない | `playwright-test-generator` を使う |
-| 実装はあるが coverage がない | `specs/<feature>.coverage.md` を更新する |
+| 状態                                           | 次の作業                                                 |
+| ---------------------------------------------- | -------------------------------------------------------- |
+| artifact scope がない                          | `agent:init` を実行する                                  |
+| plan がない                                    | `playwright-test-planner` を使う                         |
+| plan はあるが test-design がない               | `playwright-test-designer` を使う                        |
+| plan と test-design はあるが validation がない | `playwright-test-plan-validator` を使う                  |
+| validation が PASS していない                  | planner または designer を修正し、validator を再実行する |
+| validation が PASS して実装がない              | `playwright-test-generator` を使う                       |
+| 実装はあるが coverage がない                   | `specs/<feature>.coverage.md` を更新する                 |
 
 迷ったら、まず `agent:next` を見ます。
 
@@ -188,13 +188,13 @@ specs/login.plan.md をもとに、playwright-test-designer スキルで specs/l
 
 テスト設計では、すべての技法を使う必要はありません。
 
-| 技法 | 使う場面 | 使わない場面 |
-| --- | --- | --- |
-| 同値分割 | 入力値や条件を有効・無効などに分けられる | 条件分岐がない静的表示 |
-| 境界値分析 | 文字数、数値、日付、件数などの境界がある | 境界や範囲が未確認 |
-| デシジョンテーブル | 複数条件の組み合わせで結果が変わる | 条件が1つだけ |
-| 状態遷移 | 下書き、公開、停止など状態が変わる | 状態を持たない画面 |
-| 権限マトリクス | ロールごとに表示や操作が変わる | 1ロールしか確認していない |
+| 技法               | 使う場面                                 | 使わない場面              |
+| ------------------ | ---------------------------------------- | ------------------------- |
+| 同値分割           | 入力値や条件を有効・無効などに分けられる | 条件分岐がない静的表示    |
+| 境界値分析         | 文字数、数値、日付、件数などの境界がある | 境界や範囲が未確認        |
+| デシジョンテーブル | 複数条件の組み合わせで結果が変わる       | 条件が1つだけ             |
+| 状態遷移           | 下書き、公開、停止など状態が変わる       | 状態を持たない画面        |
+| 権限マトリクス     | ロールごとに表示や操作が変わる           | 1ロールしか確認していない |
 
 見栄えのためにテストケース数を増やさないでください。
 
@@ -221,11 +221,11 @@ specs/_reviews/login.validation.md に、Semantic Quality Review と Test Design
 
 ### 判定の意味
 
-| 判定 | 意味 | 次の作業 |
-| --- | --- | --- |
-| `PASS` | 生成に進める | generator に進む |
-| `FAIL` | 計画または設計の修正が必要 | planner または designer に戻る |
-| `BLOCKED` | 必要情報や証跡が足りない | 不足情報を解消する |
+| 判定      | 意味                       | 次の作業                       |
+| --------- | -------------------------- | ------------------------------ |
+| `PASS`    | 生成に進める               | generator に進む               |
+| `FAIL`    | 計画または設計の修正が必要 | planner または designer に戻る |
+| `BLOCKED` | 必要情報や証跡が足りない   | 不足情報を解消する             |
 
 ## 7. generator gate を確認する
 
@@ -317,13 +317,13 @@ npm run test:e2e -- tests/e2e/login.spec.ts
 
 主な分類例です。
 
-| 分類 | 例 | 対応 |
-| --- | --- | --- |
-| テスト実装の問題 | locator が古い、待機が不足 | 最小修正する |
-| テストデータの問題 | 前提データがない | データ準備を見直す |
-| 環境問題 | 対象アプリが起動していない | 環境を直す |
-| 仕様変更 | 期待結果が変わった | test-design と validation に戻る |
-| プロダクト不具合 | 実装が仕様と違う | 不具合として報告する |
+| 分類               | 例                         | 対応                             |
+| ------------------ | -------------------------- | -------------------------------- |
+| テスト実装の問題   | locator が古い、待機が不足 | 最小修正する                     |
+| テストデータの問題 | 前提データがない           | データ準備を見直す               |
+| 環境問題           | 対象アプリが起動していない | 環境を直す                       |
+| 仕様変更           | 期待結果が変わった         | test-design と validation に戻る |
+| プロダクト不具合   | 実装が仕様と違う           | 不具合として報告する             |
 
 詳しくは `06-troubleshooting.md` を見てください。
 
