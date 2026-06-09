@@ -44,6 +44,14 @@ If Playwright CLI is unavailable, browser exploration, screenshots, snapshots, t
 
 For login-required exploration, follow `docs/playwright-cli.md#authentication-and-session-persistence`.
 
+## Target project profile
+
+Before browser exploration, generation, or healing against a real target project, read the target project profile when it exists. See `docs/target-project-profile.md` and `artifacts/_templates/target-project-profile.md`.
+
+If the base URL, account/role, test command, or data policy is missing and the task depends on it, mark the affected operation as `BLOCKED` instead of guessing.
+
+The target project profile may be stored in this repository as `artifacts/<scope-or-feature>/TARGET_PROJECT_PROFILE.md` or in the target project, such as `docs/qa/target-project-profile.md`. Do not write passwords, tokens, cookies, refresh tokens, API keys, or session storage values in the profile.
+
 ## Skills
 
 | Skill                            | Use when                                                                                                                                       | Do not use when                                                                           |
@@ -89,6 +97,7 @@ Do not collapse mapping, planning, design, validation, generation, and healing i
 Follow:
 
 - `docs/workflow.md`
+- `docs/target-project-profile.md`
 - `docs/playwright-cli.md`
 - `.agents/skills/playwright-cli/references/use-cases.md` and the relevant `.agents/skills/playwright-cli/references/use-cases/use-case-*.md` file
 - `docs/test-execution-boundary.md`
@@ -100,6 +109,7 @@ Follow:
 Important paths:
 
 ```text
+artifacts/<scope-or-feature>/TARGET_PROJECT_PROFILE.md
 specs/<feature>.plan.md
 specs/<feature>.test-design.md
 specs/<feature>.coverage.md
