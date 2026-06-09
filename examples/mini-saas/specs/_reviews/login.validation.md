@@ -8,6 +8,7 @@
 - Test design: `examples/mini-saas/specs/login.test-design.md`
 - Plan SHA-256: `3e47ffb489ccaefdbf2a2b909bbe7f52aa0908a2f35a3862cbd2b1c9de82f3f7`
 - Test design SHA-256: `0cc5337be9b15884273d8f5a6fbcba5db40eddc8737ea0857eb0ddbcb702606a`
+- Hash note: 上記の SHA-256 は、このサンプル内の plan / test-design から計算した値です。実案件でも対象ファイルから計算した値を記録します。
 - Decision: `PASS`
 
 ## Semantic Quality Review
