@@ -148,6 +148,7 @@ playwright-service-mapper スキルに従い、対象アプリ全体を Playwrig
 - artifacts/service-exploration/FEATURE_BACKLOG.md
 - artifacts/service-exploration/runs/<run-id>/01_service_mapper/
 - artifacts/service-exploration/runs/<run-id>/evidence/
+- artifacts/service-exploration/runs/<run-id>/99_handoff.md
 
 確認できた再利用可能な仕様は artifacts/spec-catalog/ に反映してください。
 確認できていないことは推測せず、Unverified または OPEN_QUESTIONS.md に残してください。
