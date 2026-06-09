@@ -19,7 +19,7 @@ Use `playwright-cli` commands for:
 
 Executing generated or existing project test suites is outside the `playwright-cli` skill.
 
-When generator or healer needs to run tests, use the target project's own documented test command. Discover it from the target project's README, package scripts, CI config, or existing developer workflow.
+When generator or healer needs to run tests, use the target project's own documented test command. Discover it from the target project profile, the target project's README, package scripts, CI config, or existing developer workflow.
 
 Do not document generic project test-runner commands inside the Playwright CLI skill or Playwright CLI references.
 
@@ -28,6 +28,7 @@ Do not document generic project test-runner commands inside the Playwright CLI s
 - Generator may produce test code, mapping artifacts, and instructions for how to run tests according to the target project.
 - Healer may run or inspect the smallest relevant test scope when a project test command is available.
 - If no project test command is available, mark live test execution as `BLOCKED` but continue with static review, plan review, trace review, screenshot review, or log review when available.
+- If a target project profile exists and its test command, data policy, role, or environment constraints conflict with inferred project files, follow the profile and record the conflict in handoff or open questions.
 
 ## Why this boundary exists
 

@@ -11,7 +11,7 @@ README.md
 docs/
 evals/
 .codex/hooks.json
-.codex/hooks/jsonl_logger.py
+.codex/hooks/jsonl_logger.mjs
 .opencode/plugins/jsonl-logger.js
 .agent-logs/README.md
 artifacts/_templates/
