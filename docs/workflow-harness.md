@@ -88,8 +88,10 @@ The status command reports:
 - whether `specs/<feature>.plan.md` exists
 - whether `specs/<feature>.test-design.md` exists
 - whether `specs/_reviews/<feature>.validation.md` exists
+- whether `specs/<feature>.coverage.md` exists
+- whether `tests/<feature>.spec.ts` exists
 - whether the generator gate is ready
-- which skill should run next
+- which skill or action should run next
 
 The command is read-only.
 
@@ -108,9 +110,12 @@ The next-step rule is intentionally simple:
 | Plan exists, test design missing                                                | `playwright-test-designer`                                                                |
 | Plan and test design exist, validation missing                                  | `playwright-test-plan-validator`                                                          |
 | Validation exists but is stale, missing decisions, non-PASS, or hash-mismatched | `playwright-test-plan-validator` or revise the source file named by the validation report |
-| Validation gate passes                                                          | `playwright-test-generator`                                                               |
+| Validation gate passes and no implementation exists                             | `playwright-test-generator`                                                               |
+| Implementation exists but coverage ledger is missing                            | Update `specs/<feature>.coverage.md`                                                      |
+| Implementation exists and coverage ledger may be stale                          | Confirm changes and update `specs/<feature>.coverage.md`                                  |
+| Implementation and current coverage ledger exist                                | Review coverage gaps or run target project tests                                          |
 
-The harness does not inspect generated Playwright test files yet because the target project test layout is intentionally not fixed at this stage.
+The harness assumes generated feature tests use `tests/<feature>.spec.ts`. Generator readiness does not require coverage, because first-time generation creates it. After implementation exists, a missing coverage ledger is treated as the next action. If the implementation file is newer than the coverage ledger, the harness warns that the ledger may be stale and asks for coverage confirmation before handoff.
 
 ## Check the generator gate
 
@@ -148,6 +153,6 @@ The harness intentionally does not do the following yet:
 - call an LLM automatically
 - operate Playwright CLI directly
 - run target-project tests
-- decide generated test file paths
+- decide generated test file paths beyond the documented `tests/<feature>.spec.ts` convention
 - configure target project commands
 - auto-heal failing tests

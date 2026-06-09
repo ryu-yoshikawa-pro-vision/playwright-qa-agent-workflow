@@ -130,6 +130,7 @@ for (const harnessFile of [
   'scripts/workflow/paths.mjs',
   'scripts/workflow/status.mjs',
   'scripts/workflow/validation.mjs',
+  'scripts/validate-coverage.mjs',
 ]) {
   fileExists(harnessFile, { nonEmpty: true });
 }
@@ -158,6 +159,7 @@ for (const template of [
   'DECISIONS.md',
   'FEATURE_BACKLOG.md',
   '00_request.md',
+  'coverage.md',
 ]) {
   fileExists(`artifacts/_templates/${template}`, { nonEmpty: true });
 }

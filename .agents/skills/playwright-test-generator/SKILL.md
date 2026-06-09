@@ -31,7 +31,8 @@ If these are not true, stop and report `BLOCKED`.
 5. Generate tests under `tests/` unless another path is requested.
 6. Preserve traceability with comments linking test-design cases, source plan, validation, and evidence.
 7. Write `test-mapping.md` and generation artifacts.
-8. Update feature-level handoff files.
+8. Create or update `specs/<feature>.coverage.md` as the current coverage ledger.
+9. Update feature-level handoff files.
 
 ## Rules
 
@@ -40,6 +41,8 @@ If these are not true, stop and report `BLOCKED`.
 - Prefer user-facing locators.
 - Do not weaken assertions for convenience.
 - Record unimplemented cases and reasons.
+- Treat run-local `test-mapping.md` as history and `specs/<feature>.coverage.md` as the current coverage ledger.
+- Do not finish generation while implemented tests exist but `specs/<feature>.coverage.md` is missing or stale.
 
 See `references/generation-rules.md`.
 

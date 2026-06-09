@@ -27,6 +27,8 @@ Use sources in this priority order:
 
 Do not generate tests from plan-only scenario ideas when the validated test design excludes or changes them.
 
+Use `artifacts/_templates/coverage.md` when creating a new coverage ledger. Replace placeholders with concrete paths, design case IDs, test titles, run IDs, and coverage decisions. Do not leave `TBD`, `TODO`, `<feature>`, `<run-id>`, or other template placeholders in the final ledger. When nothing is excluded or no open question exists, keep the table and write a concrete `None` row with a reason. `Last updated by run` and `Change history` must link to the same feature, `artifacts/<feature>/runs/<run-id>/`; do not use `None` history or another feature's run.
+
 ## Traceability
 
 Generated tests should preserve traceability to design cases.
@@ -39,7 +41,7 @@ Recommended comment pattern:
 // Evidence: EV-001, EV-002
 ```
 
-Required mapping artifact:
+Required run-local mapping artifact:
 
 ```text
 artifacts/<feature>/runs/<run-id>/04_generator/test-mapping.md
@@ -49,6 +51,25 @@ The mapping should include:
 
 | Test design ID | Generated test title | Source technique | Evidence IDs | Notes |
 | -------------- | -------------------- | ---------------- | ------------ | ----- |
+
+Required current coverage ledger:
+
+```text
+specs/<feature>.coverage.md
+```
+
+`test-mapping.md` records what happened in this generator run. `specs/<feature>.coverage.md` records the current feature coverage state. After creating or changing tests, promote the current mapping into the coverage ledger.
+
+The coverage ledger must include:
+
+- current status and the last updating run
+- coverage summary by area or behavior
+- implemented test mapping back to test design IDs
+- what each implemented test verifies
+- explicitly uncovered cases, with reason, risk, and follow-up
+- current assertion policy, especially when avoiding brittle exact text checks
+- open questions that affect coverage
+- change history with at least one concrete run-linked row
 
 ## Safety rules
 

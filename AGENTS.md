@@ -12,14 +12,14 @@ Use **Playwright CLI** as the primary browser operation method.
 
 ## Language policy
 
-* Use English for internal analysis, planning, comparison, and decision-making when it helps improve accuracy and consistency.
-* Create user-facing QA deliverables in Japanese.
-* Artifacts under `artifacts/`, `specs/`, and `specs/_reviews/` must be written in Japanese.
-* This includes feature plans, test designs, validation reports, findings, decisions, open questions, handoff notes, task summaries, and review results.
-* Do not leave English scratch notes, untranslated drafts, or internal planning notes in committed deliverables.
-* If an intermediate note is saved as a repository artifact, treat it as a deliverable and write it in Japanese.
-* Keep code identifiers, file names, directory names, commands, package names, API names, product names, status labels, UI labels, logs, errors, and direct source excerpts in their original language when translating them would reduce accuracy.
-* When quoting logs, errors, command output, source code, or UI text, preserve the original text and add Japanese explanation when needed.
+- Use English for internal analysis, planning, comparison, and decision-making when it helps improve accuracy and consistency.
+- Create user-facing QA deliverables in Japanese.
+- Artifacts under `artifacts/`, `specs/`, and `specs/_reviews/` must be written in Japanese.
+- This includes feature plans, test designs, validation reports, findings, decisions, open questions, handoff notes, task summaries, and review results.
+- Do not leave English scratch notes, untranslated drafts, or internal planning notes in committed deliverables.
+- If an intermediate note is saved as a repository artifact, treat it as a deliverable and write it in Japanese.
+- Keep code identifiers, file names, directory names, commands, package names, API names, product names, status labels, UI labels, logs, errors, and direct source excerpts in their original language when translating them would reduce accuracy.
+- When quoting logs, errors, command output, source code, or UI text, preserve the original text and add Japanese explanation when needed.
 
 ## Tool roles
 
@@ -102,6 +102,7 @@ Important paths:
 ```text
 specs/<feature>.plan.md
 specs/<feature>.test-design.md
+specs/<feature>.coverage.md
 specs/_reviews/<feature>.validation.md
 tests/<feature>.spec.ts
 artifacts/<scope-or-feature>/HANDOFF.md
@@ -124,8 +125,9 @@ A skill execution is not complete until it updates:
 - `FINDINGS.md` when reusable findings were discovered
 - `DECISIONS.md` when meaningful decisions were made
 - `FEATURE_BACKLOG.md` for service-wide feature candidates
+- `specs/<feature>.coverage.md` when generated tests, coverage gaps, explicit exclusions, or assertion policies change
 
-Do not leave durable findings, open questions, decisions, or next actions only inside run-local logs.
+Do not leave durable findings, open questions, decisions, coverage mappings, or next actions only inside run-local logs. Run-local `test-mapping.md` is history; `specs/<feature>.coverage.md` is the current coverage ledger.
 
 ## Visual evidence rule
 
@@ -165,12 +167,15 @@ Use narrower checks when appropriate:
 ```bash
 npm run check:artifacts
 npm run check:validation
+npm run check:coverage
 npm run check:semantic
 npm run check:test-design
 npm run check:logs
 ```
 
 These checks validate structure only. They do not prove that the explored application was fully covered or that generated tests are semantically correct.
+
+After generation or healing, `agent:status` and `agent:next` should show whether `specs/<feature>.coverage.md` exists. If tests exist but the coverage ledger is missing, update the ledger before treating the feature as handoff-ready.
 
 ## Workflow harness
 

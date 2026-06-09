@@ -51,6 +51,7 @@ export function repoPaths(root = process.cwd(), feature) {
     artifactsDir: path.join(root, 'artifacts'),
     specsDir: path.join(root, 'specs'),
     reviewsDir: path.join(root, 'specs', '_reviews'),
+    testsDir: path.join(root, 'tests'),
     templatesDir: path.join(root, 'artifacts', '_templates'),
   };
   if (feature) {
@@ -59,7 +60,9 @@ export function repoPaths(root = process.cwd(), feature) {
     paths.runsDir = path.join(paths.featureArtifactDir, 'runs');
     paths.planPath = path.join(paths.specsDir, `${feature}.plan.md`);
     paths.testDesignPath = path.join(paths.specsDir, `${feature}.test-design.md`);
+    paths.coveragePath = path.join(paths.specsDir, `${feature}.coverage.md`);
     paths.validationPath = path.join(paths.reviewsDir, `${feature}.validation.md`);
+    paths.testImplementationPath = path.join(paths.testsDir, `${feature}.spec.ts`);
   }
   return paths;
 }

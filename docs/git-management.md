@@ -23,6 +23,7 @@ artifacts/service-exploration/FEATURE_BACKLOG.md
 artifacts/spec-catalog/
 specs/*.plan.md
 specs/*.test-design.md
+specs/*.coverage.md
 specs/_reviews/*.validation.md
 ```
 
@@ -47,7 +48,7 @@ blob-report/
 
 ## Rationale
 
-Detailed run evidence is valuable during work but noisy in Git. It may also contain sensitive UI data. Saved browser authentication state may contain cookies, local storage, or session material and must not be committed. Promote important information into `HANDOFF.md`, `OPEN_QUESTIONS.md`, `FINDINGS.md`, `DECISIONS.md`, `FEATURE_BACKLOG.md`, and reusable `artifacts/spec-catalog/` entries instead.
+Detailed run evidence is valuable during work but noisy in Git. It may also contain sensitive UI data. Saved browser authentication state may contain cookies, local storage, or session material and must not be committed. Promote important information into `HANDOFF.md`, `OPEN_QUESTIONS.md`, `FINDINGS.md`, `DECISIONS.md`, `FEATURE_BACKLOG.md`, `specs/<feature>.coverage.md`, and reusable `artifacts/spec-catalog/` entries instead.
 
 ## Exception
 

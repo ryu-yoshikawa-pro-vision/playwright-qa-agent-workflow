@@ -38,6 +38,23 @@ console.log(
   ),
 );
 console.log(
+  formatFileStatus(
+    'Coverage',
+    status.files.coverage,
+    toPosixRelative(root, status.paths.coveragePath),
+  ),
+);
+if (status.coverageMayBeStale) {
+  console.log('Coverage warning: implementation file is newer than the coverage ledger');
+}
+console.log(
+  formatFileStatus(
+    'Implementation',
+    status.files.implementation,
+    toPosixRelative(root, status.paths.testImplementationPath),
+  ),
+);
+console.log(
   status.artifactScopeExists ? formatGateStatus(status.gate) : 'Gate for generator: BLOCKED',
 );
 if (status.nextAction) {
@@ -49,11 +66,11 @@ if (status.nextAction) {
 console.log('Reasons:');
 for (const reason of status.reasons) console.log(`- ${reason}`);
 
-if (status.gate.errors.length) {
+if (status.artifactScopeExists && status.gate.errors.length) {
   console.log('\nGate errors:');
   for (const error of status.gate.errors) console.log(`- ${error}`);
 }
-if (status.gate.warnings.length) {
+if (status.artifactScopeExists && status.gate.warnings.length) {
   console.log('\nGate warnings:');
   for (const warning of status.gate.warnings) console.log(`- ${warning}`);
 }

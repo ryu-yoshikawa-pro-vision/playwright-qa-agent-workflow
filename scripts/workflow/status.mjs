@@ -3,9 +3,13 @@ import { latestRunId, repoPaths, toPosixRelative } from './paths.mjs';
 import { validatePlanDesignGate } from './validation.mjs';
 
 function fileState(filePath) {
-  if (!fs.existsSync(filePath)) return { exists: false, size: 0 };
+  if (!fs.existsSync(filePath)) return { exists: false, size: 0, mtimeMs: 0 };
   const stat = fs.statSync(filePath);
-  return { exists: stat.isFile(), size: stat.isFile() ? stat.size : 0 };
+  return {
+    exists: stat.isFile(),
+    size: stat.isFile() ? stat.size : 0,
+    mtimeMs: stat.isFile() ? stat.mtimeMs : 0,
+  };
 }
 
 function dirState(dirPath) {
@@ -17,8 +21,12 @@ export function getFeatureStatus({ root = process.cwd(), feature }) {
   const latestRun = latestRunId(paths.runsDir);
   const plan = fileState(paths.planPath);
   const testDesign = fileState(paths.testDesignPath);
+  const coverage = fileState(paths.coveragePath);
   const validation = fileState(paths.validationPath);
+  const implementation = fileState(paths.testImplementationPath);
   const artifactScopeExists = dirState(paths.featureArtifactDir);
+  const coverageMayBeStale =
+    implementation.exists && coverage.exists && implementation.mtimeMs > coverage.mtimeMs + 1000;
   const gate = validatePlanDesignGate({ root, feature });
 
   let nextAction = null;
@@ -50,11 +58,40 @@ export function getFeatureStatus({ root = process.cwd(), feature }) {
     reasons.push('validation gate is not ready for generation');
     if (gate.errors.length) reasons.push(...gate.errors.slice(0, 5));
     if (!gate.errors.length && gate.warnings.length) reasons.push(...gate.warnings.slice(0, 5));
+  } else if (implementation.exists && !coverage.exists) {
+    nextAction = 'update coverage ledger';
+    nextSkill = 'playwright-test-generator';
+    nextSkillAfterAction = 'review coverage gaps or run target project tests';
+    reasons.push('validated test implementation exists');
+    reasons.push(`missing ${toPosixRelative(root, paths.coveragePath)}`);
+    reasons.push(
+      'promote the current test mapping, covered checks, excluded checks, open questions, and assertion policies into the feature coverage ledger',
+    );
+  } else if (implementation.exists && coverage.exists && coverageMayBeStale) {
+    nextAction = 'update coverage ledger';
+    nextSkill = 'playwright-test-generator';
+    nextSkillAfterAction = 'review coverage gaps or run target project tests';
+    reasons.push('test implementation exists');
+    reasons.push(
+      'coverage ledger exists but may be stale because the implementation file is newer',
+    );
+    reasons.push(
+      'confirm whether implementation changes affect coverage, excluded checks, open questions, or assertion policies',
+    );
+  } else if (implementation.exists && coverage.exists) {
+    nextSkill = 'review coverage gaps or run target project tests';
+    reasons.push('plan exists');
+    reasons.push('test design exists');
+    reasons.push('validation gate passed');
+    reasons.push('test implementation exists');
+    reasons.push('coverage ledger exists');
   } else {
     nextSkill = 'playwright-test-generator';
     reasons.push('plan exists');
     reasons.push('test design exists');
     reasons.push('validation gate passed');
+    reasons.push('test implementation is not present yet');
+    reasons.push('generator must create or update the coverage ledger after implementation');
   }
 
   return {
@@ -62,8 +99,9 @@ export function getFeatureStatus({ root = process.cwd(), feature }) {
     paths,
     artifactScopeExists,
     latestRun,
-    files: { plan, testDesign, validation },
+    files: { plan, testDesign, coverage, validation, implementation },
     gate,
+    coverageMayBeStale,
     nextAction,
     nextSkill,
     nextSkillAfterAction,

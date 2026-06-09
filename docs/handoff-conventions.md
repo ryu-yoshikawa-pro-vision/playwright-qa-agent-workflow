@@ -29,6 +29,19 @@ artifacts/<feature>/runs/<run-id>/99_handoff.md
 
 ## Read order for continuing work
 
+For feature-level work after test generation has started:
+
+1. `specs/<feature>.coverage.md`
+2. `specs/<feature>.test-design.md`
+3. `tests/<feature>.spec.ts`
+4. `artifacts/<feature>/DECISIONS.md`
+5. `artifacts/<feature>/OPEN_QUESTIONS.md`
+6. `artifacts/<feature>/FINDINGS.md`
+7. latest `artifacts/<feature>/runs/<run-id>/99_handoff.md`
+8. detailed run-local artifacts only as needed
+
+For service-wide work or feature-level work before test generation:
+
 1. `HANDOFF.md`
 2. `OPEN_QUESTIONS.md`
 3. `FINDINGS.md`
@@ -47,6 +60,9 @@ Examples:
 - Reusable service or feature observation -> `FINDINGS.md`
 - Feature split, validation, generation, or healing judgment -> `DECISIONS.md`
 - New feature candidate -> `FEATURE_BACKLOG.md`
+- Current generator mapping, implemented checks, exclusions, or coverage gaps -> `specs/<feature>.coverage.md`
+- Healing change that affects what is asserted or observed -> `specs/<feature>.coverage.md` and, when durable, `DECISIONS.md`
+- Healing change that affects expected behavior or design intent -> `specs/<feature>.test-design.md`, then rerun validation
 
 ## Status values
 
@@ -74,6 +90,9 @@ A skill execution is incomplete if:
 - open questions remain only in run-local files
 - reusable findings remain only in run-local files
 - important decisions remain only in run-local files
+- generator output creates or changes tests but `specs/<feature>.coverage.md` is missing or stale
+- healer changes assertion policy or observed behavior but `specs/<feature>.coverage.md` is not updated
+- healer changes expected behavior or design intent without returning to test design and validation
 - the recommended next action is unclear
 
 ## Spec catalog promotion

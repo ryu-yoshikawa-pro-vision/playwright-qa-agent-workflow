@@ -130,14 +130,19 @@ artifacts/<feature>/
     99_handoff.md
 ```
 
-## Plans, reviews, and tests
+## Plans, reviews, coverage, and tests
 
 ```text
 specs/<feature>.plan.md
 specs/<feature>.test-design.md
+specs/<feature>.coverage.md
 specs/_reviews/<feature>.validation.md
 tests/<feature>.spec.ts
 ```
+
+`specs/<feature>.test-design.md` is the test-design source of truth. `specs/<feature>.coverage.md` is the current coverage ledger: it explains which design cases are implemented, what each implemented test verifies, what is explicitly not covered, which open questions affect coverage, and which run last changed the ledger.
+
+Do not use run-local generator mappings as the current coverage source of truth. Promote the current mapping from `artifacts/<feature>/runs/<run-id>/04_generator/test-mapping.md` into `specs/<feature>.coverage.md` before ending generation work.
 
 ## Evidence index format
 
@@ -185,3 +190,5 @@ Do not claim visual behavior from snapshot text alone.
 ## Handoff artifacts
 
 Follow `docs/handoff-conventions.md`. Important findings, open questions, decisions, and next actions must be promoted into scope-level handoff files before a task ends.
+
+Coverage-affecting generator or healer decisions must also be reflected in `specs/<feature>.coverage.md`. Design-affecting decisions must be reflected in `specs/<feature>.test-design.md` and revalidated before the implementation is treated as current.

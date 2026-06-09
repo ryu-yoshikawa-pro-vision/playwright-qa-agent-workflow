@@ -68,6 +68,41 @@ Not allowed unless explicitly approved:
 - Deleting failure evidence.
 - Creating hidden dependencies between tests.
 
+## Patch impact classification
+
+After classifying the failure cause, classify the patch impact before finishing.
+
+| Patch impact          | Meaning                                                                                                                            | Required follow-up                                                                                                       |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `implementation-only` | Locator, readiness, setup, or other code-only fix that preserves the same design intent and observable assertion policy            | Write healer artifacts and update handoff files. Add a coverage note only when useful.                                   |
+| `coverage-impacting`  | The patch changes what is observed, asserted, covered, excluded, or left open while preserving the validated design intent         | Update `specs/<feature>.coverage.md`; update `artifacts/<feature>/DECISIONS.md` when the policy is durable.              |
+| `design-impacting`    | The patch changes expected behavior, target scope, design case purpose, or treats behavior outside the validated design as correct | Update `specs/<feature>.test-design.md`, rerun validation, then update implementation and `specs/<feature>.coverage.md`. |
+
+Treat these as at least `coverage-impacting`:
+
+- replacing exact text comparison with state, role, validation, or semantic UI checks
+- changing the asserted observable result
+- adding or removing a covered behavior
+- adding an explicit non-covered item
+- changing residual risk or open coverage questions
+- deleting or merging an implemented test
+
+Treat these as `design-impacting`:
+
+- changing an expected result
+- changing the intent of a test-design case
+- deciding that a design-required check should no longer be tested
+- accepting product behavior that contradicts the validated design
+- resolving ambiguous requirements inside the healer without a design update
+
+The healer must not leave a current implementation that can only be understood by reading run-local artifacts. Coverage-affecting decisions must be promoted into `specs/<feature>.coverage.md` before finishing.
+
+### Example: validation message exact string
+
+If a generated test compares `validationMessage` with an exact string but the validated design only requires validation behavior, the healer may replace the brittle exact string check with a stable validation-state or semantic UI assertion. This is `coverage-impacting`; update `specs/<feature>.coverage.md` and record the assertion policy.
+
+If the validated test design explicitly requires exact string verification, changing away from exact string comparison is `design-impacting`. Update the test design and rerun validation before treating the repaired test as current.
+
 ## Product defect rule
 
 If the application behavior contradicts the validated plan and evidence, classify as `product-defect` and stop patching. Produce a diagnostic report with:

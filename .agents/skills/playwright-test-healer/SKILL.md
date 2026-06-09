@@ -20,7 +20,10 @@ Use this skill to diagnose and safely fix failing Playwright tests.
 3. Classify the failure using `references/healing-rules.md` before editing.
 4. Apply the smallest safe fix only when the classification permits a test-side patch.
 5. Rerun the smallest relevant test scope when the target project test command is available.
-6. Write failure analysis, healing report, patch log, and handoff updates using the templates under `artifacts/_templates/healer/`.
+6. Classify the patch impact as `implementation-only`, `coverage-impacting`, or `design-impacting`.
+7. Update `specs/<feature>.coverage.md` when the patch changes what is observed, asserted, covered, excluded, or left open.
+8. Return to test design and validation when the patch is `design-impacting`.
+9. Write failure analysis, healing report, patch log, and handoff updates using the templates under `artifacts/_templates/healer/`.
 
 ## Required output templates
 
@@ -38,6 +41,8 @@ Use these templates unless the target project already has a stricter format:
 - Do not add arbitrary sleeps as the primary fix.
 - Do not add `test.skip()` or `test.fixme()` unless explicitly approved.
 - Return to planner/designer/validator when the root cause is a test design issue.
+- Do not treat an assertion-policy change as a code-only patch; promote it into `specs/<feature>.coverage.md` and durable decisions when relevant.
+- If expected behavior or design intent changes, update `specs/<feature>.test-design.md` and rerun validation before treating the repaired test as current.
 
 See `references/healing-rules.md`.
 
