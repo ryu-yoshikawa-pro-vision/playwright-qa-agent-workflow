@@ -106,6 +106,14 @@ playwright-cli --help
 
 Playwright CLI が使えない場合、ブラウザ探索、スクリーンショット、スナップショット、トレース取得、ライブ画面を使った確認は `BLOCKED` として扱います。AI エージェントに推測で結果を書かせないでください。
 
+## 使用者向けガイド
+
+Playwright や AI エージェントを初めて使う場合は、先に次を読んでください。
+
+- [docs/user-guide/README.md](docs/user-guide/README.md)
+
+作業前の準備、Target Project Profile の作り方、サービス全体探索、機能単位ワークフロー、成果物の読み方、困ったときの確認方法を順番に説明しています。
+
 ## AI エージェントに作業させる前に読むファイル
 
 AI エージェントには、まず次の順で読むように指示します。
@@ -413,6 +421,7 @@ PASS の場合だけ、playwright-test-generator スキルで specs/login.test-d
 
 ## 関連ドキュメント
 
+- [docs/user-guide/README.md](docs/user-guide/README.md): Playwright や AI エージェントを初めて使う人向けの作業手順
 - `docs/workflow.md`: 全体ワークフロー
 - `docs/workflow-harness.md`: `agent:init`、`agent:status`、`agent:next`、`agent:gate` の使い方
 - `docs/target-project-profile.md`: 対象プロジェクトの URL、認証、テスト実行コマンド、データ制約、生成方針
@@ -431,11 +440,12 @@ PASS の場合だけ、playwright-test-generator スキルで specs/login.test-d
 まず次の順で確認してください。
 
 1. `AGENTS.md` を読む
-2. `docs/workflow.md` で全体の流れを確認する
-3. 対象がサービス全体か、1機能かを決める
-4. サービス全体なら `playwright-service-mapper` を使う
-5. 1機能なら `npm run agent:init` で作業場所を作る
-6. `npm run agent:next` で次に使うスキルを確認する
-7. 生成前には `npm run agent:gate -- --feature <feature> --for generator` を必ず実行する
+2. [docs/user-guide/README.md](docs/user-guide/README.md) で使用者向けの作業手順を確認する
+3. `docs/workflow.md` で全体の流れを確認する
+4. 対象がサービス全体か、1機能かを決める
+5. サービス全体なら `playwright-service-mapper` を使う
+6. 1機能なら `npm run agent:init` で作業場所を作る
+7. `npm run agent:next` で次に使うスキルを確認する
+8. 生成前には `npm run agent:gate -- --feature <feature> --for generator` を必ず実行する
 
 この順序を守ることで、AI エージェントの作業が途中で曖昧になりにくくなります。
