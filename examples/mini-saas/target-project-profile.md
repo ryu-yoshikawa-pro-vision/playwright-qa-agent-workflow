@@ -9,7 +9,7 @@
 - 対象ブランチ: main
 - ローカルプロジェクトパス: ../mini-saas
 - 主な利用環境: ローカル開発環境
-- Base URL: http://localhost:3000
+- Base URL: `http://localhost:3000`
 
 ## 2. リポジトリとセットアップ
 
