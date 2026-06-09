@@ -5,7 +5,7 @@
 ## Current status
 
 - Status: サンプル実装例あり
-- Last updated by run: `examples/mini-saas/service-exploration/`
+- Last updated by run: `examples/mini-saas/service-exploration/` のサンプル探索結果
 - Current implementation path: `examples/mini-saas/generated-tests/login.spec.ts.md`
 - Source plan: `examples/mini-saas/specs/login.plan.md`
 - Source test design: `examples/mini-saas/specs/login.test-design.md`
@@ -67,5 +67,5 @@
 
 - 2026-06-09:
   - 変更内容: サンプル coverage 台帳を作成。
-  - 対応 run: `examples/mini-saas/service-exploration/`
+  - 対応 run: `examples/mini-saas/service-exploration/` のサンプル探索結果
   - 理由: サンプルとして、設計 ID と生成テスト例の対応を示すため。
