@@ -2,6 +2,18 @@
 
 This repository uses a staged Playwright CLI based workflow.
 
+## Target project profile
+
+Before an agent performs browser exploration, test generation, or healing against a real target application, read the target project profile when it exists.
+
+```text
+target project profile
+  -> connection, authentication, test command, data policy, and generation rules
+  -> service mapper / planner / generator / healer inputs
+```
+
+Use `docs/target-project-profile.md` and `artifacts/_templates/target-project-profile.md` to create one. If the base URL, role/account, test command, or data policy is missing and the current task depends on it, mark the affected operation as `BLOCKED` instead of guessing.
+
 ## Shared specification catalog
 
 Reusable specification knowledge belongs in `artifacts/spec-catalog/`. Service mapping, focused planning, and test design may all contribute to it. Planner and designer should read relevant catalog entries before producing feature-level outputs.
