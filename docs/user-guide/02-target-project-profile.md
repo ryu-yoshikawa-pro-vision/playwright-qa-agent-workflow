@@ -306,10 +306,10 @@ docs/target-project-profile.md と artifacts/_templates/target-project-profile.m
 - 対象アプリ名: <name>
 - 対象 URL: <url>
 - 環境: <environment>
-- 対象リポジトリ: <repo>
-- ローカルパス: <path>
+- 対象リポジトリ: <repo または N/A>
+- ローカルパス: <path または N/A>
 - ロール: <role>
-- テスト実行コマンド: <command>
+- テスト実行コマンド: <command または N/A>
 - データ操作ルール: <rules>
 
 不明な項目は推測せず、Blockers または Open questions に記載してください。
