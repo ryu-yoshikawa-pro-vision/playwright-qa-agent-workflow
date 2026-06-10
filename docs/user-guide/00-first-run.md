@@ -13,7 +13,8 @@
 AI エージェントには、次のことができる環境を使ってください。
 
 - このリポジトリのファイルを読める
-- 対象アプリのリポジトリまたは画面を確認できる
+- 対象アプリの画面を確認できる
+- Playwright Test の生成、対象プロジェクト側での実行、失敗テスト修復を行う場合は、対象アプリのリポジトリも確認できる
 - シェルコマンドを実行できる
 - Playwright CLI でブラウザ操作や証跡取得ができる
 
@@ -41,9 +42,24 @@ AGENTS.md を読んでください。
 
 ## 1. ワークスペースを用意する
 
-このリポジトリと対象アプリのリポジトリを、AI エージェントが両方読める場所に置きます。
+まず、AI エージェントが `playwright-qa-agent-workflow` のファイルを読める場所に置きます。
 
-例です。
+サービス全体探索、画面探索、テスト計画、テスト設計までは、対象アプリのリポジトリを同じ場所に置く必要はありません。
+
+必要なのは、対象アプリにブラウザでアクセスできる URL、認証方法、使用ロール、データ操作ルールです。
+
+Playwright Test の生成、対象プロジェクト側でのテスト実行、失敗テスト修復まで行う場合は、対象アプリのリポジトリも AI エージェントが参照できる場所に置きます。
+
+補足は [`target-repository-requirement.md`](target-repository-requirement.md) を参照してください。
+
+探索だけの場合:
+
+```text
+workspace/
+  playwright-qa-agent-workflow/
+```
+
+生成・実行・修復まで行う場合:
 
 ```text
 workspace/
@@ -51,13 +67,15 @@ workspace/
   target-app/
 ```
 
-この場合、Target Project Profile の `Local path` には次のように書きます。
+探索だけの場合、Target Project Profile の `Local path` は `N/A` または `Not used for browser exploration` で構いません。
+
+生成・実行・修復まで行う場合、Target Project Profile の `Local path` には次のように書きます。
 
 ```text
 ../target-app
 ```
 
-GitHub URL だけで作業するのか、ローカルに clone されたディレクトリを読むのかを曖昧にしないでください。
+対象リポジトリを使う場合は、GitHub URL だけで作業するのか、ローカルに clone されたディレクトリを読むのかを曖昧にしないでください。
 
 ## 2. `playwright-qa-agent-workflow` の初期確認を行う
 
@@ -105,15 +123,14 @@ artifacts/_templates/target-project-profile.md
 
 最低限、次を埋めます。
 
-| 項目       | 書くこと                                               |
-| ---------- | ------------------------------------------------------ |
-| 対象アプリ | アプリ名、対象リポジトリ、ブランチ、ローカルパス       |
-| 環境       | dev、staging、検証環境など                             |
-| URL        | Base URL、必要ならローカル URL                         |
-| 認証       | 認証方式、使用ロール、認証情報の取得元                 |
-| データ操作 | 作成、更新、削除、通知、外部連携の可否                 |
-| テスト実行 | 対象プロジェクト側のテスト実行コマンド                 |
-| 生成方針   | 生成先、helper / POM、locator、assertion、cleanup 方針 |
+| 項目             | 書くこと                                               | 必須になる場面              |
+| ---------------- | ------------------------------------------------------ | --------------------------- |
+| 対象アプリ       | アプリ名、環境、Base URL                               | 常に必要                    |
+| 認証             | 認証方式、使用ロール、認証情報の取得元                 | 画面探索で必要              |
+| データ操作       | 作成、更新、削除、通知、外部連携の可否                 | 画面探索で必要              |
+| 対象プロジェクト | 対象リポジトリ、ブランチ、ローカルパス                 | 生成・実行・修復で必要      |
+| テスト実行       | 対象プロジェクト側のテスト実行コマンド                 | 生成後の実行・healer で必要 |
+| 生成方針         | 生成先、helper / POM、locator、assertion、cleanup 方針 | generator で必要            |
 
 パスワード、Cookie、アクセストークン、リフレッシュトークン、API キー、保存済みブラウザ状態の中身は書かないでください。
 
@@ -247,8 +264,9 @@ artifacts/spec-catalog/
 
 1. [`01-before-you-start.md`](01-before-you-start.md)
 2. [`02-target-project-profile.md`](02-target-project-profile.md)
-3. [`03-service-exploration.md`](03-service-exploration.md)
-4. [`04-feature-workflow.md`](04-feature-workflow.md)
-5. [`05-artifact-reading-guide.md`](05-artifact-reading-guide.md)
-6. [`06-troubleshooting.md`](06-troubleshooting.md)
-7. [`glossary.md`](glossary.md)
+3. [`target-repository-requirement.md`](target-repository-requirement.md)
+4. [`03-service-exploration.md`](03-service-exploration.md)
+5. [`04-feature-workflow.md`](04-feature-workflow.md)
+6. [`05-artifact-reading-guide.md`](05-artifact-reading-guide.md)
+7. [`06-troubleshooting.md`](06-troubleshooting.md)
+8. [`glossary.md`](glossary.md)
