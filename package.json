@@ -1,5 +1,5 @@
 {
-  "name": "agents-playwright",
+  "name": "playwright-qa-agent-workflow",
   "version": "0.1.0",
   "private": true,
   "description": "Common Playwright CLI skill set with artifact, test design, validation, and runtime log checks.",

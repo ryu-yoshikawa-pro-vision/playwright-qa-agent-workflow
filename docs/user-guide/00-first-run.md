@@ -6,7 +6,7 @@
 
 ## 前提
 
-`agents-playwright` は、AI エージェントそのものではありません。
+`playwright-qa-agent-workflow` は、AI エージェントそのものではありません。
 
 このリポジトリは、AI エージェントに画面探索、テスト計画、テスト設計、生成前レビュー、Playwright Test 生成、失敗テスト修復を段階的に進めさせるためのルールと成果物置き場です。
 
@@ -47,7 +47,7 @@ AGENTS.md を読んでください。
 
 ```text
 workspace/
-  agents-playwright/
+  playwright-qa-agent-workflow/
   target-app/
 ```
 
@@ -59,9 +59,9 @@ workspace/
 
 GitHub URL だけで作業するのか、ローカルに clone されたディレクトリを読むのかを曖昧にしないでください。
 
-## 2. `agents-playwright` の初期確認を行う
+## 2. `playwright-qa-agent-workflow` の初期確認を行う
 
-`agents-playwright` に移動して、依存関係をインストールします。
+`playwright-qa-agent-workflow` に移動して、依存関係をインストールします。
 
 ```bash
 npm install

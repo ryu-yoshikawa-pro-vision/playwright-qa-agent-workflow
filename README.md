@@ -1,6 +1,6 @@
-# agents-playwright
+# playwright-qa-agent-workflow
 
-`agents-playwright` は、AI エージェントに Playwright CLI を使った QA 作業を段階的に進めさせるための共通リポジトリです。
+`playwright-qa-agent-workflow` は、AI エージェントに Playwright CLI を使った QA 作業を段階的に進めさせるための共通リポジトリです。
 
 このリポジトリは、テスト対象の Web アプリケーション本体でも、完成済みの Playwright テストプロジェクトでもありません。AI エージェントが、画面探索、仕様整理、テスト計画、テスト設計、設計レビュー、Playwright Test の生成、失敗テストの修復までを、決められた順序と成果物形式で進めるための土台です。
 
