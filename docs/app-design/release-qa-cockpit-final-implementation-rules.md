@@ -16,6 +16,7 @@
 
 - Low impact risk の Ready / At Risk 判定
 - Evidence 条件の判定前後の扱い
+- QA 完了コメント draft input の扱い
 - Playwright smoke spec の状態遷移
 - QA 完了コメントと Evidence 作成を含むデモ・テスト導線
 
@@ -83,7 +84,41 @@ Readiness 計算時の最低 Evidence 条件:
 
 `Manual Note` や `External Reference` のみでは、Readiness 計算時の Evidence 条件を満たさない。
 
-### 3.2 Release Decision 保存時
+### 3.2 QA 完了コメント draft input の扱い
+
+QA 完了コメントは、Release Decision 保存前は画面上の入力値として扱う。
+保存前の QA 完了コメントを DB に永続化するために、`Release` や `Decision` に下書き専用フィールドを追加しない。
+
+Readiness 計算関数は、IndexedDB の状態に加えて、Release Decision 画面の入力値を draft input として受け取ってよい。
+
+```ts
+export interface ReadinessDraftInput {
+  qaCompletionCommentDraft?: string;
+}
+
+calculateReadiness(releaseId, {
+  qaCompletionCommentDraft,
+});
+```
+
+Release Decision 画面では、`qaCompletionCommentDraft` が入力済みであれば、Readiness 計算時の QA 完了コメント条件を満たしたものとして扱う。
+
+一方、Dashboard や Releases 一覧など、draft input を持たない画面では、保存済み `decision record` が存在しない限り、QA 完了コメントは未入力として扱う。
+
+```text
+Dashboard / Releases:
+- draft input は存在しない
+- 保存済み decision record がない場合、QA 完了コメント未入力として扱う
+
+Release Decision:
+- 画面上の qaCompletionCommentDraft を calculateReadiness に渡す
+- 入力済みであれば、保存前の判定プレビューに反映する
+- 保存時に decision record と Release Decision evidence を作成する
+```
+
+この方針により、保存前の判定プレビューと保存後の正式な判定履歴を分離する。
+
+### 3.3 Release Decision 保存時
 
 Release Decision を保存するタイミングで、以下を作成する。
 
@@ -104,7 +139,7 @@ Release Decision evidence には、最低限以下を含める。
 - 判定者
 - 判定日時
 
-### 3.3 Evidence Pack 生成時
+### 3.4 Evidence Pack 生成時
 
 Evidence Pack 生成時は、現在の IndexedDB 状態から Markdown を都度生成する。
 MVP では生成履歴を保存しない。
@@ -122,7 +157,7 @@ Evidence Pack 生成時に含めるもの:
 - ActivityLog
 ```
 
-### 3.4 Ready / At Risk 保存可否
+### 3.5 Ready / At Risk 保存可否
 
 Ready または At Risk として Release Decision を保存するには、以下を満たす必要がある。
 
@@ -256,8 +291,9 @@ Retest -> Fail
 2. unmetConditions / warningConditions の表示
 3. Low impact risk の一意な判定
 4. Evidence 条件の循環排除
-5. Defect / TestExecution の状態遷移制約
-6. smoke spec の固定
+5. QA 完了コメント draft input の扱い
+6. Defect / TestExecution の状態遷移制約
+7. smoke spec の固定
 ```
 
 UI の見た目や細かなフォーム項目よりも、まず Release Decision の判定一貫性を優先する。
@@ -268,6 +304,7 @@ UI の見た目や細かなフォーム項目よりも、まず Release Decision
 
 - Low impact risk の扱いが一意になる
 - Evidence 条件が判定前・保存時・出力時で分離される
+- QA 完了コメントの保存前 draft input と保存後 decision record が分離される
 - Ready / At Risk / Not Ready の条件が実装可能になる
 - smoke spec が状態遷移ルールと矛盾しなくなる
 - QA 完了コメントと Test Result evidence がデモ・テスト導線に含まれる
