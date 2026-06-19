@@ -4,7 +4,7 @@
 
 本ドキュメントは、`Release QA Cockpit` の実装対象ディレクトリを最終確定するための補足である。
 
-既存の設計書・補足設計書・最終実装ルールに `examples/release-qa-cockpit/` という記述が残っている場合でも、実装時の配置方針は本ドキュメントを優先する。
+`Release QA Cockpit` は、実行可能なデモアプリとして `demo-apps/release-qa-cockpit/` に実装する。`examples/release-qa-cockpit/` は古い配置案であり、実装先、生成テストパス、Target Project Profile のいずれにも使用しない。
 
 ## 2. 最終配置方針
 
@@ -86,6 +86,7 @@ Generated test path: demo-apps/release-qa-cockpit/tests/
 - ルートの `package.json` に不要な依存を混ぜない。
 - デモアプリ固有の依存関係は `demo-apps/release-qa-cockpit/package.json` に閉じ込める。
 - Playwright の smoke spec も、まずは `demo-apps/release-qa-cockpit/tests/` に配置する。
+- 実装時に `examples/release-qa-cockpit/` を参照している記述を見つけた場合は、`demo-apps/release-qa-cockpit/` に読み替えるのではなく、設計ドキュメント側の古い記述として修正対象にする。
 
 ## 7. 最終判断
 
