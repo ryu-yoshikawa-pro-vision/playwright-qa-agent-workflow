@@ -890,12 +890,7 @@ appSettings
 ### 10.3 TypeScript 型定義案
 
 ```ts
-export type UserRole =
-  | 'admin'
-  | 'qaLead'
-  | 'qaMember'
-  | 'developer'
-  | 'viewer';
+export type UserRole = 'admin' | 'qaLead' | 'qaMember' | 'developer' | 'viewer';
 
 export type ReleaseStatus =
   | 'draft'
@@ -931,11 +926,7 @@ export type DefectStatus =
   | 'wontFix'
   | 'duplicate';
 
-export type RiskStatus =
-  | 'draft'
-  | 'pendingApproval'
-  | 'accepted'
-  | 'rejected';
+export type RiskStatus = 'draft' | 'pendingApproval' | 'accepted' | 'rejected';
 ```
 
 ### 10.4 User
@@ -1070,12 +1061,7 @@ export interface Risk {
   id: string;
   releaseId: string;
   title: string;
-  type:
-    | 'knownIssue'
-    | 'scheduleRisk'
-    | 'testCoverageRisk'
-    | 'environmentRisk'
-    | 'operationalRisk';
+  type: 'knownIssue' | 'scheduleRisk' | 'testCoverageRisk' | 'environmentRisk' | 'operationalRisk';
   impact: 'high' | 'medium' | 'low';
   probability: 'high' | 'medium' | 'low';
   mitigation: string;
