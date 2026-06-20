@@ -95,8 +95,7 @@ export type EvidenceType =
   | 'testResult'
   | 'releaseDecision'
   | 'manualNote'
-  | 'externalReference'
-  | 'export';
+  | 'externalReference';
 
 export type SourceEntityType =
   | 'release'
@@ -110,6 +109,8 @@ export type SourceEntityType =
   | 'session'
   | 'appSettings';
 ```
+
+`EvidenceType` intentionally does not include `export` in the MVP. Evidence Pack generation is an export action, not an evidence item. Persisting export artifacts or report history is out of scope unless a future design change adds a dedicated store or evidence type.
 
 ## Entity model
 
@@ -302,6 +303,8 @@ Only `type: 'testResult'` satisfies the Test Result evidence readiness condition
 
 `manualNote` and `externalReference` do not satisfy that condition by themselves.
 
+Evidence Pack generation must not create an `EvidenceItem` in the MVP. It must create an `activityLogs` entry only.
+
 ### ActivityLog
 
 ```ts
@@ -376,6 +379,17 @@ export type ReadinessDraftInput = {
   qaCompletionComment?: string;
   decisionComment?: string;
 };
+
+export type ReadinessSnapshot = {
+  release: Release;
+  testItems: TestItem[];
+  testExecutions: TestExecution[];
+  defects: Defect[];
+  risks: Risk[];
+  decisions: Decision[];
+  evidenceItems: EvidenceItem[];
+  appSettings: AppSettings;
+};
 ```
 
 ## Dexie schema
@@ -424,6 +438,8 @@ Create an `activityLogs` entry when a user:
 - saves a release decision
 - exports an Evidence Pack
 - resets demo data
+
+Evidence Pack export activity logs must use `targetEntityType: 'evidencePack'`.
 
 Do not create activity logs for passive page navigation.
 
