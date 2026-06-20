@@ -76,6 +76,11 @@ describe('validateReadySave', () => {
     expect(result.allowed).toBe(false);
     expect(result.reasons.length).toBeGreaterThanOrEqual(2);
   });
+
+  it('blocks save when QA completion comment is undefined or null', () => {
+    expect(validateReadySave(readyResult(), undefined).allowed).toBe(false);
+    expect(validateReadySave(readyResult(), null).allowed).toBe(false);
+  });
 });
 
 describe('validateAtRiskSave', () => {
@@ -132,6 +137,16 @@ describe('validateAtRiskSave', () => {
     expect(result.allowed).toBe(false);
     expect(result.reasons.some((r) => r.toLowerCase().includes('decision comment'))).toBe(true);
   });
+
+  it('blocks save when QA completion comment is undefined or null', () => {
+    expect(validateAtRiskSave(atRiskResult(), undefined, 'Decision comment').allowed).toBe(false);
+    expect(validateAtRiskSave(atRiskResult(), null, 'Decision comment').allowed).toBe(false);
+  });
+
+  it('blocks save when decision comment is undefined or null', () => {
+    expect(validateAtRiskSave(atRiskResult(), 'QA completed', undefined).allowed).toBe(false);
+    expect(validateAtRiskSave(atRiskResult(), 'QA completed', null).allowed).toBe(false);
+  });
 });
 
 describe('validateNotReadySave', () => {
@@ -168,5 +183,10 @@ describe('validateNotReadySave', () => {
     const result = validateNotReadySave(notReadyResult(), '\n\t');
     expect(result.allowed).toBe(false);
     expect(result.reasons.some((r) => r.toLowerCase().includes('decision comment'))).toBe(true);
+  });
+
+  it('blocks save when decision comment is undefined or null', () => {
+    expect(validateNotReadySave(notReadyResult(), undefined).allowed).toBe(false);
+    expect(validateNotReadySave(notReadyResult(), null).allowed).toBe(false);
   });
 });

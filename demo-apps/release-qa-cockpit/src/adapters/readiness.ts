@@ -4,6 +4,9 @@ import { calculateReadinessFromSnapshot } from '@/domain/readiness';
 
 const DEFAULT_DEMO_NOW = '2026-06-15T12:00:00.000Z';
 
+const resolveDemoNow = (value: string | undefined | null): string =>
+  typeof value === 'string' && value.trim().length > 0 ? value : DEFAULT_DEMO_NOW;
+
 const FALLBACK_APP_SETTINGS = {
   id: 'app-settings',
   demoMode: false,
@@ -53,7 +56,7 @@ async function loadSnapshot(releaseId: string): Promise<ReadinessSnapshot> {
     appSettings: {
       ...FALLBACK_APP_SETTINGS,
       ...appSettings,
-      demoNow: appSettings?.demoNow ?? DEFAULT_DEMO_NOW,
+      demoNow: resolveDemoNow(appSettings?.demoNow),
     },
   };
 }
