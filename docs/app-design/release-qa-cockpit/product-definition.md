@@ -39,24 +39,36 @@ It intentionally avoids production concerns that would distract from test design
 
 ## Primary users
 
-| User            | Role key         | Purpose                                                     |
-| --------------- | ---------------- | ----------------------------------------------------------- |
-| QA Lead         | `qaLead`         | Owns release readiness, decision save, and risk acceptance. |
-| QA Member       | `qaMember`       | Updates test execution results and creates test evidence.   |
-| Release Manager | `releaseManager` | Reviews readiness, risks, and final decision evidence.      |
-| Viewer          | `viewer`         | Reads release state without mutating operational data.      |
+| User            | Role key         | Purpose                                                                                 |
+| --------------- | ---------------- | --------------------------------------------------------------------------------------- |
+| QA Lead         | `qaLead`         | Owns release readiness, decision save, and risk acceptance.                             |
+| QA Member       | `qaMember`       | Updates test execution results and creates test evidence.                               |
+| Release Manager | `releaseManager` | Reviews readiness and final evidence, and may approve risks or save decisions in MVP.   |
+| Viewer          | `viewer`         | Reads release state without mutating operational data.                                  |
+
+## Role authority clarification
+
+Release Manager is intentionally more than a passive reviewer in the MVP.
+
+To exercise role and permission matrix testing, Release Manager may:
+
+- review readiness, risks, and final decision evidence
+- accept or reject release risks as the release-side approver
+- save release decisions when validation allows
+
+Release Manager must not update test execution or defect triage states in the MVP.
 
 ## Primary use cases
 
-| Use case              | Description                                                                    |
-| --------------------- | ------------------------------------------------------------------------------ |
-| Check release status  | View readiness, progress, open defects, risks, and latest decision.            |
-| Execute tests         | Move test executions through deterministic QA states.                          |
-| Triage defects        | Move defects through triage, fix, retest, close, or accepted non-fix states.   |
-| Review risks          | Accept, reject, mitigate, or close release risks.                              |
-| Save release decision | Persist Ready, At Risk, or Not Ready with required comments and evidence.      |
-| Export evidence       | Generate a Markdown Evidence Pack from current IndexedDB state.                |
-| Reset demo data       | Restore the same deterministic state for repeatable E2E and agent exploration. |
+| Use case              | Description                                                                                   |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| Check release status  | View readiness, progress, open defects, risks, and latest decision.                           |
+| Execute tests         | Move test executions through deterministic QA states.                                         |
+| Triage defects        | Move defects through triage, fix, retest, close, or accepted non-fix states.                  |
+| Review risks          | Accept, reject, mitigate, or close release risks.                                             |
+| Save release decision | Persist Ready, At Risk, or Not Ready with required comments and evidence.                     |
+| Export evidence       | Generate a Markdown Evidence Pack from current IndexedDB state.                               |
+| Reset demo data       | Restore deterministic business seed state for repeatable E2E and agent exploration.           |
 
 ## Business domain summary
 
@@ -93,4 +105,4 @@ The MVP is successful when:
 - every primary screen is reachable through accessible navigation
 - Playwright can interact with the app using role, label, and accessible name selectors
 - generated Evidence Pack Markdown includes release, readiness, tests, defects, risks, decisions, evidence, and activity logs
-- Demo Data Reset restores the exact initial Not Ready state
+- Demo Data Reset restores the deterministic initial Not Ready business state defined in `seed-scenarios.md`
