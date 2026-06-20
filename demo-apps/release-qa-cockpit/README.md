@@ -10,7 +10,10 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` and select a role to begin.
+Open `http://localhost:5173` to view the seeded QA Lead dashboard.
+
+Use `http://localhost:5173/login` when you want to switch roles explicitly.
+Use the Demo Controls screen to reset IndexedDB to the seeded dataset.
 
 ## Commands
 

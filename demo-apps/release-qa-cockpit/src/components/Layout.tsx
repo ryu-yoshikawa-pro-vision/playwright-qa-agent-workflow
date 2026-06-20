@@ -36,6 +36,8 @@ export function Layout() {
       if (session.currentReleaseId) {
         const release = await db.releases.get(session.currentReleaseId);
         setCurrentRelease(release ?? null);
+      } else {
+        setCurrentRelease(null);
       }
     } catch {
       setCurrentUser(null);
