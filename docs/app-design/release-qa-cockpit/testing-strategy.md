@@ -19,8 +19,9 @@ Unit tests must cover:
 
 - seed data factory
 - demo reset service
-- readiness calculation
-- readiness preview calculation
+- pure readiness calculation through `calculateReadinessFromSnapshot`
+- readiness persistence adapter through `calculatePersistedReadiness`
+- readiness preview adapter through `calculateReadinessPreview`
 - decision save validation
 - test execution transition validation
 - defect transition validation
@@ -31,6 +32,8 @@ Unit tests must cover:
 
 Use the matrix from `readiness-rules.md`.
 
+The readiness matrix must primarily test `calculateReadinessFromSnapshot` with in-memory snapshots. Do not make every matrix case depend on IndexedDB setup.
+
 The most important cases are:
 
 - blocker conditions win over warning conditions
@@ -38,6 +41,12 @@ The most important cases are:
 - reasoned skipped required test produces At Risk, not Ready
 - Manual Note evidence alone does not satisfy the Test Result evidence requirement
 - preview input affects preview readiness only
+
+Add separate adapter tests for:
+
+- persisted calculation loading stored data
+- preview calculation overlaying draft input without mutating IndexedDB
+- deterministic clock behavior using `appSettings.demoNow`
 
 ## Required E2E scenarios
 
@@ -49,6 +58,8 @@ The most important cases are:
 4. Reset demo data.
 5. Confirm `Demo data reset complete`.
 6. Confirm `Readiness: Not Ready`.
+7. Confirm deterministic business seed data is restored.
+8. Do not assert exact runtime timestamps such as `appSettings.lastResetAt`.
 
 ### E2E-002: first release decision smoke
 
@@ -68,8 +79,9 @@ The most important cases are:
 14. Confirm Release Decision evidence exists.
 15. Generate Evidence Pack Markdown.
 16. Confirm required Markdown sections exist.
-17. Reset demo data.
-18. Confirm readiness returns to Not Ready.
+17. Confirm export does not create an `EvidenceItem` for the export itself.
+18. Reset demo data.
+19. Confirm readiness returns to Not Ready.
 
 ### E2E-003: viewer read-only behavior
 
@@ -120,6 +132,8 @@ await expect(page.getByText('Demo data reset complete')).toBeVisible();
 
 A lower-level helper may be introduced later, but the UI reset flow must remain covered.
 
+Reset assertions must follow `seed-scenarios.md`: assert deterministic business records and readiness, not runtime-only values such as `lastResetAt`.
+
 ## Suggested app commands
 
 Inside `demo-apps/release-qa-cockpit/`:
@@ -160,11 +174,13 @@ Do not claim that root `npm run check` validates the demo app until CI is actual
 
 Testing is sufficient for MVP when:
 
-- readiness unit test matrix passes
+- readiness unit test matrix passes through `calculateReadinessFromSnapshot`
+- readiness adapter tests pass
 - transition validator tests pass
 - Evidence Pack Markdown generation tests pass
 - first smoke E2E passes from a clean browser context
 - viewer read-only E2E passes
 - tests use accessible selectors for primary operations
 - Demo Data Reset is covered by E2E
+- export generation is covered without persisting report history or export evidence items
 - app-level `npm run check` exists and passes locally

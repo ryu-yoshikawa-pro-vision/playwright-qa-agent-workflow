@@ -188,6 +188,31 @@ The first smoke test must be able to follow this path:
 24. Reset demo data.
 25. Confirm the active release returns to Not Ready.
 
+## Reset determinism boundary
+
+Demo Data Reset must restore the same deterministic business seed state, but not every persisted field is required to be byte-for-byte identical after every reset.
+
+Deterministic fields include:
+
+- all seed IDs
+- seeded titles and names
+- seeded release dates
+- seeded statuses
+- seeded relationships
+- `sessions.currentUserId`
+- `sessions.currentReleaseId`
+- `appSettings.demoNow`
+- initial readiness-relevant data
+- the seed activity log entry `log-seed-created`
+
+Runtime fields may vary across reset executions:
+
+- `appSettings.lastResetAt`
+- audit timestamps for records created by user actions before the reset
+- transient UI state outside IndexedDB
+
+After reset, E2E tests must not assert exact values for runtime fields such as `lastResetAt`; they should assert the deterministic business state and the Not Ready readiness result.
+
 ## Reset behavior
 
 Demo Data Reset must:
@@ -198,8 +223,10 @@ Demo Data Reset must:
 - restore the current release to `rel-weekly-2026-06`
 - restore `appSettings.demoNow` to `2026-06-15T12:00:00.000Z`
 - restore initial readiness to Not Ready
-- create the seed activity log entry
-- update `appSettings.lastResetAt`
+- create only the seed activity log entry `log-seed-created` as the post-reset activity baseline
+- update `appSettings.lastResetAt` as a runtime timestamp
+
+Do not append an additional `demo.reset` activity log during the reset operation. Reset must leave the activity log in the same deterministic baseline state except for allowed runtime fields.
 
 ## Determinism rules
 
@@ -208,13 +235,14 @@ Demo Data Reset must:
 - The smoke scenario must not depend on pre-existing browser storage.
 - E2E setup may call the UI reset flow or a documented test helper, but the UI reset flow must exist.
 - The default seed scenario must not depend on the host system date.
+- E2E tests must not assert exact values for `appSettings.lastResetAt`.
 
 ## Completion criteria
 
 Seed behavior is complete when:
 
 - first app load initializes seed data
-- Demo Data Reset restores identical deterministic data
+- Demo Data Reset restores identical deterministic business data, allowing documented runtime fields to vary
 - first smoke E2E can start from reset state
 - no initial Test Result evidence exists
 - initial readiness is Not Ready

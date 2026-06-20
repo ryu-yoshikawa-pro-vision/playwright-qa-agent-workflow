@@ -6,7 +6,14 @@ Do not duplicate incompatible readiness rules in screen components. UI code must
 
 ## Public functions
 
+Readiness logic must have a pure domain core plus IndexedDB-backed adapters.
+
 ```ts
+export function calculateReadinessFromSnapshot(
+  snapshot: ReadinessSnapshot,
+  draftInput?: ReadinessDraftInput,
+): ReadinessResult;
+
 export function calculatePersistedReadiness(releaseId: string): Promise<ReadinessResult>;
 
 export function calculateReadinessPreview(
@@ -15,12 +22,41 @@ export function calculateReadinessPreview(
 ): Promise<ReadinessResult>;
 ```
 
+`calculateReadinessFromSnapshot` is the canonical rules engine. It must not read from IndexedDB, React state, the router, or the host clock.
+
+The async functions are thin adapters:
+
+- `calculatePersistedReadiness` loads the current release snapshot from IndexedDB and calls `calculateReadinessFromSnapshot` without draft input.
+- `calculateReadinessPreview` loads the same persisted snapshot, overlays only the supplied draft decision input, and calls `calculateReadinessFromSnapshot`.
+
+## Snapshot input
+
+`ReadinessSnapshot` must contain all data needed by the pure rules engine:
+
+```ts
+export type ReadinessSnapshot = {
+  release: Release;
+  testItems: TestItem[];
+  testExecutions: TestExecution[];
+  defects: Defect[];
+  risks: Risk[];
+  decisions: Decision[];
+  evidenceItems: EvidenceItem[];
+  appSettings: AppSettings;
+};
+```
+
+Unit tests for the readiness matrix should primarily call `calculateReadinessFromSnapshot` so they can build small in-memory fixtures without IndexedDB setup.
+
+Adapter tests should separately verify that persisted and preview functions load and overlay data correctly.
+
 ## Persisted versus preview calculation
 
-| Function                      | Inputs                                 | Used by                       | Behavior                                                   |
-| ----------------------------- | -------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
-| `calculatePersistedReadiness` | Stored IndexedDB state only            | Dashboard, Releases, Overview | Shows current saved release state.                         |
-| `calculateReadinessPreview`   | Stored state plus draft decision input | Release Decision screen       | Shows what the readiness would be with unsaved form input. |
+| Function                         | Inputs                                 | Used by                       | Behavior                                                   |
+| -------------------------------- | -------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
+| `calculateReadinessFromSnapshot` | In-memory snapshot plus optional draft | Unit tests and adapters       | Applies canonical rules without side effects.              |
+| `calculatePersistedReadiness`    | Stored IndexedDB state only            | Dashboard, Releases, Overview | Shows current saved release state.                         |
+| `calculateReadinessPreview`      | Stored state plus draft decision input | Release Decision screen       | Shows what the readiness would be with unsaved form input. |
 
 Draft input must not mutate IndexedDB.
 
@@ -32,6 +68,8 @@ Schedule-based readiness checks must use this clock order:
 2. Host system time only when `appSettings.demoNow` is absent.
 
 The default seed scenario must set `appSettings.demoNow` so `qa-period-overdue` does not change based on the day the E2E test runs.
+
+`calculateReadinessFromSnapshot` must derive the effective current date from `snapshot.appSettings.demoNow`. If `demoNow` is absent, the adapter may inject a host-time-derived value into the snapshot before calling the pure rules engine.
 
 ## Priority
 
@@ -96,7 +134,7 @@ At Risk conditions are warnings. They matter only when no Not Ready condition ex
 | `qa-period-overdue`                 | `schedule`      | Effective current date is after `Release.plannedEndDate` and release is not decided or archived.   |
 | `wont-fix-risk-accepted`            | `risk`          | A `wontFix` defect still has a linked risk in `accepted` status.                                   |
 
-`Effective current date` means `appSettings.demoNow` when present; otherwise host system time.
+`Effective current date` means `appSettings.demoNow` when present; otherwise host system time supplied by the adapter.
 
 ## Ready conditions
 
@@ -198,10 +236,14 @@ At minimum, unit tests must cover:
 | All required tests pass, no blockers, QA comment, Test Result evidence | `ready`            |
 | Both blocker and warning exist                                         | `notReady`         |
 
+The matrix must be covered against `calculateReadinessFromSnapshot`. Add separate adapter tests only for IndexedDB loading and preview overlay behavior.
+
 ## Implementation constraints
 
 - Readiness calculation must be implemented as domain logic, not in React components.
 - Components may render results but must not reimplement condition rules.
+- `calculateReadinessFromSnapshot` must be pure and side-effect free.
+- `calculatePersistedReadiness` and `calculateReadinessPreview` must only load, shape, and overlay snapshot input before delegating to the pure function.
 - Schedule-based readiness logic must use the deterministic clock source defined above.
 - The Release Decision screen must use preview calculation for unsaved input.
 - Dashboard, Releases, and Release Overview must use persisted calculation.
@@ -212,7 +254,8 @@ At minimum, unit tests must cover:
 
 Readiness rules are implemented when:
 
-- unit tests cover the required matrix
+- unit tests cover the required matrix through `calculateReadinessFromSnapshot`
+- adapter tests verify persisted and preview data loading behavior
 - condition IDs are stable
 - preview and persisted calculation are separated
 - Ready, At Risk, and Not Ready are all reachable from seed-derived flows

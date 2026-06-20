@@ -38,13 +38,13 @@ attachmentsBinary
 
 ## Shared scalar conventions
 
-| Convention      | Rule                                                                                            |
-| --------------- | ----------------------------------------------------------------------------------------------- |
-| IDs             | Use deterministic string IDs for seed data. Runtime-created records may use UUID-style strings. |
-| Date/time       | Store ISO 8601 strings.                                                                         |
-| Deletion        | Hard delete is allowed only during Demo Data Reset. Normal user actions should update status.   |
-| Release scoping | Operational data should include `releaseId` unless it is global app configuration.              |
-| Audit           | Domain mutations must create `activityLogs` entries.                                            |
+| Convention      | Rule                                                                                                            |
+| --------------- | --------------------------------------------------------------------------------------------------------------- |
+| IDs             | Use deterministic string IDs for seed data. Runtime-created records may use UUID-style strings.                 |
+| Date/time       | Store ISO 8601 strings.                                                                                         |
+| Deletion        | Hard delete is allowed only during Demo Data Reset. Normal user actions should update status.                   |
+| Release scoping | Operational data should include `releaseId` unless it is global app configuration.                              |
+| Audit           | Domain mutations must create `activityLogs` entries, except Demo Data Reset restoring deterministic seed state. |
 
 ## Enums
 
@@ -91,12 +91,7 @@ export type RiskStatus =
   | 'mitigated'
   | 'closed';
 
-export type EvidenceType =
-  | 'testResult'
-  | 'releaseDecision'
-  | 'manualNote'
-  | 'externalReference'
-  | 'export';
+export type EvidenceType = 'testResult' | 'releaseDecision' | 'manualNote' | 'externalReference';
 
 export type SourceEntityType =
   | 'release'
@@ -110,6 +105,8 @@ export type SourceEntityType =
   | 'session'
   | 'appSettings';
 ```
+
+`EvidenceType` intentionally does not include `export` in the MVP. Evidence Pack generation is an export action, not an evidence item. Persisting export artifacts or report history is out of scope unless a future design change adds a dedicated store or evidence type.
 
 ## Entity model
 
@@ -302,6 +299,8 @@ Only `type: 'testResult'` satisfies the Test Result evidence readiness condition
 
 `manualNote` and `externalReference` do not satisfy that condition by themselves.
 
+Evidence Pack generation must not create an `EvidenceItem` in the MVP. It must create an `activityLogs` entry only.
+
 ### ActivityLog
 
 ```ts
@@ -376,6 +375,17 @@ export type ReadinessDraftInput = {
   qaCompletionComment?: string;
   decisionComment?: string;
 };
+
+export type ReadinessSnapshot = {
+  release: Release;
+  testItems: TestItem[];
+  testExecutions: TestExecution[];
+  defects: Defect[];
+  risks: Risk[];
+  decisions: Decision[];
+  evidenceItems: EvidenceItem[];
+  appSettings: AppSettings;
+};
 ```
 
 ## Dexie schema
@@ -423,7 +433,10 @@ Create an `activityLogs` entry when a user:
 - changes a risk status
 - saves a release decision
 - exports an Evidence Pack
-- resets demo data
+
+Evidence Pack export activity logs must use `targetEntityType: 'evidencePack'`.
+
+Demo Data Reset is an exception to the normal activity logging rule. During reset, the app must clear `activityLogs` and restore only the deterministic seed baseline entries defined in `seed-scenarios.md`. It must not append a new `demo.reset` activity log entry after reset.
 
 Do not create activity logs for passive page navigation.
 
