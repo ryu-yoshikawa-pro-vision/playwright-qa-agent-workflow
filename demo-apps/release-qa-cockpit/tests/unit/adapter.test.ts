@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { db } from '../../src/db/schema';
-import { calculatePersistedReadiness } from '../../src/adapters/readiness';
+import { calculatePersistedReadiness, calculateReadinessPreview } from '../../src/adapters/readiness';
 import { clearDb, seedDb } from './helpers';
 
 beforeEach(async () => {
@@ -66,5 +66,52 @@ describe('calculatePersistedReadiness adapter', () => {
 
     const result2 = await calculatePersistedReadiness('rel-weekly-2026-06');
     expect(result2.readiness).toBe('ready');
+  });
+});
+
+describe('calculateReadinessPreview adapter', () => {
+  it('returns Not Ready without draft input', async () => {
+    const result = await calculateReadinessPreview('rel-weekly-2026-06', {});
+    expect(result.readiness).toBe('notReady');
+  });
+
+  it('resolves qa-completion-comment-missing with draft input', async () => {
+    const result = await calculateReadinessPreview('rel-weekly-2026-06', {
+      qaCompletionComment: 'Draft QA comment',
+    });
+    expect(result.readiness).toBe('notReady');
+    const hasQaCondition = result.unmetConditions.some(
+      (c) => c.id === 'qa-completion-comment-missing',
+    );
+    expect(hasQaCondition).toBe(false);
+  });
+
+  it('preview differs from persisted when draft input is provided', async () => {
+    const persisted = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(persisted.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(
+      true,
+    );
+
+    const preview = await calculateReadinessPreview('rel-weekly-2026-06', {
+      qaCompletionComment: 'Draft comment for preview test',
+    });
+    const hasQaCondition = preview.unmetConditions.some(
+      (c) => c.id === 'qa-completion-comment-missing',
+    );
+    expect(hasQaCondition).toBe(false);
+  });
+
+  it('does not mutate IndexedDB', async () => {
+    await calculateReadinessPreview('rel-weekly-2026-06', {
+      qaCompletionComment: 'Should not persist',
+    });
+
+    const persisted = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(persisted.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(
+      true,
+    );
+
+    const decisions = await db.decisions.where({ releaseId: 'rel-weekly-2026-06' }).toArray();
+    expect(decisions).toHaveLength(0);
   });
 });

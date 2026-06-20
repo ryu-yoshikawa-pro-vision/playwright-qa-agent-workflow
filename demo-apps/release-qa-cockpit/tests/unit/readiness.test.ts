@@ -581,4 +581,235 @@ describe('calculateReadinessFromSnapshot', () => {
     expect(result.unmetConditions).toHaveLength(0);
     expect(result.warningConditions).toHaveLength(0);
   });
+
+  it('returns notReady for medium impacting blocking defect', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      severity: 'medium' as const,
+      impactsReleaseDecision: true,
+      status: 'open' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'closed' as const,
+      mitigationNote: 'Risk mitigated',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-impacting-medium',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) =>
+      c.id.startsWith('impacting-medium-low-blocking-defect:'),
+    )).toBe(true);
+  });
+
+  it('returns notReady for high risk pending approval', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'pendingApproval' as const,
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-risk-pending',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) =>
+      c.id.startsWith('high-risk-unapproved:'),
+    )).toBe(true);
+  });
+
+  it('returns notReady for high risk rejected', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'rejected' as const,
+      rejectedReason: 'Not acceptable',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-risk-rejected',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) =>
+      c.id.startsWith('high-risk-unapproved:'),
+    )).toBe(true);
+  });
+
+  it('returns notReady for medium risk rejected', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      impact: 'medium' as const,
+      status: 'rejected' as const,
+      rejectedReason: 'Not acceptable',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-medium-rejected',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) =>
+      c.id.startsWith('medium-risk-rejected:'),
+    )).toBe(true);
+  });
+
+  it('returns atRisk for medium risk accepted', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      impact: 'medium' as const,
+      status: 'accepted' as const,
+      acceptedReason: 'Acceptable risk',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-medium-accepted',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('atRisk');
+    expect(result.unmetConditions).toHaveLength(0);
+    expect(result.warningConditions.some((c) =>
+      c.id.startsWith('medium-risk-open-or-accepted:'),
+    )).toBe(true);
+  });
+
+  it('returns atRisk when qa-period-overdue with no blockers', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'closed' as const,
+      mitigationNote: 'Risk mitigated',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-overdue',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    snapshot.appSettings = {
+      ...snapshot.appSettings,
+      demoNow: '2026-07-15T12:00:00.000Z',
+    };
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('atRisk');
+    expect(result.unmetConditions).toHaveLength(0);
+    expect(result.warningConditions.some((c) =>
+      c.id.startsWith('qa-period-overdue:'),
+    )).toBe(true);
+  });
 });
