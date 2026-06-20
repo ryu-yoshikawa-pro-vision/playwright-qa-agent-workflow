@@ -15,7 +15,8 @@ Do not implement the full app in a single large PR. The app is intentionally com
 - add seed data factory
 - add Demo Data Reset flow
 - add basic role switch
-- add a minimal Dashboard that shows active release and readiness
+- add minimal `calculatePersistedReadiness` support needed to evaluate the default seed state
+- add a minimal Dashboard that shows active release and persisted readiness
 
 ### Acceptance criteria
 
@@ -26,21 +27,24 @@ Do not implement the full app in a single large PR. The app is intentionally com
 - current user defaults to QA Lead
 - current release defaults to `Weekly Release 2026-06`
 - persisted readiness initially shows Not Ready
+- the initial Not Ready result is produced by domain logic, not hard-coded UI text
 - no out-of-scope stores are created
 
 ### Required tests
 
 - unit test for seed factory
+- unit test for default seed readiness returning Not Ready
 - unit test for reset behavior if isolated service is available
 - smoke E2E that opens the app, selects QA Lead, resets data, and sees Not Ready
 
-## PR-2: Readiness domain logic
+## PR-2: Complete readiness domain logic
 
 ### Scope
 
-- implement `calculatePersistedReadiness`
+- complete `calculatePersistedReadiness` for all Ready / At Risk / Not Ready rules
 - implement `calculateReadinessPreview`
 - implement condition IDs
+- implement deterministic clock handling using `appSettings.demoNow`
 - implement decision save validation helpers
 - keep readiness logic outside React components
 
@@ -51,11 +55,13 @@ Do not implement the full app in a single large PR. The app is intentionally com
 - preview calculation uses draft QA completion comment
 - persisted calculation does not use unsaved draft input
 - Manual Note or External Reference evidence does not satisfy Test Result evidence requirement
+- `qa-period-overdue` uses `appSettings.demoNow` when present
 
 ### Required tests
 
 - full readiness unit test matrix from `readiness-rules.md`
 - preview versus persisted calculation test
+- deterministic clock / overdue test
 - decision save validation tests
 
 ## PR-3: Core release screens
@@ -203,8 +209,9 @@ Do not implement the full app in a single large PR. The app is intentionally com
 
 ## Implementation order rules
 
-- Build domain logic before complex UI.
-- Build deterministic reset before broad E2E.
+- Build deterministic seed and reset before broad E2E.
+- Build enough domain readiness logic in PR-1 to avoid hard-coded readiness UI.
+- Complete readiness domain rules before complex operational UI.
 - Do not generate tests from an unvalidated design.
 - Do not weaken readiness rules to make E2E pass.
 - Do not add out-of-scope stores for convenience.
