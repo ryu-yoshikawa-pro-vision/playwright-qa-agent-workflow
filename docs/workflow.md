@@ -60,9 +60,9 @@ playwright-test-planner
 
 Planner and designer have different responsibilities:
 
-| Skill                      | Responsibility                                                                                                          |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `playwright-test-planner`  | Decide what should be designed: scope, evidence, assumptions, behavior inventory, risks, and design inputs.             |
+| Skill | Responsibility |
+| --- | --- |
+| `playwright-test-planner` | Decide what should be designed: scope, evidence, assumptions, behavior inventory, risks, and design inputs. |
 | `playwright-test-designer` | Decide how it should be tested: technique selection, technique application, final cases, exclusions, and residual risk. |
 
 ## Test generation, coverage, and healing
@@ -86,6 +86,41 @@ Project test-suite execution is outside the Playwright CLI skill. Ad hoc browser
 Healing must diagnose and classify before editing. It must not delete tests, remove assertions, weaken expectations, or add `test.skip()` / `test.fixme()` unless explicitly approved by the user. If the root cause is a product defect or test-design issue, the healer must report or route back instead of patching the test to pass.
 
 When healing changes what is observed or asserted, update `specs/<feature>.coverage.md`. When healing changes expected behavior, target scope, or the purpose of a design case, update `specs/<feature>.test-design.md` and rerun validation before treating the repaired test as current.
+
+## Release QA Cockpit demo target workflow
+
+Release QA Cockpit is the built-in demo target application for validating this workflow.
+
+Design docs live under:
+
+```text
+docs/app-design/release-qa-cockpit/
+```
+
+Implementation path:
+
+```text
+demo-apps/release-qa-cockpit/
+```
+
+Use Release QA Cockpit to validate the full staged workflow:
+
+```text
+implement or run Release QA Cockpit
+  -> create target project profile
+  -> playwright-service-mapper explores the demo app
+  -> reusable findings are promoted into artifacts/spec-catalog/
+  -> choose one feature such as release-decision
+  -> playwright-test-planner creates specs/release-decision.plan.md
+  -> playwright-test-designer creates specs/release-decision.test-design.md
+  -> playwright-test-plan-validator creates specs/_reviews/release-decision.validation.md
+  -> playwright-test-generator creates Playwright Test
+  -> failing tests are handled by playwright-test-healer
+```
+
+The demo app must remain deterministic enough that agents can reset data and reproduce the same exploration and E2E flows.
+
+The first recommended target feature is `release-decision`, because it exercises readiness rules, persisted versus preview state, evidence requirements, and At Risk decision save behavior.
 
 ## Handoff timing
 
