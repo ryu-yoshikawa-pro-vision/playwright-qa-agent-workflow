@@ -42,3 +42,12 @@ __pycache__/
 /playwright/.cache/
 /playwright/.auth/
 experiments
+
+# Demo app build output
+demo-apps/**/dist/
+demo-apps/**/node_modules/
+demo-apps/**/coverage/
+demo-apps/**/playwright-report/
+demo-apps/**/test-results/
+
+dist/*

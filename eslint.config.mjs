@@ -16,6 +16,7 @@ export default [
       'artifacts/**/evidence/**',
       '.agent-logs/**',
       'coverage/**',
+      'demo-apps/**',
     ],
   },
 

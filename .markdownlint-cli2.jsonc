@@ -2,6 +2,7 @@
   "globs": ["**/*.md"],
   "ignores": [
     "node_modules",
+    "demo-apps/**/node_modules",
     ".agents",
     ".opencode",
     ".playwright-cli",

@@ -247,6 +247,65 @@ describe('calculateReadinessFromSnapshot', () => {
     expect(result.unmetConditions.some((c) => c.id === 'test-result-evidence-missing')).toBe(true);
   });
 
+  it('returns notReady when required test execution is retest', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.id === 'exec-recording-playback' ? 'retest' as const : te.status,
+    }));
+    const result = calculateReadinessFromSnapshot(snapshot);
+    expect(result.readiness).toBe('notReady');
+    const retestCondition = result.unmetConditions.find((c) =>
+      c.id.startsWith('required-test-retest:'),
+    );
+    expect(retestCondition).toBeDefined();
+  });
+
+  it('returns notReady when no test executions exist', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = [];
+    const result = calculateReadinessFromSnapshot(snapshot);
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.length).toBeGreaterThan(0);
+  });
+
+  it('ready only when all required test executions are pass', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: 'pass' as const,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'closed' as const,
+      mitigationNote: 'Risk mitigated',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-test-ready',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'All tests passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed successfully',
+    });
+    expect(result.readiness).toBe('ready');
+    expect(result.unmetConditions).toHaveLength(0);
+    expect(result.warningConditions).toHaveLength(0);
+  });
+
   it('returns ready when no blockers and no warnings', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({

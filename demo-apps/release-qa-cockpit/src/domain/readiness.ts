@@ -98,6 +98,16 @@ export function calculateReadinessFromSnapshot(
         sourceId: exec.id,
       });
     }
+
+    if (exec.status === 'retest') {
+      unmetConditions.push({
+        id: `required-test-retest:${exec.id}`,
+        severity: 'blocker',
+        message: `Required test "${title}" is being retested.`,
+        sourceType: 'testExecution',
+        sourceId: exec.id,
+      });
+    }
   }
 
   for (const defect of defects) {

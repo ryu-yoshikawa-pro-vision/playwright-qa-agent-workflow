@@ -10,7 +10,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173 and select a role to begin.
+Open `http://localhost:5173` and select a role to begin.
 
 ## Commands
 
@@ -22,11 +22,11 @@ Open http://localhost:5173 and select a role to begin.
 | `npm run test:e2e`  | Run Playwright E2E tests           |
 | `npm run lint`      | Run ESLint                         |
 | `npm run typecheck` | Run TypeScript type check          |
-| `npm run check`     | Full quality gate (lint + typecheck + test + e2e) |
+| `npm run check`     | Full quality gate (lint + typecheck + test + e2e)  |
 
 ## Reset behavior
 
-Use the Demo Controls screen or the reset button on Dashboard to restore deterministic seed data.
+Use the Demo Controls screen to restore deterministic seed data.
 
 After reset, the active release readiness returns to Not Ready.
 
