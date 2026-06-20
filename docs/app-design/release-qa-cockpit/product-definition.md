@@ -39,12 +39,12 @@ It intentionally avoids production concerns that would distract from test design
 
 ## Primary users
 
-| User            | Role key         | Purpose                                                                                 |
-| --------------- | ---------------- | --------------------------------------------------------------------------------------- |
-| QA Lead         | `qaLead`         | Owns release readiness, decision save, and risk acceptance.                             |
-| QA Member       | `qaMember`       | Updates test execution results and creates test evidence.                               |
-| Release Manager | `releaseManager` | Reviews readiness and final evidence, and may approve risks or save decisions in MVP.   |
-| Viewer          | `viewer`         | Reads release state without mutating operational data.                                  |
+| User            | Role key         | Purpose                                                                               |
+| --------------- | ---------------- | ------------------------------------------------------------------------------------- |
+| QA Lead         | `qaLead`         | Owns release readiness, decision save, and risk acceptance.                           |
+| QA Member       | `qaMember`       | Updates test execution results and creates test evidence.                             |
+| Release Manager | `releaseManager` | Reviews readiness and final evidence, and may approve risks or save decisions in MVP. |
+| Viewer          | `viewer`         | Reads release state without mutating operational data.                                |
 
 ## Role authority clarification
 
@@ -60,15 +60,15 @@ Release Manager must not update test execution or defect triage states in the MV
 
 ## Primary use cases
 
-| Use case              | Description                                                                                   |
-| --------------------- | --------------------------------------------------------------------------------------------- |
-| Check release status  | View readiness, progress, open defects, risks, and latest decision.                           |
-| Execute tests         | Move test executions through deterministic QA states.                                         |
-| Triage defects        | Move defects through triage, fix, retest, close, or accepted non-fix states.                  |
-| Review risks          | Accept, reject, mitigate, or close release risks.                                             |
-| Save release decision | Persist Ready, At Risk, or Not Ready with required comments and evidence.                     |
-| Export evidence       | Generate a Markdown Evidence Pack from current IndexedDB state.                               |
-| Reset demo data       | Restore deterministic business seed state for repeatable E2E and agent exploration.           |
+| Use case              | Description                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| Check release status  | View readiness, progress, open defects, risks, and latest decision.                 |
+| Execute tests         | Move test executions through deterministic QA states.                               |
+| Triage defects        | Move defects through triage, fix, retest, close, or accepted non-fix states.        |
+| Review risks          | Accept, reject, mitigate, or close release risks.                                   |
+| Save release decision | Persist Ready, At Risk, or Not Ready with required comments and evidence.           |
+| Export evidence       | Generate a Markdown Evidence Pack from current IndexedDB state.                     |
+| Reset demo data       | Restore deterministic business seed state for repeatable E2E and agent exploration. |
 
 ## Business domain summary
 

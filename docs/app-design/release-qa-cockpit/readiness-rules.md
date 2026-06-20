@@ -52,11 +52,11 @@ Adapter tests should separately verify that persisted and preview functions load
 
 ## Persisted versus preview calculation
 
-| Function                           | Inputs                                 | Used by                       | Behavior                                                   |
-| ---------------------------------- | -------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
-| `calculateReadinessFromSnapshot`   | In-memory snapshot plus optional draft | Unit tests and adapters       | Applies canonical rules without side effects.             |
-| `calculatePersistedReadiness`      | Stored IndexedDB state only            | Dashboard, Releases, Overview | Shows current saved release state.                         |
-| `calculateReadinessPreview`        | Stored state plus draft decision input | Release Decision screen       | Shows what the readiness would be with unsaved form input. |
+| Function                         | Inputs                                 | Used by                       | Behavior                                                   |
+| -------------------------------- | -------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
+| `calculateReadinessFromSnapshot` | In-memory snapshot plus optional draft | Unit tests and adapters       | Applies canonical rules without side effects.              |
+| `calculatePersistedReadiness`    | Stored IndexedDB state only            | Dashboard, Releases, Overview | Shows current saved release state.                         |
+| `calculateReadinessPreview`      | Stored state plus draft decision input | Release Decision screen       | Shows what the readiness would be with unsaved form input. |
 
 Draft input must not mutate IndexedDB.
 

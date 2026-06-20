@@ -91,11 +91,7 @@ export type RiskStatus =
   | 'mitigated'
   | 'closed';
 
-export type EvidenceType =
-  | 'testResult'
-  | 'releaseDecision'
-  | 'manualNote'
-  | 'externalReference';
+export type EvidenceType = 'testResult' | 'releaseDecision' | 'manualNote' | 'externalReference';
 
 export type SourceEntityType =
   | 'release'
