@@ -17,6 +17,37 @@ function buildSnapshot(): ReadinessSnapshot {
   };
 }
 
+function createReadySnapshot(): ReadinessSnapshot {
+  const snapshot = buildSnapshot();
+  snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+    ...te,
+    status: 'pass' as const,
+  }));
+  snapshot.defects = snapshot.defects.map((d) => ({
+    ...d,
+    status: 'closed' as const,
+  }));
+  snapshot.risks = snapshot.risks.map((r) => ({
+    ...r,
+    status: 'closed' as const,
+    mitigationNote: 'Risk mitigated',
+  }));
+  snapshot.evidenceItems = [
+    {
+      id: 'ev-test-ready',
+      releaseId: snapshot.release.id,
+      type: 'testResult',
+      title: 'Test evidence',
+      contentMarkdown: 'All tests passed',
+      sourceEntityType: 'testExecution',
+      sourceEntityId: snapshot.testExecutions[0].id,
+      createdByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    },
+  ];
+  return snapshot;
+}
+
 describe('calculateReadinessFromSnapshot', () => {
   it('returns notReady for default seed data', () => {
     const snapshot = buildSnapshot();
@@ -261,12 +292,34 @@ describe('calculateReadinessFromSnapshot', () => {
     expect(retestCondition).toBeDefined();
   });
 
-  it('returns notReady when no test executions exist', () => {
-    const snapshot = buildSnapshot();
-    snapshot.testExecutions = [];
-    const result = calculateReadinessFromSnapshot(snapshot);
+  it('returns notReady when a required test item has no execution result', () => {
+    const snapshot = createReadySnapshot();
+
+    const requiredItem = snapshot.testItems.find((item) => item.required);
+    expect(requiredItem).toBeDefined();
+
+    const withoutRequiredExecution: ReadinessSnapshot = {
+      ...snapshot,
+      testExecutions: snapshot.testExecutions.filter(
+        (execution) => execution.testItemId !== requiredItem!.id,
+      ),
+    };
+
+    const result = calculateReadinessFromSnapshot(withoutRequiredExecution, {
+      qaCompletionComment: 'QA completed successfully',
+    });
+
     expect(result.readiness).toBe('notReady');
-    expect(result.unmetConditions.length).toBeGreaterThan(0);
+    expect(result.unmetConditions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: `required-test-execution-missing:${requiredItem!.id}`,
+          severity: 'blocker',
+          sourceType: 'testItem',
+          sourceId: requiredItem!.id,
+        }),
+      ]),
+    );
   });
 
   it('ready only when all required test executions are pass', () => {

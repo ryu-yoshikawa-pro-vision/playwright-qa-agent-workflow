@@ -215,6 +215,7 @@ export const unresolvedBlockingDefectStatuses = [
 export type ReadinessConditionSeverity = 'blocker' | 'warning';
 
 export type ReadinessConditionSource =
+  | 'testItem'
   | 'testExecution'
   | 'defect'
   | 'risk'

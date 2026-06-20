@@ -39,74 +39,83 @@ export function calculateReadinessFromSnapshot(
   const { testItems, testExecutions, defects, risks, evidenceItems, release } = snapshot;
 
   const requiredTestItems = testItems.filter((ti) => ti.required);
-  const requiredTestItemIds = new Set(requiredTestItems.map((ti) => ti.id));
 
-  const relevantExecutions = testExecutions.filter((te) =>
-    requiredTestItemIds.has(te.testItemId),
-  );
+  for (const requiredItem of requiredTestItems) {
+    const execution = testExecutions.find((te) => te.testItemId === requiredItem.id);
 
-  for (const exec of relevantExecutions) {
-    const testItem = requiredTestItems.find((ti) => ti.id === exec.testItemId);
-    const title = testItem?.title ?? exec.testItemId;
-
-    if (exec.status === 'notStarted') {
+    if (!execution) {
       unmetConditions.push({
-        id: `required-test-not-started:${exec.id}`,
+        id: `required-test-execution-missing:${requiredItem.id}`,
         severity: 'blocker',
-        message: `Required test "${title}" is not started.`,
-        sourceType: 'testExecution',
-        sourceId: exec.id,
+        message: `Required test "${requiredItem.title}" has no execution result.`,
+        sourceType: 'testItem',
+        sourceId: requiredItem.id,
       });
+      continue;
     }
 
-    if (exec.status === 'inProgress') {
-      unmetConditions.push({
-        id: `required-test-in-progress:${exec.id}`,
-        severity: 'blocker',
-        message: `Required test "${title}" is in progress.`,
-        sourceType: 'testExecution',
-        sourceId: exec.id,
-      });
+    if (execution.status === 'pass') {
+      continue;
     }
 
-    if (exec.status === 'fail') {
+    if (execution.status === 'notStarted') {
       unmetConditions.push({
-        id: `required-test-failed:${exec.id}`,
+        id: `required-test-not-started:${execution.id}`,
         severity: 'blocker',
-        message: `Required test "${title}" failed.`,
+        message: `Required test "${requiredItem.title}" is not started.`,
         sourceType: 'testExecution',
-        sourceId: exec.id,
+        sourceId: execution.id,
       });
-    }
-
-    if (exec.status === 'blocked') {
+    } else if (execution.status === 'inProgress') {
       unmetConditions.push({
-        id: `required-test-blocked:${exec.id}`,
+        id: `required-test-in-progress:${execution.id}`,
         severity: 'blocker',
-        message: `Required test "${title}" is blocked.`,
+        message: `Required test "${requiredItem.title}" is in progress.`,
         sourceType: 'testExecution',
-        sourceId: exec.id,
+        sourceId: execution.id,
       });
-    }
-
-    if (exec.status === 'skipped' && !exec.skipReason) {
+    } else if (execution.status === 'fail') {
       unmetConditions.push({
-        id: `required-test-skipped-without-reason:${exec.id}`,
+        id: `required-test-failed:${execution.id}`,
         severity: 'blocker',
-        message: `Required test "${title}" is skipped without a reason.`,
+        message: `Required test "${requiredItem.title}" failed.`,
         sourceType: 'testExecution',
-        sourceId: exec.id,
+        sourceId: execution.id,
       });
-    }
-
-    if (exec.status === 'retest') {
+    } else if (execution.status === 'blocked') {
       unmetConditions.push({
-        id: `required-test-retest:${exec.id}`,
+        id: `required-test-blocked:${execution.id}`,
         severity: 'blocker',
-        message: `Required test "${title}" is being retested.`,
+        message: `Required test "${requiredItem.title}" is blocked.`,
         sourceType: 'testExecution',
-        sourceId: exec.id,
+        sourceId: execution.id,
       });
+    } else if (execution.status === 'retest') {
+      unmetConditions.push({
+        id: `required-test-retest:${execution.id}`,
+        severity: 'blocker',
+        message: `Required test "${requiredItem.title}" is being retested.`,
+        sourceType: 'testExecution',
+        sourceId: execution.id,
+      });
+    } else if (execution.status === 'skipped') {
+      if (!execution.skipReason) {
+        unmetConditions.push({
+          id: `required-test-skipped-without-reason:${execution.id}`,
+          severity: 'blocker',
+          message: `Required test "${requiredItem.title}" is skipped without a reason.`,
+          sourceType: 'testExecution',
+          sourceId: execution.id,
+        });
+      } else {
+        warningConditions.push({
+          id: `required-test-skipped-with-reason:${execution.id}`,
+          severity: 'warning',
+          message: `Required test "${requiredItem.title}" is skipped with reason.`,
+          sourceType: 'testExecution',
+          sourceId: execution.id,
+        });
+      }
     }
   }
 
@@ -208,18 +217,6 @@ export function calculateReadinessFromSnapshot(
     }
   }
 
-  for (const exec of relevantExecutions) {
-    if (exec.status === 'skipped' && exec.skipReason) {
-      const testItem = requiredTestItems.find((ti) => ti.id === exec.testItemId);
-      warningConditions.push({
-        id: `required-test-skipped-with-reason:${exec.id}`,
-        severity: 'warning',
-        message: `Required test "${testItem?.title ?? exec.testItemId}" is skipped with reason.`,
-        sourceType: 'testExecution',
-        sourceId: exec.id,
-      });
-    }
-  }
 
   const now = getEffectiveNow(snapshot);
   if (now && now > release.plannedEndDate && release.status !== 'decided' && release.status !== 'archived') {

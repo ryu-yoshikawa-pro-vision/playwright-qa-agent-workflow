@@ -3,6 +3,9 @@
   "ignores": [
     "node_modules",
     "demo-apps/**/node_modules",
+    "demo-apps/**/playwright-report",
+    "demo-apps/**/test-results",
+    "demo-apps/**/coverage",
     ".agents",
     ".opencode",
     ".playwright-cli",
