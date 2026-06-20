@@ -106,7 +106,7 @@ Examples:
 - `Block test Recording playback is available after processing`
 - `Skip test Recording playback is available after processing`
 - `Move test Recording playback is available after processing to retest`
-- `Create Test Result evidence`
+- `Create Test Result evidence for Recording playback is available after processing`
 
 Form labels:
 
