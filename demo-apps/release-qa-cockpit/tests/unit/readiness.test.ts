@@ -882,7 +882,7 @@ describe('calculateReadinessFromSnapshot', () => {
     expect(result.warningConditions.some((c) => c.id.startsWith('qa-period-overdue:'))).toBe(true);
   });
 
-  it('treats whitespace-only skipReason as blocke', () => {
+  it('treats whitespace-only skipReason as blocker', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
       ...te,
@@ -896,7 +896,7 @@ describe('calculateReadinessFromSnapshot', () => {
     ).toBe(true);
   });
 
-  it('treats whitespace-with-newline skipReason as blocke', () => {
+  it('treats whitespace-with-newline skipReason as blocker', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
       ...te,

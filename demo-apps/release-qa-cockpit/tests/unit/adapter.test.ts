@@ -165,4 +165,62 @@ describe('loadSnapshot fallback', () => {
     await db.appSettings.clear();
     await expect(calculatePersistedReadiness('rel-weekly-2026-06')).resolves.not.toThrow();
   });
+
+  it('provides demoNow fallback when appSettings is missing', async () => {
+    await db.appSettings.clear();
+    const persisted = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(persisted.unmetConditions.some((c) => c.id === 'test-result-evidence-missing')).toBe(
+      true,
+    );
+  });
+
+  it('provides demoNow fallback when appSettings exists but demoNow is absent', async () => {
+    await db.appSettings.put({
+      id: 'app-settings',
+      demoMode: true,
+      schemaVersion: 1,
+      updatedAt: '2026-06-15T12:00:00.000Z',
+    });
+
+    const result = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(result.readiness).toBe('notReady');
+  });
+
+  it('uses fallback demoNow for overdue detection', async () => {
+    await db.appSettings.clear();
+    await db.releases.update('rel-weekly-2026-06', {
+      plannedEndDate: '2026-06-01T23:59:59.000Z',
+    });
+
+    await db.testExecutions.update('exec-recording-playback', { status: 'pass' });
+    await db.defects.update('defect-recording-playback-fails', { status: 'closed' });
+    await db.risks.update('risk-recording-regression', {
+      status: 'closed',
+      mitigationNote: 'Resolved',
+    });
+    await db.evidenceItems.add({
+      id: 'ev-overdue-fallback',
+      releaseId: 'rel-weekly-2026-06',
+      type: 'testResult',
+      title: 'Test evidence',
+      contentMarkdown: 'Passed',
+      sourceEntityType: 'testExecution',
+      sourceEntityId: 'exec-recording-playback',
+      createdByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    });
+    await db.decisions.add({
+      id: 'dec-overdue-fallback',
+      releaseId: 'rel-weekly-2026-06',
+      decision: 'ready',
+      qaCompletionComment: 'QA completed',
+      decisionComment: 'All good',
+      readinessSnapshot: { readiness: 'ready', unmetConditions: [], warningConditions: [] },
+      decidedByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    });
+
+    const result = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(result.warningConditions.some((c) => c.id.startsWith('qa-period-overdue:'))).toBe(true);
+  });
 });
