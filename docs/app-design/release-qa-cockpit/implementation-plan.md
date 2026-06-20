@@ -10,20 +10,38 @@ Do not implement the full app in a single large PR. The app is intentionally com
 
 - create `demo-apps/release-qa-cockpit/`
 - add Vite, React, TypeScript setup
+- add app-level `README.md` under `demo-apps/release-qa-cockpit/`
 - add routing shell and global layout
 - add IndexedDB wrapper and schema
 - add seed data factory
 - add Demo Data Reset flow
 - add basic role switch
-- add minimal `calculatePersistedReadiness` support needed to evaluate the default seed state
+- add pure `calculateReadinessFromSnapshot` support for the default seed state
+- add minimal `calculatePersistedReadiness` support that loads seed-derived data and delegates to `calculateReadinessFromSnapshot`
 - add a minimal Dashboard that shows active release and persisted readiness
+
+### PR-1 minimal readiness requirements
+
+PR-1 must not hard-code the default Not Ready label for the seeded release.
+
+The minimal readiness implementation must evaluate at least these seed-relevant blockers:
+
+- required test execution `fail` -> Not Ready
+- Critical or High unresolved blocking defect -> Not Ready
+- High impact risk in `draft`, `pendingApproval`, or `rejected` -> Not Ready
+- missing Test Result evidence -> Not Ready
+- missing QA completion comment -> Not Ready
+
+The implementation may leave non-seed Ready / At Risk branches incomplete until PR-2, but it must not hard-code release ID, release title, or readiness label.
 
 ### Acceptance criteria
 
 - `npm install` works inside the app directory
 - app starts locally
 - first load creates deterministic seed data
-- Demo Data Reset restores deterministic seed data
+- app-level `README.md` documents install, dev, check, reset behavior, and links to the canonical design docs
+- Demo Data Reset restores deterministic business seed data as defined in `seed-scenarios.md`
+- Demo Data Reset may update runtime-only fields such as `appSettings.lastResetAt`, and tests do not depend on exact runtime timestamps
 - current user defaults to QA Lead
 - current release defaults to `Weekly Release 2026-06`
 - persisted readiness initially shows Not Ready
@@ -33,7 +51,8 @@ Do not implement the full app in a single large PR. The app is intentionally com
 ### Required tests
 
 - unit test for seed factory
-- unit test for default seed readiness returning Not Ready
+- unit test for default seed readiness returning Not Ready through `calculateReadinessFromSnapshot`
+- adapter test for `calculatePersistedReadiness` loading seed-derived data if the IndexedDB wrapper is available
 - unit test for reset behavior if isolated service is available
 - smoke E2E that opens the app, selects QA Lead, resets data, and sees Not Ready
 
@@ -41,6 +60,7 @@ Do not implement the full app in a single large PR. The app is intentionally com
 
 ### Scope
 
+- complete `calculateReadinessFromSnapshot` for all Ready / At Risk / Not Ready rules
 - complete `calculatePersistedReadiness` for all Ready / At Risk / Not Ready rules
 - implement `calculateReadinessPreview`
 - implement condition IDs
@@ -59,8 +79,8 @@ Do not implement the full app in a single large PR. The app is intentionally com
 
 ### Required tests
 
-- full readiness unit test matrix from `readiness-rules.md`
-- preview versus persisted calculation test
+- full readiness unit test matrix from `readiness-rules.md` against `calculateReadinessFromSnapshot`
+- preview versus persisted adapter test
 - deterministic clock / overdue test
 - decision save validation tests
 
@@ -161,6 +181,7 @@ Do not implement the full app in a single large PR. The app is intentionally com
 - Markdown includes all required sections
 - export does not persist report history
 - export action creates activity log
+- export action does not create an `EvidenceItem` unless a future design explicitly changes `data-model.md`
 - Evidence Pack uses latest persisted decision, not unsaved preview input
 
 ### Required tests
@@ -174,7 +195,8 @@ Do not implement the full app in a single large PR. The app is intentionally com
 ### Scope
 
 - complete first smoke E2E scenario
-- add app README under `demo-apps/release-qa-cockpit/docs/`
+- update app README under `demo-apps/release-qa-cockpit/` with final commands and test coverage notes
+- add optional detailed docs under `demo-apps/release-qa-cockpit/docs/` if needed
 - add target project profile artifact or example
 - document local commands
 - integrate app check into CI or document pending CI task
@@ -211,6 +233,7 @@ Do not implement the full app in a single large PR. The app is intentionally com
 
 - Build deterministic seed and reset before broad E2E.
 - Build enough domain readiness logic in PR-1 to avoid hard-coded readiness UI.
+- Introduce `calculateReadinessFromSnapshot` before expanding UI-dependent readiness behavior.
 - Complete readiness domain rules before complex operational UI.
 - Do not generate tests from an unvalidated design.
 - Do not weaken readiness rules to make E2E pass.
