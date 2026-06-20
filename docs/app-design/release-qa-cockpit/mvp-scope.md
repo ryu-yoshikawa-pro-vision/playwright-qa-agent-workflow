@@ -27,16 +27,16 @@ demo-apps/release-qa-cockpit/
 
 ## Required technology choices
 
-| Area | Required choice |
-| --- | --- |
-| Frontend | React |
-| Language | TypeScript |
-| Build tool | Vite |
-| Persistence | IndexedDB |
-| IndexedDB wrapper | Dexie or an equivalent typed local wrapper |
-| Routing | React Router or equivalent client-side routing |
-| Unit tests | Vitest or equivalent Vite-friendly runner |
-| E2E tests | Playwright Test |
+| Area              | Required choice                                |
+| ----------------- | ---------------------------------------------- |
+| Frontend          | React                                          |
+| Language          | TypeScript                                     |
+| Build tool        | Vite                                           |
+| Persistence       | IndexedDB                                      |
+| IndexedDB wrapper | Dexie or an equivalent typed local wrapper     |
+| Routing           | React Router or equivalent client-side routing |
+| Unit tests        | Vitest or equivalent Vite-friendly runner      |
+| E2E tests         | Playwright Test                                |
 
 Do not add a server runtime for the MVP.
 
@@ -44,37 +44,37 @@ Do not add a server runtime for the MVP.
 
 The MVP must expose these user-visible screens or screen areas:
 
-| Screen | Required route |
-| --- | --- |
-| Login / Role Switch | `/login` or role switch control available globally |
-| Dashboard | `/` |
-| Releases | `/releases` |
-| Release Overview | `/releases/:releaseId` |
-| Test Execution | `/releases/:releaseId/tests` |
-| Defect Triage | `/releases/:releaseId/defects` |
-| Risk Review | `/releases/:releaseId/risks` |
-| Release Decision | `/releases/:releaseId/decision` |
-| Evidence Pack Export | `/releases/:releaseId/evidence-pack` |
-| Activity Log | `/activity-log` or `/releases/:releaseId/activity-log` |
-| Demo Controls / Data Reset | `/demo-controls` or global reset dialog |
+| Screen                     | Required route                                         |
+| -------------------------- | ------------------------------------------------------ |
+| Login / Role Switch        | `/login` or role switch control available globally     |
+| Dashboard                  | `/`                                                    |
+| Releases                   | `/releases`                                            |
+| Release Overview           | `/releases/:releaseId`                                 |
+| Test Execution             | `/releases/:releaseId/tests`                           |
+| Defect Triage              | `/releases/:releaseId/defects`                         |
+| Risk Review                | `/releases/:releaseId/risks`                           |
+| Release Decision           | `/releases/:releaseId/decision`                        |
+| Evidence Pack Export       | `/releases/:releaseId/evidence-pack`                   |
+| Activity Log               | `/activity-log` or `/releases/:releaseId/activity-log` |
+| Demo Controls / Data Reset | `/demo-controls` or global reset dialog                |
 
 The exact router library can vary, but the user-visible navigation names must match the screen names above.
 
 ## Required domain features
 
-| Feature | Required behavior |
-| --- | --- |
-| Role switching | Allows deterministic switching between seeded users. |
-| Release selection | Allows opening the active seeded release. |
-| Readiness calculation | Calculates persisted and preview readiness separately. |
-| Test execution update | Allows status update for seeded test executions. |
-| Defect triage | Allows valid defect status transitions. |
-| Risk review | Allows valid risk status transitions with required reason fields. |
-| Release decision save | Creates decision, Release Decision evidence, and activity log. |
-| Test Result evidence | Allows creating at least one evidence item of type `testResult`. |
-| Evidence Pack export | Generates Markdown from current IndexedDB state without persisting report history. |
-| Activity log | Records user-visible domain mutations. |
-| Demo data reset | Clears MVP stores and restores deterministic seed data. |
+| Feature               | Required behavior                                                                  |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| Role switching        | Allows deterministic switching between seeded users.                               |
+| Release selection     | Allows opening the active seeded release.                                          |
+| Readiness calculation | Calculates persisted and preview readiness separately.                             |
+| Test execution update | Allows status update for seeded test executions.                                   |
+| Defect triage         | Allows valid defect status transitions.                                            |
+| Risk review           | Allows valid risk status transitions with required reason fields.                  |
+| Release decision save | Creates decision, Release Decision evidence, and activity log.                     |
+| Test Result evidence  | Allows creating at least one evidence item of type `testResult`.                   |
+| Evidence Pack export  | Generates Markdown from current IndexedDB state without persisting report history. |
+| Activity log          | Records user-visible domain mutations.                                             |
+| Demo data reset       | Clears MVP stores and restores deterministic seed data.                            |
 
 ## Required IndexedDB stores
 

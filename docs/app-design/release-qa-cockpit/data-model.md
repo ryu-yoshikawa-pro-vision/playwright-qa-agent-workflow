@@ -38,45 +38,26 @@ attachmentsBinary
 
 ## Shared scalar conventions
 
-| Convention | Rule |
-| --- | --- |
-| IDs | Use deterministic string IDs for seed data. Runtime-created records may use UUID-style strings. |
-| Date/time | Store ISO 8601 strings. |
-| Deletion | Hard delete is allowed only during Demo Data Reset. Normal user actions should update status. |
-| Release scoping | Operational data should include `releaseId` unless it is global app configuration. |
-| Audit | Domain mutations must create `activityLogs` entries. |
+| Convention      | Rule                                                                                            |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| IDs             | Use deterministic string IDs for seed data. Runtime-created records may use UUID-style strings. |
+| Date/time       | Store ISO 8601 strings.                                                                         |
+| Deletion        | Hard delete is allowed only during Demo Data Reset. Normal user actions should update status.   |
+| Release scoping | Operational data should include `releaseId` unless it is global app configuration.              |
+| Audit           | Domain mutations must create `activityLogs` entries.                                            |
 
 ## Enums
 
 ```ts
-export type UserRole =
-  | 'qaLead'
-  | 'qaMember'
-  | 'releaseManager'
-  | 'viewer';
+export type UserRole = 'qaLead' | 'qaMember' | 'releaseManager' | 'viewer';
 
-export type ReleaseStatus =
-  | 'draft'
-  | 'inQa'
-  | 'decisionPending'
-  | 'decided'
-  | 'archived';
+export type ReleaseStatus = 'draft' | 'inQa' | 'decisionPending' | 'decided' | 'archived';
 
-export type ReleaseReadiness =
-  | 'ready'
-  | 'atRisk'
-  | 'notReady';
+export type ReleaseReadiness = 'ready' | 'atRisk' | 'notReady';
 
-export type ReleaseDecisionType =
-  | 'ready'
-  | 'atRisk'
-  | 'notReady';
+export type ReleaseDecisionType = 'ready' | 'atRisk' | 'notReady';
 
-export type TestPriority =
-  | 'critical'
-  | 'high'
-  | 'medium'
-  | 'low';
+export type TestPriority = 'critical' | 'high' | 'medium' | 'low';
 
 export type TestExecutionStatus =
   | 'notStarted'
@@ -87,11 +68,7 @@ export type TestExecutionStatus =
   | 'skipped'
   | 'retest';
 
-export type DefectSeverity =
-  | 'critical'
-  | 'high'
-  | 'medium'
-  | 'low';
+export type DefectSeverity = 'critical' | 'high' | 'medium' | 'low';
 
 export type DefectStatus =
   | 'open'
@@ -104,10 +81,7 @@ export type DefectStatus =
   | 'wontFix'
   | 'duplicate';
 
-export type RiskImpact =
-  | 'high'
-  | 'medium'
-  | 'low';
+export type RiskImpact = 'high' | 'medium' | 'low';
 
 export type RiskStatus =
   | 'draft'
@@ -418,14 +392,14 @@ db.version(1).stores({
 
 ## Relationship rules
 
-| Relationship | Rule |
-| --- | --- |
-| `TestExecution.testItemId` | Must refer to a `TestItem` in the same release. |
+| Relationship                   | Rule                                                              |
+| ------------------------------ | ----------------------------------------------------------------- |
+| `TestExecution.testItemId`     | Must refer to a `TestItem` in the same release.                   |
 | `Defect.linkedTestExecutionId` | Must refer to a `TestExecution` in the same release when present. |
-| `Risk.linkedDefectId` | Must refer to a `Defect` in the same release when present. |
-| `Decision.releaseId` | Must refer to the release being decided. |
-| `EvidenceItem.sourceEntityId` | Must match `sourceEntityType` when present. |
-| `ActivityLog.targetEntityId` | Should refer to the changed entity when present. |
+| `Risk.linkedDefectId`          | Must refer to a `Defect` in the same release when present.        |
+| `Decision.releaseId`           | Must refer to the release being decided.                          |
+| `EvidenceItem.sourceEntityId`  | Must match `sourceEntityType` when present.                       |
+| `ActivityLog.targetEntityId`   | Should refer to the changed entity when present.                  |
 
 ## Activity logging rules
 
@@ -446,16 +420,16 @@ Do not create activity logs for passive page navigation.
 
 The implementation must validate these rules before saving:
 
-| Entity | Rule |
-| --- | --- |
-| `TestExecution` | `blocked` requires `blockedReason`. |
-| `TestExecution` | `skipped` requires `skipReason`. |
-| `Risk` | `accepted` requires `acceptedReason`. |
-| `Risk` | `rejected` requires `rejectedReason`. |
-| `Risk` | `mitigated` requires `mitigationNote`. |
-| `Decision` | `qaCompletionComment` is required for Ready and At Risk saves. |
-| `Decision` | `decisionComment` is required for At Risk and Not Ready saves. |
-| `EvidenceItem` | `testResult` evidence must include `contentMarkdown`. |
+| Entity          | Rule                                                           |
+| --------------- | -------------------------------------------------------------- |
+| `TestExecution` | `blocked` requires `blockedReason`.                            |
+| `TestExecution` | `skipped` requires `skipReason`.                               |
+| `Risk`          | `accepted` requires `acceptedReason`.                          |
+| `Risk`          | `rejected` requires `rejectedReason`.                          |
+| `Risk`          | `mitigated` requires `mitigationNote`.                         |
+| `Decision`      | `qaCompletionComment` is required for Ready and At Risk saves. |
+| `Decision`      | `decisionComment` is required for At Risk and Not Ready saves. |
+| `EvidenceItem`  | `testResult` evidence must include `contentMarkdown`.          |
 
 ## Completion criteria
 

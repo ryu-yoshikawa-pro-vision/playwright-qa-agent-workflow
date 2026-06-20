@@ -6,12 +6,12 @@ Seed data must support repeatable Playwright E2E tests, service mapping, and man
 
 ## Seed scenario identity
 
-| Field | Value |
-| --- | --- |
-| Scenario ID | `scenario-weekly-release-at-risk` |
-| Scenario name | `Weekly Release At Risk Demo` |
-| Initial readiness | `notReady` |
-| Target final smoke readiness | `atRisk` |
+| Field                        | Value                             |
+| ---------------------------- | --------------------------------- |
+| Scenario ID                  | `scenario-weekly-release-at-risk` |
+| Scenario name                | `Weekly Release At Risk Demo`     |
+| Initial readiness            | `notReady`                        |
+| Target final smoke readiness | `atRisk`                          |
 
 ## Deterministic time values
 
@@ -28,63 +28,63 @@ Runtime updates may use current time.
 
 ## Users
 
-| ID | Name | Role | Active |
-| --- | --- | --- | --- |
-| `user-qa-lead` | QA Lead | `qaLead` | true |
-| `user-qa-member` | QA Member | `qaMember` | true |
-| `user-release-manager` | Release Manager | `releaseManager` | true |
-| `user-viewer` | Viewer | `viewer` | true |
+| ID                     | Name            | Role             | Active |
+| ---------------------- | --------------- | ---------------- | ------ |
+| `user-qa-lead`         | QA Lead         | `qaLead`         | true   |
+| `user-qa-member`       | QA Member       | `qaMember`       | true   |
+| `user-release-manager` | Release Manager | `releaseManager` | true   |
+| `user-viewer`          | Viewer          | `viewer`         | true   |
 
 ## Session
 
-| Field | Value |
-| --- | --- |
-| `id` | `session-default` |
-| `currentUserId` | `user-qa-lead` |
+| Field              | Value                |
+| ------------------ | -------------------- |
+| `id`               | `session-default`    |
+| `currentUserId`    | `user-qa-lead`       |
 | `currentReleaseId` | `rel-weekly-2026-06` |
 
 ## Release
 
-| Field | Value |
-| --- | --- |
-| `id` | `rel-weekly-2026-06` |
-| `name` | `Weekly Release 2026-06` |
-| `version` | `2026.06.1` |
-| `status` | `inQa` |
+| Field              | Value                      |
+| ------------------ | -------------------------- |
+| `id`               | `rel-weekly-2026-06`       |
+| `name`             | `Weekly Release 2026-06`   |
+| `version`          | `2026.06.1`                |
+| `status`           | `inQa`                     |
 | `plannedStartDate` | `2026-06-01T00:00:00.000Z` |
-| `plannedEndDate` | `2026-06-30T23:59:59.000Z` |
+| `plannedEndDate`   | `2026-06-30T23:59:59.000Z` |
 
 ## Release scope
 
-| ID | Title | Area | In scope |
-| --- | --- | --- | --- |
-| `scope-recording-core` | Recording core workflow | Recording | true |
-| `scope-export-evidence` | Evidence Pack export | Reporting | true |
-| `scope-risk-review` | Release risk review | Release Management | true |
+| ID                      | Title                   | Area               | In scope |
+| ----------------------- | ----------------------- | ------------------ | -------- |
+| `scope-recording-core`  | Recording core workflow | Recording          | true     |
+| `scope-export-evidence` | Evidence Pack export    | Reporting          | true     |
+| `scope-risk-review`     | Release risk review     | Release Management | true     |
 
 ## Test items
 
-| ID | Title | Area | Priority | Required |
-| --- | --- | --- | --- | --- |
-| `test-recording-playback` | Recording playback is available after processing | Recording | `critical` | true |
-| `test-evidence-export` | Evidence Pack Markdown includes QA summary | Reporting | `high` | true |
-| `test-viewer-readonly` | Viewer can inspect release without mutation controls | Permissions | `medium` | true |
+| ID                        | Title                                                | Area        | Priority   | Required |
+| ------------------------- | ---------------------------------------------------- | ----------- | ---------- | -------- |
+| `test-recording-playback` | Recording playback is available after processing     | Recording   | `critical` | true     |
+| `test-evidence-export`    | Evidence Pack Markdown includes QA summary           | Reporting   | `high`     | true     |
+| `test-viewer-readonly`    | Viewer can inspect release without mutation controls | Permissions | `medium`   | true     |
 
 ## Test executions
 
-| ID | Test item | Initial status | Assignee | Linked defect |
-| --- | --- | --- | --- | --- |
-| `exec-recording-playback` | `test-recording-playback` | `fail` | `user-qa-member` | `defect-recording-playback-fails` |
-| `exec-evidence-export` | `test-evidence-export` | `pass` | `user-qa-member` | none |
-| `exec-viewer-readonly` | `test-viewer-readonly` | `pass` | `user-qa-member` | none |
+| ID                        | Test item                 | Initial status | Assignee         | Linked defect                     |
+| ------------------------- | ------------------------- | -------------- | ---------------- | --------------------------------- |
+| `exec-recording-playback` | `test-recording-playback` | `fail`         | `user-qa-member` | `defect-recording-playback-fails` |
+| `exec-evidence-export`    | `test-evidence-export`    | `pass`         | `user-qa-member` | none                              |
+| `exec-viewer-readonly`    | `test-viewer-readonly`    | `pass`         | `user-qa-member` | none                              |
 
 The initial failed required test is required so the initial readiness is Not Ready.
 
 ## Defects
 
-| ID | Title | Severity | Status | Impacts release decision | Linked test execution |
-| --- | --- | --- | --- | --- | --- |
-| `defect-recording-playback-fails` | Recording playback fails after processing | `high` | `open` | true | `exec-recording-playback` |
+| ID                                | Title                                     | Severity | Status | Impacts release decision | Linked test execution     |
+| --------------------------------- | ----------------------------------------- | -------- | ------ | ------------------------ | ------------------------- |
+| `defect-recording-playback-fails` | Recording playback fails after processing | `high`   | `open` | true                     | `exec-recording-playback` |
 
 This defect must be resolvable through the smoke transition chain:
 
@@ -94,9 +94,9 @@ open -> triaged -> inProgress -> fixed -> readyForRetest -> closed
 
 ## Risks
 
-| ID | Title | Impact | Initial status | Linked defect |
-| --- | --- | --- | --- | --- |
-| `risk-recording-regression` | Recording regression risk remains after fix | `high` | `draft` | `defect-recording-playback-fails` |
+| ID                          | Title                                       | Impact | Initial status | Linked defect                     |
+| --------------------------- | ------------------------------------------- | ------ | -------------- | --------------------------------- |
+| `risk-recording-regression` | Recording regression risk remains after fix | `high` | `draft`        | `defect-recording-playback-fails` |
 
 This risk must be acceptable through the smoke transition chain:
 
@@ -124,23 +124,23 @@ Recommended MVP default: no evidence items initially.
 
 Seed one initial activity log entry:
 
-| Field | Value |
-| --- | --- |
-| `id` | `log-seed-created` |
-| `actorUserId` | `user-qa-lead` |
-| `action` | `demo.seeded` |
-| `targetEntityType` | `demoScenario` |
-| `targetEntityId` | `scenario-weekly-release-at-risk` |
-| `summary` | `Seeded Weekly Release At Risk Demo data.` |
+| Field              | Value                                      |
+| ------------------ | ------------------------------------------ |
+| `id`               | `log-seed-created`                         |
+| `actorUserId`      | `user-qa-lead`                             |
+| `action`           | `demo.seeded`                              |
+| `targetEntityType` | `demoScenario`                             |
+| `targetEntityId`   | `scenario-weekly-release-at-risk`          |
+| `summary`          | `Seeded Weekly Release At Risk Demo data.` |
 
 ## App settings
 
-| Field | Value |
-| --- | --- |
-| `id` | `app-settings` |
-| `demoMode` | true |
-| `schemaVersion` | 1 |
-| `lastResetAt` | optional runtime value |
+| Field           | Value                  |
+| --------------- | ---------------------- |
+| `id`            | `app-settings`         |
+| `demoMode`      | true                   |
+| `schemaVersion` | 1                      |
+| `lastResetAt`   | optional runtime value |
 
 ## Initial readiness explanation
 

@@ -33,18 +33,18 @@ If an older compatibility file conflicts with this directory, use this directory
 
 If documents inside this directory conflict, use the more specific document:
 
-| Topic | Canonical document |
-| --- | --- |
-| Product purpose | `product-definition.md` |
-| MVP inclusion and exclusion | `mvp-scope.md` |
-| IndexedDB stores and entity fields | `data-model.md` |
-| Ready / At Risk / Not Ready logic | `readiness-rules.md` |
-| Routes, screens, user operations | `screen-spec.md` |
-| Valid status transitions | `state-transitions.md` |
-| Deterministic demo data | `seed-scenarios.md` |
-| Playwright-friendly DOM and selectors | `testability-rules.md` |
-| PR order and acceptance criteria | `implementation-plan.md` |
-| Unit, UI, and E2E test expectations | `testing-strategy.md` |
+| Topic                                 | Canonical document       |
+| ------------------------------------- | ------------------------ |
+| Product purpose                       | `product-definition.md`  |
+| MVP inclusion and exclusion           | `mvp-scope.md`           |
+| IndexedDB stores and entity fields    | `data-model.md`          |
+| Ready / At Risk / Not Ready logic     | `readiness-rules.md`     |
+| Routes, screens, user operations      | `screen-spec.md`         |
+| Valid status transitions              | `state-transitions.md`   |
+| Deterministic demo data               | `seed-scenarios.md`      |
+| Playwright-friendly DOM and selectors | `testability-rules.md`   |
+| PR order and acceptance criteria      | `implementation-plan.md` |
+| Unit, UI, and E2E test expectations   | `testing-strategy.md`    |
 
 ## Required implementation path
 

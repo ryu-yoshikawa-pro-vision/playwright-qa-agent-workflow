@@ -6,15 +6,15 @@ Use it when asking agents to explore, plan, design, generate tests, or heal test
 
 ## Application
 
-| Field | Value |
-| --- | --- |
-| Application name | Release QA Cockpit |
-| Purpose | Demo target app for Playwright QA Agent Workflow |
+| Field             | Value                                                   |
+| ----------------- | ------------------------------------------------------- |
+| Application name  | Release QA Cockpit                                      |
+| Purpose           | Demo target app for Playwright QA Agent Workflow        |
 | Target repository | `ryu-yoshikawa-pro-vision/playwright-qa-agent-workflow` |
-| App path | `demo-apps/release-qa-cockpit/` |
-| Design docs | `docs/app-design/release-qa-cockpit/` |
-| Environment | local |
-| Default base URL | `http://localhost:5173` |
+| App path          | `demo-apps/release-qa-cockpit/`                         |
+| Design docs       | `docs/app-design/release-qa-cockpit/`                   |
+| Environment       | local                                                   |
+| Default base URL  | `http://localhost:5173`                                 |
 
 ## Install and setup
 
@@ -207,6 +207,6 @@ Agents should still be able to use the design docs to create implementation plan
 
 ## Change history
 
-| Date | Change |
-| --- | --- |
+| Date       | Change                                           |
+| ---------- | ------------------------------------------------ |
 | 2026-06-20 | Added Release QA Cockpit target profile example. |

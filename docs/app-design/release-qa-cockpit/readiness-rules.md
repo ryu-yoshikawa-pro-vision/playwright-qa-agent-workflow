@@ -7,22 +7,20 @@ Do not duplicate incompatible readiness rules in screen components. UI code must
 ## Public functions
 
 ```ts
-export function calculatePersistedReadiness(
-  releaseId: string
-): Promise<ReadinessResult>;
+export function calculatePersistedReadiness(releaseId: string): Promise<ReadinessResult>;
 
 export function calculateReadinessPreview(
   releaseId: string,
-  draftInput: ReadinessDraftInput
+  draftInput: ReadinessDraftInput,
 ): Promise<ReadinessResult>;
 ```
 
 ## Persisted versus preview calculation
 
-| Function | Inputs | Used by | Behavior |
-| --- | --- | --- | --- |
-| `calculatePersistedReadiness` | Stored IndexedDB state only | Dashboard, Releases, Overview | Shows current saved release state. |
-| `calculateReadinessPreview` | Stored state plus draft decision input | Release Decision screen | Shows what the readiness would be with unsaved form input. |
+| Function                      | Inputs                                 | Used by                       | Behavior                                                   |
+| ----------------------------- | -------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
+| `calculatePersistedReadiness` | Stored IndexedDB state only            | Dashboard, Releases, Overview | Shows current saved release state.                         |
+| `calculateReadinessPreview`   | Stored state plus draft decision input | Release Decision screen       | Shows what the readiness would be with unsaved form input. |
 
 Draft input must not mutate IndexedDB.
 
@@ -61,33 +59,33 @@ duplicate
 
 The result must include a blocker condition for each matched item.
 
-| Condition ID | Source | Rule |
-| --- | --- | --- |
-| `required-test-not-started` | `testExecution` | A required test execution is `notStarted`. |
-| `required-test-in-progress` | `testExecution` | A required test execution is `inProgress`. |
-| `required-test-failed` | `testExecution` | A required test execution is `fail`. |
-| `required-test-blocked` | `testExecution` | A required test execution is `blocked`. |
-| `required-test-skipped-without-reason` | `testExecution` | A required test execution is `skipped` and has no `skipReason`. |
-| `critical-high-blocking-defect` | `defect` | A Critical or High defect is in an unresolved blocking status. |
-| `impacting-medium-low-blocking-defect` | `defect` | A Medium or Low defect is in an unresolved blocking status and `impactsReleaseDecision` is true. |
-| `high-risk-unapproved` | `risk` | A High impact risk is `draft`, `pendingApproval`, or `rejected`. |
-| `medium-risk-rejected` | `risk` | A Medium impact risk is `rejected`. |
-| `qa-completion-comment-missing` | `decision` | QA completion comment is empty in the persisted or preview input being evaluated. |
-| `test-result-evidence-missing` | `evidence` | No `EvidenceItem` of type `testResult` exists for the release. |
+| Condition ID                           | Source          | Rule                                                                                             |
+| -------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------ |
+| `required-test-not-started`            | `testExecution` | A required test execution is `notStarted`.                                                       |
+| `required-test-in-progress`            | `testExecution` | A required test execution is `inProgress`.                                                       |
+| `required-test-failed`                 | `testExecution` | A required test execution is `fail`.                                                             |
+| `required-test-blocked`                | `testExecution` | A required test execution is `blocked`.                                                          |
+| `required-test-skipped-without-reason` | `testExecution` | A required test execution is `skipped` and has no `skipReason`.                                  |
+| `critical-high-blocking-defect`        | `defect`        | A Critical or High defect is in an unresolved blocking status.                                   |
+| `impacting-medium-low-blocking-defect` | `defect`        | A Medium or Low defect is in an unresolved blocking status and `impactsReleaseDecision` is true. |
+| `high-risk-unapproved`                 | `risk`          | A High impact risk is `draft`, `pendingApproval`, or `rejected`.                                 |
+| `medium-risk-rejected`                 | `risk`          | A Medium impact risk is `rejected`.                                                              |
+| `qa-completion-comment-missing`        | `decision`      | QA completion comment is empty in the persisted or preview input being evaluated.                |
+| `test-result-evidence-missing`         | `evidence`      | No `EvidenceItem` of type `testResult` exists for the release.                                   |
 
 ## At Risk conditions
 
 At Risk conditions are warnings. They matter only when no Not Ready condition exists.
 
-| Condition ID | Source | Rule |
-| --- | --- | --- |
-| `medium-low-blocking-defect` | `defect` | A Medium or Low defect is in an unresolved blocking status, but `impactsReleaseDecision` is false. |
-| `high-risk-accepted` | `risk` | A High impact risk is `accepted`. |
-| `medium-risk-open-or-accepted` | `risk` | A Medium impact risk is `draft`, `pendingApproval`, or `accepted`. |
-| `low-risk-pending-or-rejected` | `risk` | A Low impact risk is `pendingApproval` or `rejected`. |
-| `required-test-skipped-with-reason` | `testExecution` | A required test execution is `skipped` and has `skipReason`. |
-| `qa-period-overdue` | `schedule` | Current date is after `Release.plannedEndDate` and release is not decided or archived. |
-| `wont-fix-risk-accepted` | `risk` | A `wontFix` defect still has a linked risk in `accepted` status. |
+| Condition ID                        | Source          | Rule                                                                                               |
+| ----------------------------------- | --------------- | -------------------------------------------------------------------------------------------------- |
+| `medium-low-blocking-defect`        | `defect`        | A Medium or Low defect is in an unresolved blocking status, but `impactsReleaseDecision` is false. |
+| `high-risk-accepted`                | `risk`          | A High impact risk is `accepted`.                                                                  |
+| `medium-risk-open-or-accepted`      | `risk`          | A Medium impact risk is `draft`, `pendingApproval`, or `accepted`.                                 |
+| `low-risk-pending-or-rejected`      | `risk`          | A Low impact risk is `pendingApproval` or `rejected`.                                              |
+| `required-test-skipped-with-reason` | `testExecution` | A required test execution is `skipped` and has `skipReason`.                                       |
+| `qa-period-overdue`                 | `schedule`      | Current date is after `Release.plannedEndDate` and release is not decided or archived.             |
+| `wont-fix-risk-accepted`            | `risk`          | A `wontFix` defect still has a linked risk in `accepted` status.                                   |
 
 ## Ready conditions
 
@@ -165,28 +163,28 @@ Do not rely on condition message text for unit test identity. Unit tests should 
 
 At minimum, unit tests must cover:
 
-| Case | Expected readiness |
-| --- | --- |
-| Required test not started | `notReady` |
-| Required test failed | `notReady` |
-| Required test blocked | `notReady` |
-| Required test skipped without reason | `notReady` |
-| Required test skipped with reason and no blockers | `atRisk` |
-| Critical blocking defect | `notReady` |
-| High blocking defect | `notReady` |
-| Medium impacting blocking defect | `notReady` |
-| Medium non-impacting blocking defect | `atRisk` |
-| High risk draft | `notReady` |
-| High risk pending approval | `notReady` |
-| High risk rejected | `notReady` |
-| High risk accepted | `atRisk` |
-| Medium risk rejected | `notReady` |
-| Medium risk accepted | `atRisk` |
-| Missing QA completion comment | `notReady` |
-| Missing Test Result evidence | `notReady` |
-| Manual Note evidence only | `notReady` |
-| All required tests pass, no blockers, QA comment, Test Result evidence | `ready` |
-| Both blocker and warning exist | `notReady` |
+| Case                                                                   | Expected readiness |
+| ---------------------------------------------------------------------- | ------------------ |
+| Required test not started                                              | `notReady`         |
+| Required test failed                                                   | `notReady`         |
+| Required test blocked                                                  | `notReady`         |
+| Required test skipped without reason                                   | `notReady`         |
+| Required test skipped with reason and no blockers                      | `atRisk`           |
+| Critical blocking defect                                               | `notReady`         |
+| High blocking defect                                                   | `notReady`         |
+| Medium impacting blocking defect                                       | `notReady`         |
+| Medium non-impacting blocking defect                                   | `atRisk`           |
+| High risk draft                                                        | `notReady`         |
+| High risk pending approval                                             | `notReady`         |
+| High risk rejected                                                     | `notReady`         |
+| High risk accepted                                                     | `atRisk`           |
+| Medium risk rejected                                                   | `notReady`         |
+| Medium risk accepted                                                   | `atRisk`           |
+| Missing QA completion comment                                          | `notReady`         |
+| Missing Test Result evidence                                           | `notReady`         |
+| Manual Note evidence only                                              | `notReady`         |
+| All required tests pass, no blockers, QA comment, Test Result evidence | `ready`            |
+| Both blocker and warning exist                                         | `notReady`         |
 
 ## Implementation constraints
 

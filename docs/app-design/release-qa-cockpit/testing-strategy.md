@@ -6,12 +6,12 @@ The app is itself a Playwright QA Agent Workflow target, but it still needs its 
 
 ## Test layers
 
-| Layer | Purpose | Required |
-| --- | --- | --- |
-| Unit tests | Validate deterministic domain logic. | yes |
-| UI tests | Validate isolated UI behavior when practical. | recommended |
-| E2E tests | Validate user-visible workflows with Playwright. | yes |
-| Accessibility-oriented checks | Keep selectors and page structure stable. | yes |
+| Layer                         | Purpose                                          | Required    |
+| ----------------------------- | ------------------------------------------------ | ----------- |
+| Unit tests                    | Validate deterministic domain logic.             | yes         |
+| UI tests                      | Validate isolated UI behavior when practical.    | recommended |
+| E2E tests                     | Validate user-visible workflows with Playwright. | yes         |
+| Accessibility-oriented checks | Keep selectors and page structure stable.        | yes         |
 
 ## Unit test targets
 

@@ -44,12 +44,12 @@ Select a deterministic seeded user role for exploration and tests.
 
 ### Actions
 
-| Action | Result |
-| --- | --- |
-| Select QA Lead | Set current session user to `user-qa-lead`. |
-| Select QA Member | Set current session user to `user-qa-member`. |
+| Action                 | Result                                              |
+| ---------------------- | --------------------------------------------------- |
+| Select QA Lead         | Set current session user to `user-qa-lead`.         |
+| Select QA Member       | Set current session user to `user-qa-member`.       |
 | Select Release Manager | Set current session user to `user-release-manager`. |
-| Select Viewer | Set current session user to `user-viewer`. |
+| Select Viewer          | Set current session user to `user-viewer`.          |
 
 ### Side effects
 
@@ -91,14 +91,14 @@ Show the current release overview and quick links into operational screens.
 
 ### Actions
 
-| Action | Result |
-| --- | --- |
-| Open active release | Navigate to `/releases/:releaseId`. |
-| Open Test Execution | Navigate to `/releases/:releaseId/tests`. |
-| Open Defect Triage | Navigate to `/releases/:releaseId/defects`. |
-| Open Risk Review | Navigate to `/releases/:releaseId/risks`. |
-| Open Release Decision | Navigate to `/releases/:releaseId/decision`. |
-| Export Evidence Pack | Navigate to `/releases/:releaseId/evidence-pack`. |
+| Action                | Result                                            |
+| --------------------- | ------------------------------------------------- |
+| Open active release   | Navigate to `/releases/:releaseId`.               |
+| Open Test Execution   | Navigate to `/releases/:releaseId/tests`.         |
+| Open Defect Triage    | Navigate to `/releases/:releaseId/defects`.       |
+| Open Risk Review      | Navigate to `/releases/:releaseId/risks`.         |
+| Open Release Decision | Navigate to `/releases/:releaseId/decision`.      |
+| Export Evidence Pack  | Navigate to `/releases/:releaseId/evidence-pack`. |
 
 ### Validation
 
@@ -129,8 +129,8 @@ List releases and allow the user to open a release.
 
 ### Actions
 
-| Action | Result |
-| --- | --- |
+| Action       | Result                                                      |
+| ------------ | ----------------------------------------------------------- |
 | View release | Set current release and navigate to `/releases/:releaseId`. |
 
 ### Side effects
@@ -208,15 +208,15 @@ Update QA execution status for release test items.
 
 ### Actions
 
-| Action | Result |
-| --- | --- |
-| Start test | `notStarted` -> `inProgress`. |
-| Mark as passed | Valid active status -> `pass`. |
-| Mark as failed | Valid active status -> `fail`. |
-| Block test | Valid active status -> `blocked`, requires reason. |
-| Skip test | `notStarted` or `inProgress` -> `skipped`, requires reason. |
-| Move to retest | `fail` -> `retest`. |
-| Create Test Result evidence | Creates `evidenceItems` record of type `testResult`. |
+| Action                      | Result                                                      |
+| --------------------------- | ----------------------------------------------------------- |
+| Start test                  | `notStarted` -> `inProgress`.                               |
+| Mark as passed              | Valid active status -> `pass`.                              |
+| Mark as failed              | Valid active status -> `fail`.                              |
+| Block test                  | Valid active status -> `blocked`, requires reason.          |
+| Skip test                   | `notStarted` or `inProgress` -> `skipped`, requires reason. |
+| Move to retest              | `fail` -> `retest`.                                         |
+| Create Test Result evidence | Creates `evidenceItems` record of type `testResult`.        |
 
 ### Validation
 
@@ -357,13 +357,13 @@ Preview and save release decision state.
 
 ### Actions
 
-| Action | Result |
-| --- | --- |
-| Edit QA completion comment | Updates preview readiness only. |
-| Edit decision comment | Updates local draft only. |
-| Save Ready decision | Saves Ready when validation allows. |
-| Save At Risk decision | Saves At Risk when validation allows. |
-| Save Not Ready decision | Saves Not Ready when validation allows. |
+| Action                     | Result                                  |
+| -------------------------- | --------------------------------------- |
+| Edit QA completion comment | Updates preview readiness only.         |
+| Edit decision comment      | Updates local draft only.               |
+| Save Ready decision        | Saves Ready when validation allows.     |
+| Save At Risk decision      | Saves At Risk when validation allows.   |
+| Save Not Ready decision    | Saves Not Ready when validation allows. |
 
 ### Validation
 
@@ -473,11 +473,11 @@ Restore deterministic seed data for repeatable Playwright and agent runs.
 
 ### Actions
 
-| Action | Result |
-| --- | --- |
-| Reset demo data | Opens confirmation dialog. |
+| Action                  | Result                                                  |
+| ----------------------- | ------------------------------------------------------- |
+| Reset demo data         | Opens confirmation dialog.                              |
 | Confirm reset demo data | Clears MVP stores and restores deterministic seed data. |
-| Cancel reset demo data | Closes dialog without mutation. |
+| Cancel reset demo data  | Closes dialog without mutation.                         |
 
 ### Side effects
 
@@ -494,26 +494,26 @@ After reset, active release readiness must be Not Ready.
 
 All screens must handle:
 
-| Error | Required user-facing behavior |
-| --- | --- |
-| Release not found | Show `Release not found` and link to Releases. |
-| Demo data missing | Show `Demo data is missing` and a reset action. |
-| Invalid transition | Show validation message and do not mutate state. |
+| Error                  | Required user-facing behavior                         |
+| ---------------------- | ----------------------------------------------------- |
+| Release not found      | Show `Release not found` and link to Releases.        |
+| Demo data missing      | Show `Demo data is missing` and a reset action.       |
+| Invalid transition     | Show validation message and do not mutate state.      |
 | Missing required field | Keep user on the screen and show field-level message. |
 
 ## Role permissions summary
 
-| Operation | QA Lead | QA Member | Release Manager | Viewer |
-| --- | --- | --- | --- | --- |
-| View screens | yes | yes | yes | yes |
-| Switch role | yes | yes | yes | yes |
-| Update test execution | yes | yes | no | no |
-| Create Test Result evidence | yes | yes | no | no |
-| Change defect status | yes | limited | no | no |
-| Accept or reject risk | yes | no | yes | no |
-| Save release decision | yes | no | yes | no |
-| Export Evidence Pack | yes | yes | yes | yes |
-| Reset demo data | yes | yes | yes | yes |
+| Operation                   | QA Lead | QA Member | Release Manager | Viewer |
+| --------------------------- | ------- | --------- | --------------- | ------ |
+| View screens                | yes     | yes       | yes             | yes    |
+| Switch role                 | yes     | yes       | yes             | yes    |
+| Update test execution       | yes     | yes       | no              | no     |
+| Create Test Result evidence | yes     | yes       | no              | no     |
+| Change defect status        | yes     | limited   | no              | no     |
+| Accept or reject risk       | yes     | no        | yes             | no     |
+| Save release decision       | yes     | no        | yes             | no     |
+| Export Evidence Pack        | yes     | yes       | yes             | yes    |
+| Reset demo data             | yes     | yes       | yes             | yes    |
 
 Limited defect status changes for QA Member are defined in `state-transitions.md` and UI validation.
 

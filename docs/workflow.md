@@ -60,9 +60,9 @@ playwright-test-planner
 
 Planner and designer have different responsibilities:
 
-| Skill | Responsibility |
-| --- | --- |
-| `playwright-test-planner` | Decide what should be designed: scope, evidence, assumptions, behavior inventory, risks, and design inputs. |
+| Skill                      | Responsibility                                                                                                          |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `playwright-test-planner`  | Decide what should be designed: scope, evidence, assumptions, behavior inventory, risks, and design inputs.             |
 | `playwright-test-designer` | Decide how it should be tested: technique selection, technique application, final cases, exclusions, and residual risk. |
 
 ## Test generation, coverage, and healing

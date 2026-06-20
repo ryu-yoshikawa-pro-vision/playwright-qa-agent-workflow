@@ -39,24 +39,24 @@ It intentionally avoids production concerns that would distract from test design
 
 ## Primary users
 
-| User | Role key | Purpose |
-| --- | --- | --- |
-| QA Lead | `qaLead` | Owns release readiness, decision save, and risk acceptance. |
-| QA Member | `qaMember` | Updates test execution results and creates test evidence. |
-| Release Manager | `releaseManager` | Reviews readiness, risks, and final decision evidence. |
-| Viewer | `viewer` | Reads release state without mutating operational data. |
+| User            | Role key         | Purpose                                                     |
+| --------------- | ---------------- | ----------------------------------------------------------- |
+| QA Lead         | `qaLead`         | Owns release readiness, decision save, and risk acceptance. |
+| QA Member       | `qaMember`       | Updates test execution results and creates test evidence.   |
+| Release Manager | `releaseManager` | Reviews readiness, risks, and final decision evidence.      |
+| Viewer          | `viewer`         | Reads release state without mutating operational data.      |
 
 ## Primary use cases
 
-| Use case | Description |
-| --- | --- |
-| Check release status | View readiness, progress, open defects, risks, and latest decision. |
-| Execute tests | Move test executions through deterministic QA states. |
-| Triage defects | Move defects through triage, fix, retest, close, or accepted non-fix states. |
-| Review risks | Accept, reject, mitigate, or close release risks. |
-| Save release decision | Persist Ready, At Risk, or Not Ready with required comments and evidence. |
-| Export evidence | Generate a Markdown Evidence Pack from current IndexedDB state. |
-| Reset demo data | Restore the same deterministic state for repeatable E2E and agent exploration. |
+| Use case              | Description                                                                    |
+| --------------------- | ------------------------------------------------------------------------------ |
+| Check release status  | View readiness, progress, open defects, risks, and latest decision.            |
+| Execute tests         | Move test executions through deterministic QA states.                          |
+| Triage defects        | Move defects through triage, fix, retest, close, or accepted non-fix states.   |
+| Review risks          | Accept, reject, mitigate, or close release risks.                              |
+| Save release decision | Persist Ready, At Risk, or Not Ready with required comments and evidence.      |
+| Export evidence       | Generate a Markdown Evidence Pack from current IndexedDB state.                |
+| Reset demo data       | Restore the same deterministic state for repeatable E2E and agent exploration. |
 
 ## Business domain summary
 
@@ -75,14 +75,14 @@ This distinction is required so agents can test whether unsaved form input affec
 
 The app must be complex enough to exercise the following test design techniques:
 
-| Technique | App surface |
-| --- | --- |
-| Decision table | Readiness calculation. |
-| State transition testing | Test execution, defect, risk, and release decision flows. |
-| Role and permission matrix | Role Switch, mutation controls, read-only viewer behavior. |
-| Data relationship testing | Defect linked to test execution, risk linked to release, evidence linked to decision. |
-| Boundary and negative testing | Missing evidence, empty comments, blocked defects, reasonless skipped tests. |
-| E2E workflow testing | Reset -> resolve blockers -> save At Risk -> export Evidence Pack. |
+| Technique                     | App surface                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------- |
+| Decision table                | Readiness calculation.                                                                |
+| State transition testing      | Test execution, defect, risk, and release decision flows.                             |
+| Role and permission matrix    | Role Switch, mutation controls, read-only viewer behavior.                            |
+| Data relationship testing     | Defect linked to test execution, risk linked to release, evidence linked to decision. |
+| Boundary and negative testing | Missing evidence, empty comments, blocked defects, reasonless skipped tests.          |
+| E2E workflow testing          | Reset -> resolve blockers -> save At Risk -> export Evidence Pack.                    |
 
 ## Product success criteria
 
