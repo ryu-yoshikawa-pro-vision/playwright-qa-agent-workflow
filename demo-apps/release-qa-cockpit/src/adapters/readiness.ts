@@ -2,6 +2,19 @@ import type { ReadinessResult, ReadinessSnapshot, ReadinessDraftInput } from '@/
 import { db } from '@/db/schema';
 import { calculateReadinessFromSnapshot } from '@/domain/readiness';
 
+const DEFAULT_DEMO_NOW = '2026-06-15T12:00:00.000Z';
+
+const resolveDemoNow = (value: string | undefined | null): string =>
+  typeof value === 'string' && value.trim().length > 0 ? value : DEFAULT_DEMO_NOW;
+
+const FALLBACK_APP_SETTINGS = {
+  id: 'app-settings',
+  demoMode: false,
+  demoNow: DEFAULT_DEMO_NOW,
+  schemaVersion: 1,
+  updatedAt: new Date().toISOString(),
+};
+
 export async function calculatePersistedReadiness(releaseId: string): Promise<ReadinessResult> {
   const snapshot = await loadSnapshot(releaseId);
   return calculateReadinessFromSnapshot(snapshot);
@@ -40,11 +53,10 @@ async function loadSnapshot(releaseId: string): Promise<ReadinessSnapshot> {
     risks,
     decisions,
     evidenceItems,
-    appSettings: appSettings ?? {
-      id: 'app-settings',
-      demoMode: false,
-      schemaVersion: 1,
-      updatedAt: new Date().toISOString(),
+    appSettings: {
+      ...FALLBACK_APP_SETTINGS,
+      ...appSettings,
+      demoNow: resolveDemoNow(appSettings?.demoNow),
     },
   };
 }

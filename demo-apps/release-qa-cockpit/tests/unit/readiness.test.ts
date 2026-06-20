@@ -581,4 +581,412 @@ describe('calculateReadinessFromSnapshot', () => {
     expect(result.unmetConditions).toHaveLength(0);
     expect(result.warningConditions).toHaveLength(0);
   });
+
+  it('returns notReady for medium impacting blocking defect', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      severity: 'medium' as const,
+      impactsReleaseDecision: true,
+      status: 'open' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'closed' as const,
+      mitigationNote: 'Risk mitigated',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-impacting-medium',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('notReady');
+    expect(
+      result.unmetConditions.some((c) => c.id.startsWith('impacting-medium-low-blocking-defect:')),
+    ).toBe(true);
+  });
+
+  it('returns notReady for high risk pending approval', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'pendingApproval' as const,
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-risk-pending',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) => c.id.startsWith('high-risk-unapproved:'))).toBe(true);
+  });
+
+  it('returns notReady for high risk rejected', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'rejected' as const,
+      rejectedReason: 'Not acceptable',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-risk-rejected',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) => c.id.startsWith('high-risk-unapproved:'))).toBe(true);
+  });
+
+  it('returns notReady for medium risk rejected', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      impact: 'medium' as const,
+      status: 'rejected' as const,
+      rejectedReason: 'Not acceptable',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-medium-rejected',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) => c.id.startsWith('medium-risk-rejected:'))).toBe(true);
+  });
+
+  it('returns atRisk for medium risk accepted', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      impact: 'medium' as const,
+      status: 'accepted' as const,
+      acceptedReason: 'Acceptable risk',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-medium-accepted',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('atRisk');
+    expect(result.unmetConditions).toHaveLength(0);
+    expect(
+      result.warningConditions.some((c) => c.id.startsWith('medium-risk-open-or-accepted:')),
+    ).toBe(true);
+  });
+
+  it('returns atRisk when qa-period-overdue with no blockers', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'closed' as const,
+      mitigationNote: 'Risk mitigated',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-overdue',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    snapshot.appSettings = {
+      ...snapshot.appSettings,
+      demoNow: '2026-07-15T12:00:00.000Z',
+    };
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('atRisk');
+    expect(result.unmetConditions).toHaveLength(0);
+    expect(result.warningConditions.some((c) => c.id.startsWith('qa-period-overdue:'))).toBe(true);
+  });
+
+  it('does not flag qa-period-overdue when demoNow is before plannedEndDate', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'closed' as const,
+      mitigationNote: 'Risk mitigated',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-no-overdue',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    snapshot.appSettings = {
+      ...snapshot.appSettings,
+      demoNow: '2026-06-15T12:00:00.000Z',
+    };
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('ready');
+    expect(result.warningConditions.some((c) => c.id.startsWith('qa-period-overdue:'))).toBe(false);
+  });
+
+  it('handles timezone-aware dates for overdue comparison', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
+    }));
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'closed' as const,
+      mitigationNote: 'Risk mitigated',
+    }));
+    snapshot.evidenceItems = [
+      {
+        id: 'ev-tz-overdue',
+        releaseId: snapshot.release.id,
+        type: 'testResult',
+        title: 'Test evidence',
+        contentMarkdown: 'Passed',
+        sourceEntityType: 'testExecution',
+        sourceEntityId: snapshot.testExecutions[0].id,
+        createdByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+    snapshot.appSettings = {
+      ...snapshot.appSettings,
+      demoNow: '2026-07-01T12:00:00+09:00',
+    };
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.warningConditions.some((c) => c.id.startsWith('qa-period-overdue:'))).toBe(true);
+  });
+
+  it('treats whitespace-only skipReason as blocker', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.id === 'exec-recording-playback' ? ('skipped' as const) : te.status,
+      skipReason: te.id === 'exec-recording-playback' ? '   ' : undefined,
+    }));
+    const result = calculateReadinessFromSnapshot(snapshot);
+    expect(result.readiness).toBe('notReady');
+    expect(
+      result.unmetConditions.some((c) => c.id.startsWith('required-test-skipped-without-reason:')),
+    ).toBe(true);
+  });
+
+  it('treats whitespace-with-newline skipReason as blocker', () => {
+    const snapshot = buildSnapshot();
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.id === 'exec-recording-playback' ? ('skipped' as const) : te.status,
+      skipReason: te.id === 'exec-recording-playback' ? '\n\t' : undefined,
+    }));
+    const result = calculateReadinessFromSnapshot(snapshot);
+    expect(result.readiness).toBe('notReady');
+    expect(
+      result.unmetConditions.some((c) => c.id.startsWith('required-test-skipped-without-reason:')),
+    ).toBe(true);
+  });
+
+  it('treats whitespace-only qaCompletionComment as missing', () => {
+    const snapshot = createReadySnapshot();
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: '   ',
+    });
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(true);
+  });
+
+  it('treats whitespace-with-newline qaCompletionComment as missing', () => {
+    const snapshot = createReadySnapshot();
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: '\n\t',
+    });
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(true);
+  });
+
+  it('uses timestamp comparison for latest execution when completedAt differs', () => {
+    const snapshot = createReadySnapshot();
+    const requiredItem = snapshot.testItems.find((item) => item.required);
+    const existingExec = snapshot.testExecutions.find((te) => te.testItemId === requiredItem!.id);
+
+    const oldFailExec = {
+      ...existingExec!,
+      id: 'exec-old-fail-ts',
+      status: 'fail' as const,
+      completedAt: '2026-05-15T09:00:00.000Z',
+    };
+    const newPassExec = {
+      ...existingExec!,
+      id: 'exec-new-pass-ts',
+      status: 'pass' as const,
+      completedAt: '2026-06-15T12:00:00.000Z',
+    };
+
+    snapshot.testExecutions = [
+      ...snapshot.testExecutions.filter((te) => te.testItemId !== requiredItem!.id),
+      oldFailExec,
+      newPassExec,
+    ];
+
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+    expect(result.readiness).toBe('ready');
+  });
+
+  it('uses timestamp comparison for latest decision when createdAt differs', () => {
+    const snapshot = createReadySnapshot();
+    snapshot.decisions = [
+      {
+        id: 'dec-old-ts',
+        releaseId: snapshot.release.id,
+        decision: 'ready',
+        qaCompletionComment: '',
+        decisionComment: '',
+        readinessSnapshot: { readiness: 'ready', unmetConditions: [], warningConditions: [] },
+        decidedByUserId: 'user-qa-lead',
+        createdAt: '2026-06-01T09:00:00.000Z',
+      },
+      {
+        id: 'dec-new-ts',
+        releaseId: snapshot.release.id,
+        decision: 'ready',
+        qaCompletionComment: 'QA completed successfully',
+        decisionComment: 'All good',
+        readinessSnapshot: { readiness: 'ready', unmetConditions: [], warningConditions: [] },
+        decidedByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+
+    const result = calculateReadinessFromSnapshot(snapshot);
+    expect(result.readiness).toBe('ready');
+    expect(result.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(
+      false,
+    );
+  });
 });

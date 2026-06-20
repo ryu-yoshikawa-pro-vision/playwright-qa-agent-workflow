@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { db } from '../../src/db/schema';
-import { calculatePersistedReadiness } from '../../src/adapters/readiness';
+import {
+  calculatePersistedReadiness,
+  calculateReadinessPreview,
+} from '../../src/adapters/readiness';
 import { clearDb, seedDb } from './helpers';
 
 beforeEach(async () => {
@@ -66,5 +69,202 @@ describe('calculatePersistedReadiness adapter', () => {
 
     const result2 = await calculatePersistedReadiness('rel-weekly-2026-06');
     expect(result2.readiness).toBe('ready');
+  });
+});
+
+describe('calculateReadinessPreview adapter', () => {
+  it('returns Not Ready without draft input', async () => {
+    const result = await calculateReadinessPreview('rel-weekly-2026-06', {});
+    expect(result.readiness).toBe('notReady');
+  });
+
+  it('resolves qa-completion-comment-missing with draft input', async () => {
+    const result = await calculateReadinessPreview('rel-weekly-2026-06', {
+      qaCompletionComment: 'Draft QA comment',
+    });
+    expect(result.readiness).toBe('notReady');
+    const hasQaCondition = result.unmetConditions.some(
+      (c) => c.id === 'qa-completion-comment-missing',
+    );
+    expect(hasQaCondition).toBe(false);
+  });
+
+  it('preview differs from persisted when draft input is provided', async () => {
+    const persisted = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(persisted.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(
+      true,
+    );
+
+    const preview = await calculateReadinessPreview('rel-weekly-2026-06', {
+      qaCompletionComment: 'Draft comment for preview test',
+    });
+    const hasQaCondition = preview.unmetConditions.some(
+      (c) => c.id === 'qa-completion-comment-missing',
+    );
+    expect(hasQaCondition).toBe(false);
+  });
+
+  it('does not mutate IndexedDB', async () => {
+    await calculateReadinessPreview('rel-weekly-2026-06', {
+      qaCompletionComment: 'Should not persist',
+    });
+
+    const persisted = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(persisted.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(
+      true,
+    );
+
+    const decisions = await db.decisions.where({ releaseId: 'rel-weekly-2026-06' }).toArray();
+    expect(decisions).toHaveLength(0);
+  });
+});
+
+describe('loadSnapshot fallback', () => {
+  it('returns Not Ready when appSettings is missing from IndexedDB', async () => {
+    await db.appSettings.clear();
+    const result = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(result.readiness).toBe('notReady');
+  });
+
+  it('fallback appSettings have default values when appSettings is missing', async () => {
+    await db.appSettings.clear();
+    const evItem = {
+      id: 'ev-fallback',
+      releaseId: 'rel-weekly-2026-06',
+      type: 'testResult',
+      title: 'Fallback test',
+      contentMarkdown: 'evidence',
+      sourceEntityType: 'testExecution',
+      sourceEntityId: 'exec-recording-playback',
+      createdByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    };
+    await db.evidenceItems.add(evItem);
+    await db.testExecutions.update('exec-recording-playback', { status: 'pass' });
+    await db.defects.update('defect-recording-playback-fails', { status: 'closed' });
+    await db.risks.update('risk-recording-regression', {
+      status: 'closed',
+      mitigationNote: 'Resolved',
+    });
+    await db.decisions.add({
+      id: 'dec-fallback',
+      releaseId: 'rel-weekly-2026-06',
+      decision: 'ready',
+      qaCompletionComment: 'QA completed',
+      decisionComment: 'All good',
+      readinessSnapshot: { readiness: 'ready', unmetConditions: [], warningConditions: [] },
+      decidedByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    });
+
+    const result = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(result.readiness).toBe('ready');
+  });
+
+  it('does not throw when appSettings is absent after reset', async () => {
+    await db.appSettings.clear();
+    await expect(calculatePersistedReadiness('rel-weekly-2026-06')).resolves.not.toThrow();
+  });
+
+  it('provides demoNow fallback when appSettings is missing', async () => {
+    await db.appSettings.clear();
+    const persisted = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(persisted.unmetConditions.some((c) => c.id === 'test-result-evidence-missing')).toBe(
+      true,
+    );
+  });
+
+  it('provides demoNow fallback when appSettings exists but demoNow is absent', async () => {
+    await db.appSettings.put({
+      id: 'app-settings',
+      demoMode: true,
+      schemaVersion: 1,
+      updatedAt: '2026-06-15T12:00:00.000Z',
+    });
+
+    const result = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(result.readiness).toBe('notReady');
+  });
+
+  it('falls back to default demoNow when persisted demoNow is blank', async () => {
+    await db.appSettings.put({
+      id: 'app-settings',
+      demoMode: true,
+      demoNow: '   ',
+      schemaVersion: 1,
+      updatedAt: '2026-06-15T12:00:00.000Z',
+    });
+
+    await db.releases.update('rel-weekly-2026-06', {
+      plannedEndDate: '2026-06-01T23:59:59.000Z',
+    });
+    await db.testExecutions.update('exec-recording-playback', { status: 'pass' });
+    await db.defects.update('defect-recording-playback-fails', { status: 'closed' });
+    await db.risks.update('risk-recording-regression', {
+      status: 'closed',
+      mitigationNote: 'Resolved',
+    });
+    await db.evidenceItems.add({
+      id: 'ev-blank-demo',
+      releaseId: 'rel-weekly-2026-06',
+      type: 'testResult',
+      title: 'Test evidence',
+      contentMarkdown: 'Passed',
+      sourceEntityType: 'testExecution',
+      sourceEntityId: 'exec-recording-playback',
+      createdByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    });
+    await db.decisions.add({
+      id: 'dec-blank-demo',
+      releaseId: 'rel-weekly-2026-06',
+      decision: 'ready',
+      qaCompletionComment: 'QA completed',
+      decisionComment: 'All good',
+      readinessSnapshot: { readiness: 'ready', unmetConditions: [], warningConditions: [] },
+      decidedByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    });
+
+    const result = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(result.warningConditions.some((c) => c.id.startsWith('qa-period-overdue:'))).toBe(true);
+  });
+
+  it('uses fallback demoNow for overdue detection', async () => {
+    await db.appSettings.clear();
+    await db.releases.update('rel-weekly-2026-06', {
+      plannedEndDate: '2026-06-01T23:59:59.000Z',
+    });
+
+    await db.testExecutions.update('exec-recording-playback', { status: 'pass' });
+    await db.defects.update('defect-recording-playback-fails', { status: 'closed' });
+    await db.risks.update('risk-recording-regression', {
+      status: 'closed',
+      mitigationNote: 'Resolved',
+    });
+    await db.evidenceItems.add({
+      id: 'ev-overdue-fallback',
+      releaseId: 'rel-weekly-2026-06',
+      type: 'testResult',
+      title: 'Test evidence',
+      contentMarkdown: 'Passed',
+      sourceEntityType: 'testExecution',
+      sourceEntityId: 'exec-recording-playback',
+      createdByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    });
+    await db.decisions.add({
+      id: 'dec-overdue-fallback',
+      releaseId: 'rel-weekly-2026-06',
+      decision: 'ready',
+      qaCompletionComment: 'QA completed',
+      decisionComment: 'All good',
+      readinessSnapshot: { readiness: 'ready', unmetConditions: [], warningConditions: [] },
+      decidedByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    });
+
+    const result = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(result.warningConditions.some((c) => c.id.startsWith('qa-period-overdue:'))).toBe(true);
   });
 });
