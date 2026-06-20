@@ -93,7 +93,7 @@ At Risk conditions are warnings. They matter only when no Not Ready condition ex
 | `medium-risk-open-or-accepted`      | `risk`          | A Medium impact risk is `draft`, `pendingApproval`, or `accepted`.                                 |
 | `low-risk-pending-or-rejected`      | `risk`          | A Low impact risk is `pendingApproval` or `rejected`.                                              |
 | `required-test-skipped-with-reason` | `testExecution` | A required test execution is `skipped` and has `skipReason`.                                       |
-| `qa-period-overdue`                 | `schedule`      | Effective current date is after `Release.plannedEndDate` and release is not decided or archived.  |
+| `qa-period-overdue`                 | `schedule`      | Effective current date is after `Release.plannedEndDate` and release is not decided or archived.   |
 | `wont-fix-risk-accepted`            | `risk`          | A `wontFix` defect still has a linked risk in `accepted` status.                                   |
 
 `Effective current date` means `appSettings.demoNow` when present; otherwise host system time.
