@@ -105,7 +105,10 @@ export type SourceEntityType =
   | 'risk'
   | 'decision'
   | 'evidencePack'
-  | 'demoScenario';
+  | 'demoScenario'
+  | 'user'
+  | 'session'
+  | 'appSettings';
 ```
 
 ## Entity model
@@ -136,6 +139,8 @@ export type Session = {
 ```
 
 The MVP may keep a single session record with a deterministic ID such as `session-default`.
+
+Role switch actions must update this record and create an `activityLogs` record with `targetEntityType: 'session'`.
 
 ### Release
 
@@ -231,6 +236,8 @@ A defect is a blocking defect when:
 
 - `status` is included in `unresolvedBlockingDefectStatuses`
 - and either severity is `critical` or `high`, or `impactsReleaseDecision` is `true`
+
+`resolutionNote` is required when `status` is `wontFix` or `duplicate`.
 
 ### Risk
 
@@ -330,10 +337,13 @@ export type AppSettings = {
   id: string;
   demoMode: boolean;
   schemaVersion: number;
+  demoNow?: string;
   lastResetAt?: string;
   updatedAt: string;
 };
 ```
+
+`demoNow` is a deterministic clock override for demo-mode readiness checks. When `demoNow` is present, schedule-based readiness conditions must use it instead of the host system clock.
 
 ## Readiness result types
 
@@ -405,6 +415,7 @@ db.version(1).stores({
 
 Create an `activityLogs` entry when a user:
 
+- switches current role
 - switches current release
 - changes a test execution status
 - creates Test Result evidence
@@ -424,6 +435,8 @@ The implementation must validate these rules before saving:
 | --------------- | -------------------------------------------------------------- |
 | `TestExecution` | `blocked` requires `blockedReason`.                            |
 | `TestExecution` | `skipped` requires `skipReason`.                               |
+| `Defect`        | `wontFix` requires `resolutionNote`.                           |
+| `Defect`        | `duplicate` requires `resolutionNote`.                         |
 | `Risk`          | `accepted` requires `acceptedReason`.                          |
 | `Risk`          | `rejected` requires `rejectedReason`.                          |
 | `Risk`          | `mitigated` requires `mitigationNote`.                         |
