@@ -24,6 +24,15 @@ export function calculateReadinessPreview(
 
 Draft input must not mutate IndexedDB.
 
+## Deterministic clock source
+
+Schedule-based readiness checks must use this clock order:
+
+1. `appSettings.demoNow` when present.
+2. Host system time only when `appSettings.demoNow` is absent.
+
+The default seed scenario must set `appSettings.demoNow` so `qa-period-overdue` does not change based on the day the E2E test runs.
+
 ## Priority
 
 Evaluate in this order:
@@ -84,8 +93,10 @@ At Risk conditions are warnings. They matter only when no Not Ready condition ex
 | `medium-risk-open-or-accepted`      | `risk`          | A Medium impact risk is `draft`, `pendingApproval`, or `accepted`.                                 |
 | `low-risk-pending-or-rejected`      | `risk`          | A Low impact risk is `pendingApproval` or `rejected`.                                              |
 | `required-test-skipped-with-reason` | `testExecution` | A required test execution is `skipped` and has `skipReason`.                                       |
-| `qa-period-overdue`                 | `schedule`      | Current date is after `Release.plannedEndDate` and release is not decided or archived.             |
+| `qa-period-overdue`                 | `schedule`      | Effective current date is after `Release.plannedEndDate` and release is not decided or archived.  |
 | `wont-fix-risk-accepted`            | `risk`          | A `wontFix` defect still has a linked risk in `accepted` status.                                   |
+
+`Effective current date` means `appSettings.demoNow` when present; otherwise host system time.
 
 ## Ready conditions
 
@@ -183,6 +194,7 @@ At minimum, unit tests must cover:
 | Missing QA completion comment                                          | `notReady`         |
 | Missing Test Result evidence                                           | `notReady`         |
 | Manual Note evidence only                                              | `notReady`         |
+| QA period overdue with no blockers                                     | `atRisk`           |
 | All required tests pass, no blockers, QA comment, Test Result evidence | `ready`            |
 | Both blocker and warning exist                                         | `notReady`         |
 
@@ -190,6 +202,7 @@ At minimum, unit tests must cover:
 
 - Readiness calculation must be implemented as domain logic, not in React components.
 - Components may render results but must not reimplement condition rules.
+- Schedule-based readiness logic must use the deterministic clock source defined above.
 - The Release Decision screen must use preview calculation for unsaved input.
 - Dashboard, Releases, and Release Overview must use persisted calculation.
 - Saving a decision must snapshot the readiness result at save time.
