@@ -7,13 +7,14 @@
 以下のドキュメント間で記述が競合する場合、実装時の優先順位は次の通りとする。
 
 ```text
-1. docs/app-design/release-qa-cockpit-directory-placement.md
-2. docs/app-design/release-qa-cockpit-final-implementation-rules.md
-3. docs/app-design/release-qa-cockpit-design-refinements.md
-4. docs/app-design/release-qa-cockpit.md
+1. docs/app-design/release-qa-cockpit-implementation-source-of-truth.md
+2. docs/app-design/release-qa-cockpit-directory-placement.md
+3. docs/app-design/release-qa-cockpit-final-implementation-rules.md
+4. docs/app-design/release-qa-cockpit-design-refinements.md
+5. docs/app-design/release-qa-cockpit.md
 ```
 
-配置パスについては、常に `docs/app-design/release-qa-cockpit-directory-placement.md` を正とする。`examples/release-qa-cockpit/` は読み物サンプルではなく実行可能デモアプリを置くには不適切であるため、実装時は使用しない。
+実装時の判定条件、MVP範囲、Store追加可否、配置パスについては、常に `docs/app-design/release-qa-cockpit-implementation-source-of-truth.md` を最優先の正本とする。`examples/release-qa-cockpit/` は読み物サンプルではなく実行可能デモアプリを置くには不適切であるため、実装時は使用しない。
 
 本ドキュメントでは、以下を最終確定する。
 
@@ -323,14 +324,15 @@ Retest -> Fail
 実装時は、まず以下を優先する。
 
 ```text
-1. 配置先を demo-apps/release-qa-cockpit/ に固定する
-2. 正式判定 calculatePersistedReadiness とプレビュー判定 calculateReadinessPreview を分離する
-3. unmetConditions / warningConditions を表示する
-4. Low impact risk の一意な判定を実装する
-5. Evidence 条件の循環を排除する
-6. Reports を MVP では Evidence Pack Export の生成導線に限定する
-7. Defect / TestExecution の状態遷移制約を実装する
-8. smoke spec の固定シナリオを通す
+1. docs/app-design/release-qa-cockpit-implementation-source-of-truth.md を最初に読む
+2. 配置先を demo-apps/release-qa-cockpit/ に固定する
+3. 正式判定 calculatePersistedReadiness とプレビュー判定 calculateReadinessPreview を分離する
+4. unmetConditions / warningConditions を表示する
+5. Low impact risk の一意な判定を実装する
+6. Evidence 条件の循環を排除する
+7. Reports を MVP では Evidence Pack Export の生成導線に限定する
+8. Defect / TestExecution の状態遷移制約を実装する
+9. smoke spec の固定シナリオを通す
 ```
 
 UI の見た目や細かなフォーム項目よりも、まず Release Decision の判定一貫性を優先する。
@@ -339,6 +341,7 @@ UI の見た目や細かなフォーム項目よりも、まず Release Decision
 
 この最終ルールにより、以下が明確になる。
 
+- 実装時の最優先正本は `docs/app-design/release-qa-cockpit-implementation-source-of-truth.md` である
 - 配置先は `demo-apps/release-qa-cockpit/` である
 - Low impact risk の扱いが一意になる
 - Evidence 条件が判定前・保存時・出力時で分離される
@@ -348,4 +351,4 @@ UI の見た目や細かなフォーム項目よりも、まず Release Decision
 - smoke spec が状態遷移ルールと矛盾しなくなる
 - QA 完了コメントと Test Result evidence がデモ・テスト導線に含まれる
 
-以降の実装では、本ドキュメントを Release QA Cockpit の最終実装ルールとして扱う。
+以降の実装では、`docs/app-design/release-qa-cockpit-implementation-source-of-truth.md` を Release QA Cockpit の最優先正本として扱う。
