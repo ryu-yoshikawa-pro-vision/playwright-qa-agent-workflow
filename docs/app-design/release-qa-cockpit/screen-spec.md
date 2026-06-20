@@ -204,19 +204,19 @@ Update QA execution status for release test items.
   - `Block test <test title>`
   - `Skip test <test title>`
   - `Move test <test title> to retest`
-  - `Create Test Result evidence`
+  - `Create Test Result evidence for <test title>`
 
 ### Actions
 
-| Action                      | Result                                                      |
-| --------------------------- | ----------------------------------------------------------- |
-| Start test                  | `notStarted` -> `inProgress`.                               |
-| Mark as passed              | Valid active status -> `pass`.                              |
-| Mark as failed              | Valid active status -> `fail`.                              |
-| Block test                  | Valid active status -> `blocked`, requires reason.          |
-| Skip test                   | `notStarted` or `inProgress` -> `skipped`, requires reason. |
-| Move to retest              | `fail` -> `retest`.                                         |
-| Create Test Result evidence | Creates `evidenceItems` record of type `testResult`.        |
+| Action                                  | Result                                               |
+| --------------------------------------- | ---------------------------------------------------- |
+| Start test                              | `notStarted` -> `inProgress`.                        |
+| Mark as passed                          | Valid active status -> `pass`.                       |
+| Mark as failed                          | Valid active status -> `fail`.                       |
+| Block test                              | Valid active status -> `blocked`, requires reason.   |
+| Skip test                               | `notStarted` or `inProgress` -> `skipped`, requires reason. |
+| Move to retest                          | `fail` -> `retest`.                                  |
+| Create Test Result evidence for a test  | Creates `evidenceItems` record of type `testResult`. |
 
 ### Validation
 
