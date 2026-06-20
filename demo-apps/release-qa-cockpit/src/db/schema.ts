@@ -38,8 +38,7 @@ export class ReleaseQACockpitDB extends Dexie {
       releases: 'id, status, updatedAt',
       releaseScopes: 'id, releaseId, area, inScope',
       testItems: 'id, releaseId, area, priority, required',
-      testExecutions:
-        'id, releaseId, testItemId, status, assigneeUserId, linkedDefectId',
+      testExecutions: 'id, releaseId, testItemId, status, assigneeUserId, linkedDefectId',
       defects: 'id, releaseId, severity, status, impactsReleaseDecision, linkedTestExecutionId',
       risks: 'id, releaseId, impact, status, linkedDefectId',
       decisions: 'id, releaseId, decision, createdAt',

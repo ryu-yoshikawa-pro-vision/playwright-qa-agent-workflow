@@ -5,18 +5,24 @@ import type {
   ReadinessDraftInput,
   Defect,
   EvidenceItem,
+  TestExecution,
+  Decision,
 } from '@/db/types';
 import { unresolvedBlockingDefectStatuses } from '@/db/types';
 
 function isUnresolvedBlockingDefect(defect: Defect): boolean {
-  const statusBlocking = (unresolvedBlockingDefectStatuses as readonly string[]).includes(defect.status);
+  const statusBlocking = (unresolvedBlockingDefectStatuses as readonly string[]).includes(
+    defect.status,
+  );
   const severityBlocking = defect.severity === 'critical' || defect.severity === 'high';
   const impactsBlocking = defect.impactsReleaseDecision;
   return statusBlocking && (severityBlocking || impactsBlocking);
 }
 
 function isUnresolvedNonImpactingDefect(defect: Defect): boolean {
-  const statusBlocking = (unresolvedBlockingDefectStatuses as readonly string[]).includes(defect.status);
+  const statusBlocking = (unresolvedBlockingDefectStatuses as readonly string[]).includes(
+    defect.status,
+  );
   const severityLow = defect.severity === 'medium' || defect.severity === 'low';
   return statusBlocking && severityLow && !defect.impactsReleaseDecision;
 }
@@ -29,6 +35,27 @@ function getEffectiveNow(snapshot: ReadinessSnapshot): string | undefined {
   return snapshot.appSettings.demoNow;
 }
 
+function getLatestExecutionForItem(
+  executions: TestExecution[],
+  testItemId: string,
+): TestExecution | undefined {
+  return executions
+    .filter((execution) => execution.testItemId === testItemId)
+    .sort((a, b) => {
+      const aTime = a.completedAt ?? a.updatedAt ?? '';
+      const bTime = b.completedAt ?? b.updatedAt ?? '';
+      return bTime.localeCompare(aTime);
+    })[0];
+}
+
+function getLatestDecision(decisions: Decision[]): Decision | undefined {
+  return [...decisions].sort((a, b) => {
+    const aTime = a.createdAt ?? '';
+    const bTime = b.createdAt ?? '';
+    return bTime.localeCompare(aTime);
+  })[0];
+}
+
 export function calculateReadinessFromSnapshot(
   snapshot: ReadinessSnapshot,
   draftInput?: ReadinessDraftInput,
@@ -36,12 +63,12 @@ export function calculateReadinessFromSnapshot(
   const unmetConditions: ReadinessCondition[] = [];
   const warningConditions: ReadinessCondition[] = [];
 
-  const { testItems, testExecutions, defects, risks, evidenceItems, release } = snapshot;
+  const { testItems, testExecutions, defects, risks, evidenceItems, release, decisions } = snapshot;
 
   const requiredTestItems = testItems.filter((ti) => ti.required);
 
   for (const requiredItem of requiredTestItems) {
-    const execution = testExecutions.find((te) => te.testItemId === requiredItem.id);
+    const execution = getLatestExecutionForItem(testExecutions, requiredItem.id);
 
     if (!execution) {
       unmetConditions.push({
@@ -155,7 +182,11 @@ export function calculateReadinessFromSnapshot(
 
   for (const risk of risks) {
     if (risk.impact === 'high') {
-      if (risk.status === 'draft' || risk.status === 'pendingApproval' || risk.status === 'rejected') {
+      if (
+        risk.status === 'draft' ||
+        risk.status === 'pendingApproval' ||
+        risk.status === 'rejected'
+      ) {
         const statusLabel =
           risk.status === 'draft'
             ? 'in draft'
@@ -194,11 +225,17 @@ export function calculateReadinessFromSnapshot(
       });
     }
 
-    if (risk.impact === 'medium' && (risk.status === 'draft' || risk.status === 'pendingApproval' || risk.status === 'accepted')) {
+    if (
+      risk.impact === 'medium' &&
+      (risk.status === 'draft' || risk.status === 'pendingApproval' || risk.status === 'accepted')
+    ) {
       warningConditions.push({
         id: `medium-risk-open-or-accepted:${risk.id}`,
         severity: 'warning',
-        message: `Medium impact risk "${risk.title}" is ${risk.status.replace(/([A-Z])/g, ' $1').toLowerCase().trim()}.`,
+        message: `Medium impact risk "${risk.title}" is ${risk.status
+          .replace(/([A-Z])/g, ' $1')
+          .toLowerCase()
+          .trim()}.`,
         sourceType: 'risk',
         sourceId: risk.id,
       });
@@ -217,9 +254,13 @@ export function calculateReadinessFromSnapshot(
     }
   }
 
-
   const now = getEffectiveNow(snapshot);
-  if (now && now > release.plannedEndDate && release.status !== 'decided' && release.status !== 'archived') {
+  if (
+    now &&
+    now > release.plannedEndDate &&
+    release.status !== 'decided' &&
+    release.status !== 'archived'
+  ) {
     warningConditions.push({
       id: `qa-period-overdue:${release.id}`,
       severity: 'warning',
@@ -246,7 +287,8 @@ export function calculateReadinessFromSnapshot(
     }
   }
 
-  const qaComment = draftInput?.qaCompletionComment ?? snapshot.decisions[0]?.qaCompletionComment ?? '';
+  const latestDecision = getLatestDecision(decisions);
+  const qaComment = draftInput?.qaCompletionComment ?? latestDecision?.qaCompletionComment ?? '';
   if (!qaComment) {
     unmetConditions.push({
       id: 'qa-completion-comment-missing',

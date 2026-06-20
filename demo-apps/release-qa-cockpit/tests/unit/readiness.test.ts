@@ -58,9 +58,7 @@ describe('calculateReadinessFromSnapshot', () => {
   it('includes required-test-failed condition', () => {
     const snapshot = buildSnapshot();
     const result = calculateReadinessFromSnapshot(snapshot);
-    const condition = result.unmetConditions.find((c) =>
-      c.id.startsWith('required-test-failed:'),
-    );
+    const condition = result.unmetConditions.find((c) => c.id.startsWith('required-test-failed:'));
     expect(condition).toBeDefined();
     expect(condition!.severity).toBe('blocker');
   });
@@ -78,9 +76,7 @@ describe('calculateReadinessFromSnapshot', () => {
   it('includes high-risk-unapproved condition', () => {
     const snapshot = buildSnapshot();
     const result = calculateReadinessFromSnapshot(snapshot);
-    const condition = result.unmetConditions.find((c) =>
-      c.id.startsWith('high-risk-unapproved:'),
-    );
+    const condition = result.unmetConditions.find((c) => c.id.startsWith('high-risk-unapproved:'));
     expect(condition).toBeDefined();
     expect(condition!.severity).toBe('blocker');
   });
@@ -88,18 +84,14 @@ describe('calculateReadinessFromSnapshot', () => {
   it('includes qa-completion-comment-missing condition', () => {
     const snapshot = buildSnapshot();
     const result = calculateReadinessFromSnapshot(snapshot);
-    const condition = result.unmetConditions.find(
-      (c) => c.id === 'qa-completion-comment-missing',
-    );
+    const condition = result.unmetConditions.find((c) => c.id === 'qa-completion-comment-missing');
     expect(condition).toBeDefined();
   });
 
   it('includes test-result-evidence-missing condition', () => {
     const snapshot = buildSnapshot();
     const result = calculateReadinessFromSnapshot(snapshot);
-    const condition = result.unmetConditions.find(
-      (c) => c.id === 'test-result-evidence-missing',
-    );
+    const condition = result.unmetConditions.find((c) => c.id === 'test-result-evidence-missing');
     expect(condition).toBeDefined();
   });
 
@@ -107,7 +99,7 @@ describe('calculateReadinessFromSnapshot', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
       ...te,
-      status: te.status === 'fail' ? 'pass' as const : te.status,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
     }));
     snapshot.defects = snapshot.defects.map((d) => ({
       ...d,
@@ -144,30 +136,34 @@ describe('calculateReadinessFromSnapshot', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
       ...te,
-      status: te.id === 'exec-recording-playback' ? 'notStarted' as const : te.status,
+      status: te.id === 'exec-recording-playback' ? ('notStarted' as const) : te.status,
     }));
     const result = calculateReadinessFromSnapshot(snapshot);
     expect(result.readiness).toBe('notReady');
-    expect(result.unmetConditions.some((c) => c.id.startsWith('required-test-not-started:'))).toBe(true);
+    expect(result.unmetConditions.some((c) => c.id.startsWith('required-test-not-started:'))).toBe(
+      true,
+    );
   });
 
   it('returns notReady when required test is skipped without reason', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
       ...te,
-      status: te.id === 'exec-recording-playback' ? 'skipped' as const : te.status,
+      status: te.id === 'exec-recording-playback' ? ('skipped' as const) : te.status,
       skipReason: undefined,
     }));
     const result = calculateReadinessFromSnapshot(snapshot);
     expect(result.readiness).toBe('notReady');
-    expect(result.unmetConditions.some((c) => c.id.startsWith('required-test-skipped-without-reason:'))).toBe(true);
+    expect(
+      result.unmetConditions.some((c) => c.id.startsWith('required-test-skipped-without-reason:')),
+    ).toBe(true);
   });
 
   it('returns atRisk when required test is skipped with reason and no blockers', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
       ...te,
-      status: te.id === 'exec-recording-playback' ? 'skipped' as const : te.status,
+      status: te.id === 'exec-recording-playback' ? ('skipped' as const) : te.status,
       skipReason: te.id === 'exec-recording-playback' ? 'Infrastructure unavailable' : undefined,
     }));
     snapshot.defects = snapshot.defects.map((d) => ({
@@ -207,7 +203,7 @@ describe('calculateReadinessFromSnapshot', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
       ...te,
-      status: te.status === 'fail' ? 'pass' as const : te.status,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
     }));
     snapshot.defects = snapshot.defects.map((d) => ({
       ...d,
@@ -247,7 +243,7 @@ describe('calculateReadinessFromSnapshot', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
       ...te,
-      status: te.status === 'fail' ? 'pass' as const : te.status,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
     }));
     snapshot.defects = snapshot.defects.map((d) => ({
       ...d,
@@ -282,7 +278,7 @@ describe('calculateReadinessFromSnapshot', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
       ...te,
-      status: te.id === 'exec-recording-playback' ? 'retest' as const : te.status,
+      status: te.id === 'exec-recording-playback' ? ('retest' as const) : te.status,
     }));
     const result = calculateReadinessFromSnapshot(snapshot);
     expect(result.readiness).toBe('notReady');
@@ -359,11 +355,201 @@ describe('calculateReadinessFromSnapshot', () => {
     expect(result.warningConditions).toHaveLength(0);
   });
 
+  it('uses latest execution when same testItemId has old fail and new pass', () => {
+    const snapshot = createReadySnapshot();
+
+    const requiredItem = snapshot.testItems.find((item) => item.required);
+    expect(requiredItem).toBeDefined();
+    const existingExec = snapshot.testExecutions.find((te) => te.testItemId === requiredItem!.id);
+    expect(existingExec).toBeDefined();
+    expect(existingExec!.status).toBe('pass');
+
+    const oldFailExec = {
+      ...existingExec!,
+      id: 'exec-old-fail',
+      status: 'fail' as const,
+      completedAt: '2026-05-15T09:00:00.000Z',
+    };
+
+    snapshot.testExecutions = [...snapshot.testExecutions, oldFailExec];
+
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed successfully',
+    });
+
+    expect(result.readiness).toBe('ready');
+    expect(result.unmetConditions).toHaveLength(0);
+  });
+
+  it('uses latest execution when same testItemId has old pass and new fail', () => {
+    const snapshot = createReadySnapshot();
+
+    const requiredItem = snapshot.testItems.find((item) => item.required);
+    expect(requiredItem).toBeDefined();
+    const existingExec = snapshot.testExecutions.find((te) => te.testItemId === requiredItem!.id);
+    expect(existingExec).toBeDefined();
+
+    const oldPassExec = {
+      ...existingExec!,
+      id: 'exec-old-pass',
+      status: 'pass' as const,
+      completedAt: '2026-05-15T09:00:00.000Z',
+    };
+
+    const newFailExec = {
+      ...existingExec!,
+      id: 'exec-new-fail',
+      status: 'fail' as const,
+      completedAt: '2026-06-15T12:00:00.000Z',
+    };
+
+    snapshot.testExecutions = [
+      ...snapshot.testExecutions.filter((te) => te.id !== existingExec!.id),
+      oldPassExec,
+      newFailExec,
+    ];
+
+    snapshot.defects = snapshot.defects.map((d) => ({
+      ...d,
+      status: 'closed' as const,
+    }));
+    snapshot.risks = snapshot.risks.map((r) => ({
+      ...r,
+      status: 'closed' as const,
+      mitigationNote: 'Risk mitigated',
+    }));
+
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed successfully',
+    });
+
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) => c.id.startsWith('required-test-failed:'))).toBe(true);
+  });
+
+  it('returns notReady when required test is in progress', () => {
+    const snapshot = createReadySnapshot();
+
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.id === 'exec-recording-playback' ? ('inProgress' as const) : te.status,
+    }));
+
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) => c.id.startsWith('required-test-in-progress:'))).toBe(
+      true,
+    );
+  });
+
+  it('returns notReady when required test is blocked', () => {
+    const snapshot = createReadySnapshot();
+
+    snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
+      ...te,
+      status: te.id === 'exec-recording-playback' ? ('blocked' as const) : te.status,
+    }));
+
+    const result = calculateReadinessFromSnapshot(snapshot, {
+      qaCompletionComment: 'QA completed',
+    });
+
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) => c.id.startsWith('required-test-blocked:'))).toBe(
+      true,
+    );
+  });
+
+  it('uses latest decision for QA completion comment', () => {
+    const snapshot = createReadySnapshot();
+
+    snapshot.decisions = [
+      {
+        id: 'dec-old',
+        releaseId: snapshot.release.id,
+        decision: 'notReady',
+        qaCompletionComment: '',
+        decisionComment: '',
+        readinessSnapshot: {
+          readiness: 'notReady',
+          unmetConditions: [],
+          warningConditions: [],
+        },
+        decidedByUserId: 'user-qa-lead',
+        createdAt: '2026-06-01T09:00:00.000Z',
+      },
+      {
+        id: 'dec-new',
+        releaseId: snapshot.release.id,
+        decision: 'ready',
+        qaCompletionComment: 'QA completed successfully',
+        decisionComment: 'All done',
+        readinessSnapshot: {
+          readiness: 'ready',
+          unmetConditions: [],
+          warningConditions: [],
+        },
+        decidedByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+
+    const result = calculateReadinessFromSnapshot(snapshot);
+
+    expect(result.readiness).toBe('ready');
+    expect(result.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(
+      false,
+    );
+  });
+
+  it('flags qa-completion-comment-missing when latest decision has empty comment', () => {
+    const snapshot = createReadySnapshot();
+
+    snapshot.decisions = [
+      {
+        id: 'dec-old',
+        releaseId: snapshot.release.id,
+        decision: 'ready',
+        qaCompletionComment: 'QA completed',
+        decisionComment: 'All done',
+        readinessSnapshot: {
+          readiness: 'ready',
+          unmetConditions: [],
+          warningConditions: [],
+        },
+        decidedByUserId: 'user-qa-lead',
+        createdAt: '2026-06-01T09:00:00.000Z',
+      },
+      {
+        id: 'dec-new',
+        releaseId: snapshot.release.id,
+        decision: 'notReady',
+        qaCompletionComment: '',
+        decisionComment: '',
+        readinessSnapshot: {
+          readiness: 'notReady',
+          unmetConditions: [],
+          warningConditions: [],
+        },
+        decidedByUserId: 'user-qa-lead',
+        createdAt: '2026-06-15T12:00:00.000Z',
+      },
+    ];
+
+    const result = calculateReadinessFromSnapshot(snapshot);
+
+    expect(result.readiness).toBe('notReady');
+    expect(result.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(true);
+  });
+
   it('returns ready when no blockers and no warnings', () => {
     const snapshot = buildSnapshot();
     snapshot.testExecutions = snapshot.testExecutions.map((te) => ({
       ...te,
-      status: te.status === 'fail' ? 'pass' as const : te.status,
+      status: te.status === 'fail' ? ('pass' as const) : te.status,
     }));
     snapshot.defects = snapshot.defects.map((d) => ({
       ...d,

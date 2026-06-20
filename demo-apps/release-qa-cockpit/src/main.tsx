@@ -9,17 +9,19 @@ async function initializeApp() {
   if (count === 0) {
     const seed = getSeedData();
     await db.transaction('rw', db.tables, async () => {
-      await db.users.bulkAdd(seed.users);
-      await db.sessions.bulkAdd(seed.sessions);
-      await db.releases.bulkAdd(seed.releases);
-      await db.releaseScopes.bulkAdd(seed.releaseScopes);
-      await db.testItems.bulkAdd(seed.testItems);
-      await db.testExecutions.bulkAdd(seed.testExecutions);
-      await db.defects.bulkAdd(seed.defects);
-      await db.risks.bulkAdd(seed.risks);
-      await db.activityLogs.bulkAdd(seed.activityLogs);
-      await db.demoScenarios.bulkAdd(seed.demoScenarios);
-      await db.appSettings.bulkAdd(seed.appSettings);
+      await db.users.bulkPut(seed.users);
+      await db.sessions.bulkPut(seed.sessions);
+      await db.releases.bulkPut(seed.releases);
+      await db.releaseScopes.bulkPut(seed.releaseScopes);
+      await db.testItems.bulkPut(seed.testItems);
+      await db.testExecutions.bulkPut(seed.testExecutions);
+      await db.defects.bulkPut(seed.defects);
+      await db.risks.bulkPut(seed.risks);
+      await db.decisions.bulkPut(seed.decisions);
+      await db.evidenceItems.bulkPut(seed.evidenceItems);
+      await db.activityLogs.bulkPut(seed.activityLogs);
+      await db.demoScenarios.bulkPut(seed.demoScenarios);
+      await db.appSettings.bulkPut(seed.appSettings);
     });
   }
 

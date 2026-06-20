@@ -11,19 +11,38 @@ export function Layout() {
   const [loading, setLoading] = useState(true);
 
   const loadSession = async () => {
-    const session = await db.sessions.get('session-default');
-    if (session) {
-      const user = session.currentUserId
-        ? await db.users.get(session.currentUserId)
-        : null;
-      setCurrentUser(user ?? null);
+    setLoading(true);
+    try {
+      const session = await db.sessions.get('session-default');
+
+      if (!session?.currentUserId) {
+        setCurrentUser(null);
+        setCurrentRelease(null);
+        navigate('/login');
+        return;
+      }
+
+      const user = await db.users.get(session.currentUserId);
+
+      if (!user) {
+        setCurrentUser(null);
+        setCurrentRelease(null);
+        navigate('/login');
+        return;
+      }
+
+      setCurrentUser(user);
 
       if (session.currentReleaseId) {
         const release = await db.releases.get(session.currentReleaseId);
         setCurrentRelease(release ?? null);
       }
+    } catch {
+      setCurrentUser(null);
+      setCurrentRelease(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {

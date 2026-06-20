@@ -35,10 +35,38 @@ export type SeedData = {
 export function getSeedData(): SeedData {
   return {
     users: [
-      { id: 'user-qa-lead', name: 'QA Lead', role: 'qaLead', active: true, createdAt: FIXED_TIME, updatedAt: FIXED_TIME },
-      { id: 'user-qa-member', name: 'QA Member', role: 'qaMember', active: true, createdAt: FIXED_TIME, updatedAt: FIXED_TIME },
-      { id: 'user-release-manager', name: 'Release Manager', role: 'releaseManager', active: true, createdAt: FIXED_TIME, updatedAt: FIXED_TIME },
-      { id: 'user-viewer', name: 'Viewer', role: 'viewer', active: true, createdAt: FIXED_TIME, updatedAt: FIXED_TIME },
+      {
+        id: 'user-qa-lead',
+        name: 'QA Lead',
+        role: 'qaLead',
+        active: true,
+        createdAt: FIXED_TIME,
+        updatedAt: FIXED_TIME,
+      },
+      {
+        id: 'user-qa-member',
+        name: 'QA Member',
+        role: 'qaMember',
+        active: true,
+        createdAt: FIXED_TIME,
+        updatedAt: FIXED_TIME,
+      },
+      {
+        id: 'user-release-manager',
+        name: 'Release Manager',
+        role: 'releaseManager',
+        active: true,
+        createdAt: FIXED_TIME,
+        updatedAt: FIXED_TIME,
+      },
+      {
+        id: 'user-viewer',
+        name: 'Viewer',
+        role: 'viewer',
+        active: true,
+        createdAt: FIXED_TIME,
+        updatedAt: FIXED_TIME,
+      },
     ],
     sessions: [
       {

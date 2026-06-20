@@ -1,25 +1,11 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { db } from '../../src/db/schema';
-import { getSeedData } from '../../src/stores/seed';
 import { demoReset } from '../../src/stores/reset';
+import { clearDb, seedDb } from './helpers';
 
-beforeAll(async () => {
-  const seed = getSeedData();
-  await db.transaction('rw', ...db.tables, async () => {
-    await db.users.bulkAdd(seed.users);
-    await db.sessions.bulkAdd(seed.sessions);
-    await db.releases.bulkAdd(seed.releases);
-    await db.releaseScopes.bulkAdd(seed.releaseScopes);
-    await db.testItems.bulkAdd(seed.testItems);
-    await db.testExecutions.bulkAdd(seed.testExecutions);
-    await db.defects.bulkAdd(seed.defects);
-    await db.risks.bulkAdd(seed.risks);
-    await db.decisions.bulkAdd(seed.decisions);
-    await db.evidenceItems.bulkAdd(seed.evidenceItems);
-    await db.activityLogs.bulkAdd(seed.activityLogs);
-    await db.demoScenarios.bulkAdd(seed.demoScenarios);
-    await db.appSettings.bulkAdd(seed.appSettings);
-  });
+beforeEach(async () => {
+  await clearDb();
+  await seedDb();
 });
 
 describe('demoReset', () => {

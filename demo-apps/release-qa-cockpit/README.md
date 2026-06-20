@@ -14,15 +14,15 @@ Open `http://localhost:5173` and select a role to begin.
 
 ## Commands
 
-| Command | Description |
-| ------- | ----------- |
-| `npm run dev` | Start Vite dev server |
-| `npm run build` | TypeScript check + Vite build |
-| `npm run test` | Run Vitest unit tests |
-| `npm run test:e2e` | Run Playwright E2E tests |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Run TypeScript type check |
-| `npm run check` | Full quality gate (lint + typecheck + test + e2e) |
+| Command             | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `npm run dev`       | Start Vite dev server                             |
+| `npm run build`     | TypeScript check + Vite build                     |
+| `npm run test`      | Run Vitest unit tests                             |
+| `npm run test:e2e`  | Run Playwright E2E tests                          |
+| `npm run lint`      | Run ESLint                                        |
+| `npm run typecheck` | Run TypeScript type check                         |
+| `npm run check`     | Full quality gate (lint + typecheck + test + e2e) |
 
 ## Reset behavior
 

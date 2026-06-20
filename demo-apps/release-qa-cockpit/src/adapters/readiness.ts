@@ -2,9 +2,7 @@ import type { ReadinessResult, ReadinessSnapshot, ReadinessDraftInput } from '@/
 import { db } from '@/db/schema';
 import { calculateReadinessFromSnapshot } from '@/domain/readiness';
 
-export async function calculatePersistedReadiness(
-  releaseId: string,
-): Promise<ReadinessResult> {
+export async function calculatePersistedReadiness(releaseId: string): Promise<ReadinessResult> {
   const snapshot = await loadSnapshot(releaseId);
   return calculateReadinessFromSnapshot(snapshot);
 }
@@ -46,7 +44,6 @@ async function loadSnapshot(releaseId: string): Promise<ReadinessSnapshot> {
       id: 'app-settings',
       demoMode: false,
       schemaVersion: 1,
-      demoNow: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
   };

@@ -43,6 +43,10 @@ __pycache__/
 /playwright/.auth/
 experiments
 
+# TypeScript build info
+*.tsbuildinfo
+demo-apps/**/*.tsbuildinfo
+
 # Demo app build output
 demo-apps/**/dist/
 demo-apps/**/node_modules/
