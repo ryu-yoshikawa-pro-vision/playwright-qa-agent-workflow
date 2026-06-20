@@ -22,9 +22,12 @@ createdAt: 2026-06-01T09:00:00.000Z
 updatedAt: 2026-06-01T09:00:00.000Z
 plannedStartDate: 2026-06-01T00:00:00.000Z
 plannedEndDate: 2026-06-30T23:59:59.000Z
+appSettings.demoNow: 2026-06-15T12:00:00.000Z
 ```
 
-Runtime updates may use current time.
+Runtime updates may use current time for audit fields, but readiness schedule checks must use `appSettings.demoNow` when present.
+
+The default seed scenario must not trigger `qa-period-overdue`. Overdue behavior should be covered by a separate scenario or unit test that sets `demoNow` after `plannedEndDate`.
 
 ## Users
 
@@ -135,12 +138,13 @@ Seed one initial activity log entry:
 
 ## App settings
 
-| Field           | Value                  |
-| --------------- | ---------------------- |
-| `id`            | `app-settings`         |
-| `demoMode`      | true                   |
-| `schemaVersion` | 1                      |
-| `lastResetAt`   | optional runtime value |
+| Field           | Value                      |
+| --------------- | -------------------------- |
+| `id`            | `app-settings`             |
+| `demoMode`      | true                       |
+| `schemaVersion` | 1                          |
+| `demoNow`       | `2026-06-15T12:00:00.000Z` |
+| `lastResetAt`   | optional runtime value     |
 
 ## Initial readiness explanation
 
@@ -151,6 +155,8 @@ The initial state must evaluate to Not Ready because:
 - `risk-recording-regression` is High impact and `draft`
 - there is no Test Result evidence
 - no QA completion comment has been provided
+
+It must not include `qa-period-overdue` in the default seed because `demoNow` is before `plannedEndDate`.
 
 ## First smoke E2E scenario
 
@@ -190,6 +196,7 @@ Demo Data Reset must:
 - restore all deterministic records in this document
 - restore the default session user to QA Lead
 - restore the current release to `rel-weekly-2026-06`
+- restore `appSettings.demoNow` to `2026-06-15T12:00:00.000Z`
 - restore initial readiness to Not Ready
 - create the seed activity log entry
 - update `appSettings.lastResetAt`
@@ -200,6 +207,7 @@ Demo Data Reset must:
 - Seed titles must remain stable enough for Playwright accessible-name selectors.
 - The smoke scenario must not depend on pre-existing browser storage.
 - E2E setup may call the UI reset flow or a documented test helper, but the UI reset flow must exist.
+- The default seed scenario must not depend on the host system date.
 
 ## Completion criteria
 
