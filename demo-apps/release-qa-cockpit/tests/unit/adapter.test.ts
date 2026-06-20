@@ -118,3 +118,48 @@ describe('calculateReadinessPreview adapter', () => {
     expect(decisions).toHaveLength(0);
   });
 });
+
+describe('loadSnapshot fallback', () => {
+  it('returns Not Ready when appSettings is missing from IndexedDB', async () => {
+    await db.appSettings.clear();
+    const result = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(result.readiness).toBe('notReady');
+  });
+
+  it('fallback appSettings have default values when appSettings is missing', async () => {
+    await db.appSettings.clear();
+    const evItem = {
+      id: 'ev-fallback',
+      releaseId: 'rel-weekly-2026-06',
+      type: 'testResult',
+      title: 'Fallback test',
+      contentMarkdown: 'evidence',
+      sourceEntityType: 'testExecution',
+      sourceEntityId: 'exec-recording-playback',
+      createdByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    };
+    await db.evidenceItems.add(evItem);
+    await db.testExecutions.update('exec-recording-playback', { status: 'pass' });
+    await db.defects.update('defect-recording-playback-fails', { status: 'closed' });
+    await db.risks.update('risk-recording-regression', { status: 'closed', mitigationNote: 'Resolved' });
+    await db.decisions.add({
+      id: 'dec-fallback',
+      releaseId: 'rel-weekly-2026-06',
+      decision: 'ready',
+      qaCompletionComment: 'QA completed',
+      decisionComment: 'All good',
+      readinessSnapshot: { readiness: 'ready', unmetConditions: [], warningConditions: [] },
+      decidedByUserId: 'user-qa-lead',
+      createdAt: '2026-06-15T12:00:00.000Z',
+    });
+
+    const result = await calculatePersistedReadiness('rel-weekly-2026-06');
+    expect(result.readiness).toBe('ready');
+  });
+
+  it('does not throw when appSettings is absent after reset', async () => {
+    await db.appSettings.clear();
+    await expect(calculatePersistedReadiness('rel-weekly-2026-06')).resolves.not.toThrow();
+  });
+});

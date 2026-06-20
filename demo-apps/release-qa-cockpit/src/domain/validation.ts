@@ -11,7 +11,7 @@ function nonEmpty(value: string | undefined | null): boolean {
 
 export function validateReadySave(
   preview: ReadinessResult,
-  qaCompletionComment: string,
+  qaCompletionComment?: string | null,
 ): SaveValidation {
   const reasons: string[] = [];
   if (preview.readiness !== 'ready') {
@@ -27,8 +27,8 @@ export function validateReadySave(
 
 export function validateAtRiskSave(
   preview: ReadinessResult,
-  qaCompletionComment: string,
-  decisionComment: string,
+  qaCompletionComment?: string | null,
+  decisionComment?: string | null,
 ): SaveValidation {
   const reasons: string[] = [];
   if (preview.readiness !== 'atRisk') {
@@ -47,7 +47,7 @@ export function validateAtRiskSave(
 
 export function validateNotReadySave(
   preview: ReadinessResult,
-  decisionComment: string,
+  decisionComment?: string | null,
 ): SaveValidation {
   const reasons: string[] = [];
   if (preview.readiness !== 'notReady') {

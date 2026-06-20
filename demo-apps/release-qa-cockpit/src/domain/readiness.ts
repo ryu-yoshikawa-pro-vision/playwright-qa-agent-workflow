@@ -10,6 +10,40 @@ import type {
 } from '@/db/types';
 import { unresolvedBlockingDefectStatuses } from '@/db/types';
 
+const isBlank = (value: string | undefined | null): boolean =>
+  value == null || value.trim().length === 0;
+
+const toTimestamp = (value: string | undefined | null): number => {
+  if (value == null) return Number.NaN;
+  return Date.parse(value);
+};
+
+const compareDateDesc = (
+  a: string | undefined | null,
+  b: string | undefined | null,
+): number => {
+  const aTime = toTimestamp(a);
+  const bTime = toTimestamp(b);
+
+  if (Number.isNaN(aTime) && Number.isNaN(bTime)) return 0;
+  if (Number.isNaN(aTime)) return 1;
+  if (Number.isNaN(bTime)) return -1;
+
+  return bTime - aTime;
+};
+
+const isAfter = (
+  left: string | undefined | null,
+  right: string | undefined | null,
+): boolean => {
+  const leftTime = toTimestamp(left);
+  const rightTime = toTimestamp(right);
+
+  if (Number.isNaN(leftTime) || Number.isNaN(rightTime)) return false;
+
+  return leftTime > rightTime;
+};
+
 function isUnresolvedBlockingDefect(defect: Defect): boolean {
   const statusBlocking = (unresolvedBlockingDefectStatuses as readonly string[]).includes(
     defect.status,
@@ -42,17 +76,15 @@ function getLatestExecutionForItem(
   return executions
     .filter((execution) => execution.testItemId === testItemId)
     .sort((a, b) => {
-      const aTime = a.completedAt ?? a.updatedAt ?? '';
-      const bTime = b.completedAt ?? b.updatedAt ?? '';
-      return bTime.localeCompare(aTime);
+      const aTime = a.completedAt ?? a.updatedAt;
+      const bTime = b.completedAt ?? b.updatedAt;
+      return compareDateDesc(aTime, bTime);
     })[0];
 }
 
 function getLatestDecision(decisions: Decision[]): Decision | undefined {
   return [...decisions].sort((a, b) => {
-    const aTime = a.createdAt ?? '';
-    const bTime = b.createdAt ?? '';
-    return bTime.localeCompare(aTime);
+    return compareDateDesc(a.createdAt, b.createdAt);
   })[0];
 }
 
@@ -126,7 +158,7 @@ export function calculateReadinessFromSnapshot(
         sourceId: execution.id,
       });
     } else if (execution.status === 'skipped') {
-      if (!execution.skipReason) {
+      if (isBlank(execution.skipReason)) {
         unmetConditions.push({
           id: `required-test-skipped-without-reason:${execution.id}`,
           severity: 'blocker',
@@ -256,8 +288,8 @@ export function calculateReadinessFromSnapshot(
 
   const now = getEffectiveNow(snapshot);
   if (
-    now &&
-    now > release.plannedEndDate &&
+    !isBlank(now) &&
+    isAfter(now, release.plannedEndDate) &&
     release.status !== 'decided' &&
     release.status !== 'archived'
   ) {
@@ -289,7 +321,7 @@ export function calculateReadinessFromSnapshot(
 
   const latestDecision = getLatestDecision(decisions);
   const qaComment = draftInput?.qaCompletionComment ?? latestDecision?.qaCompletionComment ?? '';
-  if (!qaComment) {
+  if (isBlank(qaComment)) {
     unmetConditions.push({
       id: 'qa-completion-comment-missing',
       severity: 'blocker',

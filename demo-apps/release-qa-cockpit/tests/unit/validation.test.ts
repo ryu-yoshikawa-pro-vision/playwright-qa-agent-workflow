@@ -108,6 +108,30 @@ describe('validateAtRiskSave', () => {
     expect(result.allowed).toBe(false);
     expect(result.reasons.length).toBeGreaterThanOrEqual(3);
   });
+
+  it('blocks save when QA completion comment is whitespace only', () => {
+    const result = validateAtRiskSave(atRiskResult(), '   ', 'Decision comment');
+    expect(result.allowed).toBe(false);
+    expect(result.reasons.some((r) => r.toLowerCase().includes('qa completion'))).toBe(true);
+  });
+
+  it('blocks save when QA completion comment is newline/tab only', () => {
+    const result = validateAtRiskSave(atRiskResult(), '\n\t', 'Decision comment');
+    expect(result.allowed).toBe(false);
+    expect(result.reasons.some((r) => r.toLowerCase().includes('qa completion'))).toBe(true);
+  });
+
+  it('blocks save when decision comment is whitespace only', () => {
+    const result = validateAtRiskSave(atRiskResult(), 'QA completed', '   ');
+    expect(result.allowed).toBe(false);
+    expect(result.reasons.some((r) => r.toLowerCase().includes('decision comment'))).toBe(true);
+  });
+
+  it('blocks save when decision comment is newline/tab only', () => {
+    const result = validateAtRiskSave(atRiskResult(), 'QA completed', '\n\t');
+    expect(result.allowed).toBe(false);
+    expect(result.reasons.some((r) => r.toLowerCase().includes('decision comment'))).toBe(true);
+  });
 });
 
 describe('validateNotReadySave', () => {
@@ -130,6 +154,18 @@ describe('validateNotReadySave', () => {
 
   it('blocks save when decision comment is empty', () => {
     const result = validateNotReadySave(notReadyResult(), '');
+    expect(result.allowed).toBe(false);
+    expect(result.reasons.some((r) => r.toLowerCase().includes('decision comment'))).toBe(true);
+  });
+
+  it('blocks save when decision comment is whitespace only', () => {
+    const result = validateNotReadySave(notReadyResult(), '   ');
+    expect(result.allowed).toBe(false);
+    expect(result.reasons.some((r) => r.toLowerCase().includes('decision comment'))).toBe(true);
+  });
+
+  it('blocks save when decision comment is newline/tab only', () => {
+    const result = validateNotReadySave(notReadyResult(), '\n\t');
     expect(result.allowed).toBe(false);
     expect(result.reasons.some((r) => r.toLowerCase().includes('decision comment'))).toBe(true);
   });
