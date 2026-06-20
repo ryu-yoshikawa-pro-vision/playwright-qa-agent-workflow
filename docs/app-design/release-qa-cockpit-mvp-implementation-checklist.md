@@ -1,12 +1,28 @@
 # Release QA Cockpit MVP implementation checklist
 
-> Implementation source of truth: `docs/app-design/release-qa-cockpit-implementation-source-of-truth.md`.
->
-> If this checklist conflicts with the source of truth, use the source of truth. This file defines MVP implementation scope; the source of truth defines final decision rules.
+This file remains as a compatibility checklist for older references.
+
+The canonical detailed MVP design now lives under:
+
+```text
+docs/app-design/release-qa-cockpit/
+```
+
+Use these files as the implementation source of truth:
+
+- [MVP scope](release-qa-cockpit/mvp-scope.md)
+- [Data model](release-qa-cockpit/data-model.md)
+- [Readiness rules](release-qa-cockpit/readiness-rules.md)
+- [Screen specification](release-qa-cockpit/screen-spec.md)
+- [State transitions](release-qa-cockpit/state-transitions.md)
+- [Seed scenarios](release-qa-cockpit/seed-scenarios.md)
+- [Testability rules](release-qa-cockpit/testability-rules.md)
+- [Implementation plan](release-qa-cockpit/implementation-plan.md)
+- [Testing strategy](release-qa-cockpit/testing-strategy.md)
 
 ## Required implementation path
 
-Use only this app path:
+Use only:
 
 ```text
 demo-apps/release-qa-cockpit/
@@ -14,151 +30,40 @@ demo-apps/release-qa-cockpit/
 
 Do not use `examples/release-qa-cockpit/` for app code, generated tests, target profile, storage state, or documentation.
 
-## Required app skeleton
+## MVP checklist summary
 
-```text
-demo-apps/release-qa-cockpit/
-  package.json
-  index.html
-  vite.config.ts
-  tsconfig.json
-  src/
-  tests/
-  docs/
-```
+Implementation is ready for review when:
 
-## Required screens
+- the app skeleton exists under `demo-apps/release-qa-cockpit/`
+- deterministic seed data is implemented
+- Demo Data Reset restores the initial Not Ready state
+- all required MVP stores from `data-model.md` exist
+- no out-of-scope stores exist
+- all required screens from `screen-spec.md` are reachable
+- readiness follows `readiness-rules.md`
+- state transitions follow `state-transitions.md`
+- UI controls follow `testability-rules.md`
+- implementation order follows `implementation-plan.md`
+- app tests follow `testing-strategy.md`
 
-The MVP must include these user-visible areas:
+## First smoke E2E summary
 
-- Login / Role Switch
-- Dashboard
-- Releases
-- Release Overview
-- Test Execution
-- Defect Triage
-- Risk Review
-- Release Decision
-- Evidence Pack Export
-- Activity Log
-- Demo Controls / Data Reset
-
-## Required IndexedDB stores
-
-The MVP store list must match the implementation source of truth:
-
-```text
-users
-sessions
-releases
-releaseScopes
-testItems
-testExecutions
-defects
-risks
-decisions
-evidenceItems
-activityLogs
-demoScenarios
-appSettings
-```
-
-Do not create these stores in MVP:
-
-```text
-reportExports
-reports
-reportHistory
-comments
-remoteSync
-integrations
-attachmentsBinary
-```
-
-## Required seeded demo data
-
-Demo Mode must seed deterministic data that supports the first smoke flow:
-
-- QA lead, QA member, and developer users.
-- One active release.
-- One release scope.
-- One required smoke or regression test item.
-- One failing or blocked test execution linked to a Critical or High defect.
-- One Critical or High defect in a blocking status.
-- One High impact risk that can be accepted and produce At Risk.
-- One initial activity log entry.
-
-Data Reset must clear all MVP stores and restore the same known seed state.
-
-## Required readiness behavior
-
-The implementation must separate persisted calculation and preview calculation:
-
-```ts
-calculatePersistedReadiness(releaseId): ReadinessResult;
-calculateReadinessPreview(releaseId, draftInput: ReadinessDraftInput): ReadinessResult;
-```
-
-Readiness behavior must follow the source of truth:
-
-- Not Ready has highest priority.
-- At Risk applies only when no Not Ready condition remains and at least one warning condition exists.
-- Ready applies only when no unmet condition and no warning condition remains.
-- Reasoned `skipped` required tests are At Risk, not Ready.
-- High impact accepted risks are At Risk, not Ready.
-- Manual Note or External Reference evidence alone does not satisfy the Test Result evidence requirement.
-
-## Required Release Decision save behavior
-
-Saving a release decision must create:
-
-- One `decisions` record.
-- One Release Decision entry in `evidenceItems`.
-- One `activityLogs` entry.
-
-Ready or At Risk save must require:
-
-- No unmet conditions.
-- QA completion comment.
-- At least one Test Result evidence item.
-
-## Required Evidence Pack Export behavior
-
-Evidence Pack Export must generate Markdown from the current IndexedDB state.
-
-It must include release, readiness, decision, test execution, Test Result evidence, defect, risk, and activity log sections.
-
-It must not persist report history in MVP.
-
-## First smoke E2E flow
-
-The first Playwright smoke test should cover:
+The first smoke E2E must cover:
 
 1. Open the demo app.
-2. Select QA Lead or equivalent privileged role.
+2. Continue as QA Lead.
 3. Reset demo data.
 4. Confirm the active release is Not Ready.
-5. Resolve the blocking defect through development and retest states.
-6. Update the linked test execution to pass.
+5. Resolve the seeded blocking defect through valid states.
+6. Move the linked test execution to retest and then pass.
 7. Create at least one Test Result evidence item.
-8. Accept the High impact risk.
+8. Accept the seeded High impact risk.
 9. Open Release Decision.
-10. Confirm readiness preview becomes At Risk, not Ready.
-11. Enter QA completion comment.
+10. Confirm preview readiness is At Risk, not Ready.
+11. Enter QA completion comment and decision comment.
 12. Save At Risk decision.
 13. Confirm Release Decision evidence is created.
 14. Generate Evidence Pack Markdown.
 15. Reset demo data and confirm the initial Not Ready state returns.
 
-## MVP out of scope
-
-Do not add these in MVP:
-
-- External authentication.
-- External API calls.
-- Remote database or server persistence.
-- Report history persistence.
-- `reportExports`, `reports`, `reportHistory`, or `comments` stores.
-- Binary attachment persistence.
-- Jira / GitHub / Slack integrations.
-- Multi-tenant organization management.
+If this summary conflicts with the canonical detailed files, use the canonical detailed files.
