@@ -4,6 +4,8 @@
 
 実装時に他ドキュメントと競合する場合は、このファイルを優先する。
 
+MVP の実装範囲、画面、Store、seed data、最初の smoke flow は `docs/app-design/release-qa-cockpit-mvp-implementation-checklist.md` を参照する。ただし、判定条件、MVP 範囲、Store 追加可否、配置パスで競合がある場合は、この正本を優先する。
+
 ## 配置
 
 実装先は `demo-apps/release-qa-cockpit/` とする。
