@@ -1,0 +1,270 @@
+import type {
+  ReadinessSnapshot,
+  ReadinessResult,
+  ReadinessCondition,
+  ReadinessDraftInput,
+  Defect,
+  EvidenceItem,
+} from '@/db/types';
+import { unresolvedBlockingDefectStatuses } from '@/db/types';
+
+function isUnresolvedBlockingDefect(defect: Defect): boolean {
+  const statusBlocking = (unresolvedBlockingDefectStatuses as readonly string[]).includes(defect.status);
+  const severityBlocking = defect.severity === 'critical' || defect.severity === 'high';
+  const impactsBlocking = defect.impactsReleaseDecision;
+  return statusBlocking && (severityBlocking || impactsBlocking);
+}
+
+function isUnresolvedNonImpactingDefect(defect: Defect): boolean {
+  const statusBlocking = (unresolvedBlockingDefectStatuses as readonly string[]).includes(defect.status);
+  const severityLow = defect.severity === 'medium' || defect.severity === 'low';
+  return statusBlocking && severityLow && !defect.impactsReleaseDecision;
+}
+
+function hasTestResultEvidence(evidenceItems: EvidenceItem[]): boolean {
+  return evidenceItems.some((item) => item.type === 'testResult');
+}
+
+function getEffectiveNow(snapshot: ReadinessSnapshot): string | undefined {
+  return snapshot.appSettings.demoNow;
+}
+
+export function calculateReadinessFromSnapshot(
+  snapshot: ReadinessSnapshot,
+  draftInput?: ReadinessDraftInput,
+): ReadinessResult {
+  const unmetConditions: ReadinessCondition[] = [];
+  const warningConditions: ReadinessCondition[] = [];
+
+  const { testItems, testExecutions, defects, risks, evidenceItems, release } = snapshot;
+
+  const requiredTestItems = testItems.filter((ti) => ti.required);
+  const requiredTestItemIds = new Set(requiredTestItems.map((ti) => ti.id));
+
+  const relevantExecutions = testExecutions.filter((te) =>
+    requiredTestItemIds.has(te.testItemId),
+  );
+
+  for (const exec of relevantExecutions) {
+    const testItem = requiredTestItems.find((ti) => ti.id === exec.testItemId);
+    const title = testItem?.title ?? exec.testItemId;
+
+    if (exec.status === 'notStarted') {
+      unmetConditions.push({
+        id: `required-test-not-started:${exec.id}`,
+        severity: 'blocker',
+        message: `Required test "${title}" is not started.`,
+        sourceType: 'testExecution',
+        sourceId: exec.id,
+      });
+    }
+
+    if (exec.status === 'inProgress') {
+      unmetConditions.push({
+        id: `required-test-in-progress:${exec.id}`,
+        severity: 'blocker',
+        message: `Required test "${title}" is in progress.`,
+        sourceType: 'testExecution',
+        sourceId: exec.id,
+      });
+    }
+
+    if (exec.status === 'fail') {
+      unmetConditions.push({
+        id: `required-test-failed:${exec.id}`,
+        severity: 'blocker',
+        message: `Required test "${title}" failed.`,
+        sourceType: 'testExecution',
+        sourceId: exec.id,
+      });
+    }
+
+    if (exec.status === 'blocked') {
+      unmetConditions.push({
+        id: `required-test-blocked:${exec.id}`,
+        severity: 'blocker',
+        message: `Required test "${title}" is blocked.`,
+        sourceType: 'testExecution',
+        sourceId: exec.id,
+      });
+    }
+
+    if (exec.status === 'skipped' && !exec.skipReason) {
+      unmetConditions.push({
+        id: `required-test-skipped-without-reason:${exec.id}`,
+        severity: 'blocker',
+        message: `Required test "${title}" is skipped without a reason.`,
+        sourceType: 'testExecution',
+        sourceId: exec.id,
+      });
+    }
+  }
+
+  for (const defect of defects) {
+    if (isUnresolvedBlockingDefect(defect)) {
+      if (defect.severity === 'critical' || defect.severity === 'high') {
+        unmetConditions.push({
+          id: `critical-high-blocking-defect:${defect.id}`,
+          severity: 'blocker',
+          message: `${defect.severity === 'critical' ? 'Critical' : 'High'} severity defect "${defect.title}" is unresolved.`,
+          sourceType: 'defect',
+          sourceId: defect.id,
+        });
+      } else {
+        unmetConditions.push({
+          id: `impacting-medium-low-blocking-defect:${defect.id}`,
+          severity: 'blocker',
+          message: `${defect.severity === 'medium' ? 'Medium' : 'Low'} severity defect "${defect.title}" impacts release decision and is unresolved.`,
+          sourceType: 'defect',
+          sourceId: defect.id,
+        });
+      }
+    }
+  }
+
+  for (const defect of defects) {
+    if (isUnresolvedNonImpactingDefect(defect)) {
+      warningConditions.push({
+        id: `medium-low-blocking-defect:${defect.id}`,
+        severity: 'warning',
+        message: `${defect.severity === 'medium' ? 'Medium' : 'Low'} severity defect "${defect.title}" is unresolved but does not impact release decision.`,
+        sourceType: 'defect',
+        sourceId: defect.id,
+      });
+    }
+  }
+
+  for (const risk of risks) {
+    if (risk.impact === 'high') {
+      if (risk.status === 'draft' || risk.status === 'pendingApproval' || risk.status === 'rejected') {
+        const statusLabel =
+          risk.status === 'draft'
+            ? 'in draft'
+            : risk.status === 'pendingApproval'
+              ? 'pending approval'
+              : 'rejected';
+        unmetConditions.push({
+          id: `high-risk-unapproved:${risk.id}`,
+          severity: 'blocker',
+          message: `High impact risk "${risk.title}" is ${statusLabel}.`,
+          sourceType: 'risk',
+          sourceId: risk.id,
+        });
+      }
+    }
+
+    if (risk.impact === 'medium') {
+      if (risk.status === 'rejected') {
+        unmetConditions.push({
+          id: `medium-risk-rejected:${risk.id}`,
+          severity: 'blocker',
+          message: `Medium impact risk "${risk.title}" is rejected.`,
+          sourceType: 'risk',
+          sourceId: risk.id,
+        });
+      }
+    }
+
+    if (risk.impact === 'high' && risk.status === 'accepted') {
+      warningConditions.push({
+        id: `high-risk-accepted:${risk.id}`,
+        severity: 'warning',
+        message: `High impact risk "${risk.title}" is accepted.`,
+        sourceType: 'risk',
+        sourceId: risk.id,
+      });
+    }
+
+    if (risk.impact === 'medium' && (risk.status === 'draft' || risk.status === 'pendingApproval' || risk.status === 'accepted')) {
+      warningConditions.push({
+        id: `medium-risk-open-or-accepted:${risk.id}`,
+        severity: 'warning',
+        message: `Medium impact risk "${risk.title}" is ${risk.status.replace(/([A-Z])/g, ' $1').toLowerCase().trim()}.`,
+        sourceType: 'risk',
+        sourceId: risk.id,
+      });
+    }
+
+    if (risk.impact === 'low') {
+      if (risk.status === 'pendingApproval' || risk.status === 'rejected') {
+        warningConditions.push({
+          id: `low-risk-pending-or-rejected:${risk.id}`,
+          severity: 'warning',
+          message: `Low impact risk "${risk.title}" is ${risk.status === 'pendingApproval' ? 'pending approval' : 'rejected'}.`,
+          sourceType: 'risk',
+          sourceId: risk.id,
+        });
+      }
+    }
+  }
+
+  for (const exec of relevantExecutions) {
+    if (exec.status === 'skipped' && exec.skipReason) {
+      const testItem = requiredTestItems.find((ti) => ti.id === exec.testItemId);
+      warningConditions.push({
+        id: `required-test-skipped-with-reason:${exec.id}`,
+        severity: 'warning',
+        message: `Required test "${testItem?.title ?? exec.testItemId}" is skipped with reason.`,
+        sourceType: 'testExecution',
+        sourceId: exec.id,
+      });
+    }
+  }
+
+  const now = getEffectiveNow(snapshot);
+  if (now && now > release.plannedEndDate && release.status !== 'decided' && release.status !== 'archived') {
+    warningConditions.push({
+      id: `qa-period-overdue:${release.id}`,
+      severity: 'warning',
+      message: `QA period is overdue. Planned end date was ${release.plannedEndDate}.`,
+      sourceType: 'schedule',
+      sourceId: release.id,
+    });
+  }
+
+  for (const defect of defects) {
+    if (defect.status === 'wontFix' && defect.linkedTestExecutionId) {
+      const linkedRisk = risks.find(
+        (r) => r.linkedDefectId === defect.id && r.status === 'accepted',
+      );
+      if (linkedRisk) {
+        warningConditions.push({
+          id: `wont-fix-risk-accepted:${defect.id}`,
+          severity: 'warning',
+          message: `Defect "${defect.title}" is wontFix but linked risk "${linkedRisk.title}" is accepted.`,
+          sourceType: 'risk',
+          sourceId: linkedRisk.id,
+        });
+      }
+    }
+  }
+
+  const qaComment = draftInput?.qaCompletionComment ?? snapshot.decisions[0]?.qaCompletionComment ?? '';
+  if (!qaComment) {
+    unmetConditions.push({
+      id: 'qa-completion-comment-missing',
+      severity: 'blocker',
+      message: 'QA completion comment is missing.',
+      sourceType: 'decision',
+    });
+  }
+
+  if (!hasTestResultEvidence(evidenceItems)) {
+    unmetConditions.push({
+      id: 'test-result-evidence-missing',
+      severity: 'blocker',
+      message: 'Test Result evidence is missing.',
+      sourceType: 'evidence',
+    });
+  }
+
+  if (unmetConditions.length > 0) {
+    return { readiness: 'notReady', unmetConditions, warningConditions };
+  }
+
+  if (warningConditions.length > 0) {
+    return { readiness: 'atRisk', unmetConditions, warningConditions };
+  }
+
+  return { readiness: 'ready', unmetConditions, warningConditions };
+}
