@@ -2,7 +2,9 @@
 
 A target project profile records the target application's connection, execution, authentication, data, and generation rules before an agent performs browser exploration, test generation, or healing against a real project.
 
-This repository provides common Playwright CLI and QA workflow rules. It does not own the target application's local startup, environment variables, test command, accounts, data policy, or CI setup. Record those project-specific details in a target project profile instead of asking the agent to infer them repeatedly.
+This repository provides common Playwright CLI and QA workflow rules. It does not own most target applications' local startup, environment variables, test command, accounts, data policy, or CI setup. Record those project-specific details in a target project profile instead of asking the agent to infer them repeatedly.
+
+Release QA Cockpit is the one intentional demo target application planned inside this repository. Its design docs live under `docs/app-design/release-qa-cockpit/`, and its implementation path is `demo-apps/release-qa-cockpit/`.
 
 ## When to create one
 
@@ -43,6 +45,12 @@ Start from:
 
 ```text
 artifacts/_templates/target-project-profile.md
+```
+
+For Release QA Cockpit, also use the example profile:
+
+```text
+docs/examples/target-project-profile-release-qa-cockpit.md
 ```
 
 Do not leave important fields as `TBD` when the missing value affects exploration, generation, or healing. If a value is intentionally unknown, state the impact and next action in the blockers section.
