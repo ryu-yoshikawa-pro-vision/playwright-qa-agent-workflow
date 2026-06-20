@@ -15,7 +15,9 @@ export function validateReadySave(
 ): SaveValidation {
   const reasons: string[] = [];
   if (preview.readiness !== 'ready') {
-    reasons.push('Preview readiness must be Ready. Resolve all blocker and warning conditions before saving Ready.');
+    reasons.push(
+      'Preview readiness must be Ready. Resolve all blocker and warning conditions before saving Ready.',
+    );
   }
   if (!nonEmpty(qaCompletionComment)) {
     reasons.push('QA completion comment is required for Ready save.');
@@ -30,7 +32,9 @@ export function validateAtRiskSave(
 ): SaveValidation {
   const reasons: string[] = [];
   if (preview.readiness !== 'atRisk') {
-    reasons.push('Preview readiness must be At Risk. Resolve all blocker conditions before saving At Risk.');
+    reasons.push(
+      'Preview readiness must be At Risk. Resolve all blocker conditions before saving At Risk.',
+    );
   }
   if (!nonEmpty(qaCompletionComment)) {
     reasons.push('QA completion comment is required for At Risk save.');

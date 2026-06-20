@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { db } from '../../src/db/schema';
-import { calculatePersistedReadiness, calculateReadinessPreview } from '../../src/adapters/readiness';
+import {
+  calculatePersistedReadiness,
+  calculateReadinessPreview,
+} from '../../src/adapters/readiness';
 import { clearDb, seedDb } from './helpers';
 
 beforeEach(async () => {

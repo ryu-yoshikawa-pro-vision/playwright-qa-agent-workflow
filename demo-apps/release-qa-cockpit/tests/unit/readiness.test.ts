@@ -616,9 +616,9 @@ describe('calculateReadinessFromSnapshot', () => {
       qaCompletionComment: 'QA completed',
     });
     expect(result.readiness).toBe('notReady');
-    expect(result.unmetConditions.some((c) =>
-      c.id.startsWith('impacting-medium-low-blocking-defect:'),
-    )).toBe(true);
+    expect(
+      result.unmetConditions.some((c) => c.id.startsWith('impacting-medium-low-blocking-defect:')),
+    ).toBe(true);
   });
 
   it('returns notReady for high risk pending approval', () => {
@@ -652,9 +652,7 @@ describe('calculateReadinessFromSnapshot', () => {
       qaCompletionComment: 'QA completed',
     });
     expect(result.readiness).toBe('notReady');
-    expect(result.unmetConditions.some((c) =>
-      c.id.startsWith('high-risk-unapproved:'),
-    )).toBe(true);
+    expect(result.unmetConditions.some((c) => c.id.startsWith('high-risk-unapproved:'))).toBe(true);
   });
 
   it('returns notReady for high risk rejected', () => {
@@ -689,9 +687,7 @@ describe('calculateReadinessFromSnapshot', () => {
       qaCompletionComment: 'QA completed',
     });
     expect(result.readiness).toBe('notReady');
-    expect(result.unmetConditions.some((c) =>
-      c.id.startsWith('high-risk-unapproved:'),
-    )).toBe(true);
+    expect(result.unmetConditions.some((c) => c.id.startsWith('high-risk-unapproved:'))).toBe(true);
   });
 
   it('returns notReady for medium risk rejected', () => {
@@ -727,9 +723,7 @@ describe('calculateReadinessFromSnapshot', () => {
       qaCompletionComment: 'QA completed',
     });
     expect(result.readiness).toBe('notReady');
-    expect(result.unmetConditions.some((c) =>
-      c.id.startsWith('medium-risk-rejected:'),
-    )).toBe(true);
+    expect(result.unmetConditions.some((c) => c.id.startsWith('medium-risk-rejected:'))).toBe(true);
   });
 
   it('returns atRisk for medium risk accepted', () => {
@@ -766,9 +760,9 @@ describe('calculateReadinessFromSnapshot', () => {
     });
     expect(result.readiness).toBe('atRisk');
     expect(result.unmetConditions).toHaveLength(0);
-    expect(result.warningConditions.some((c) =>
-      c.id.startsWith('medium-risk-open-or-accepted:'),
-    )).toBe(true);
+    expect(
+      result.warningConditions.some((c) => c.id.startsWith('medium-risk-open-or-accepted:')),
+    ).toBe(true);
   });
 
   it('returns atRisk when qa-period-overdue with no blockers', () => {
@@ -808,8 +802,6 @@ describe('calculateReadinessFromSnapshot', () => {
     });
     expect(result.readiness).toBe('atRisk');
     expect(result.unmetConditions).toHaveLength(0);
-    expect(result.warningConditions.some((c) =>
-      c.id.startsWith('qa-period-overdue:'),
-    )).toBe(true);
+    expect(result.warningConditions.some((c) => c.id.startsWith('qa-period-overdue:'))).toBe(true);
   });
 });
