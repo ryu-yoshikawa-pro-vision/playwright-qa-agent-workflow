@@ -1,10 +1,11 @@
-# Release QA Cockpit 実装対象ディレクトリ方針
+# Release QA Cockpit implementation directory
 
-正本: `docs/app-design/release-qa-cockpit-implementation-source-of-truth.md`
+Implementation source of truth: `docs/app-design/release-qa-cockpit-implementation-source-of-truth.md`
 
-実装先: `demo-apps/release-qa-cockpit/`
+If this file conflicts with the implementation source of truth, use the implementation source of truth.
 
-`examples/release-qa-cockpit/` は使用しない。
+Implementation path: `demo-apps/release-qa-cockpit/`
+
+Do not use `examples/release-qa-cockpit/`.
 
 Generated test path: `demo-apps/release-qa-cockpit/tests/`
-
