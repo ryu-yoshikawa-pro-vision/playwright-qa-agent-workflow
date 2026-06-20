@@ -20,6 +20,7 @@ demo-apps/release-qa-cockpit/
   index.html
   vite.config.ts
   tsconfig.json
+  README.md
   src/
   tests/
   docs/
@@ -62,19 +63,19 @@ The exact router library can vary, but the user-visible navigation names must ma
 
 ## Required domain features
 
-| Feature               | Required behavior                                                                  |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| Role switching        | Allows deterministic switching between seeded users.                               |
-| Release selection     | Allows opening the active seeded release.                                          |
-| Readiness calculation | Calculates persisted and preview readiness separately.                             |
-| Test execution update | Allows status update for seeded test executions.                                   |
-| Defect triage         | Allows valid defect status transitions.                                            |
-| Risk review           | Allows valid risk status transitions with required reason fields.                  |
-| Release decision save | Creates decision, Release Decision evidence, and activity log.                     |
-| Test Result evidence  | Allows creating at least one evidence item of type `testResult`.                   |
-| Evidence Pack export  | Generates Markdown from current IndexedDB state without persisting report history. |
-| Activity log          | Records user-visible domain mutations.                                             |
-| Demo data reset       | Clears MVP stores and restores deterministic seed data.                            |
+| Feature               | Required behavior                                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Role switching        | Allows deterministic switching between seeded users.                                                                 |
+| Release selection     | Allows opening the active seeded release.                                                                            |
+| Readiness calculation | Calculates pure snapshot, persisted, and preview readiness separately.                                               |
+| Test execution update | Allows status update for seeded test executions.                                                                     |
+| Defect triage         | Allows valid defect status transitions.                                                                              |
+| Risk review           | Allows valid risk status transitions with required reason fields.                                                    |
+| Release decision save | Creates decision, Release Decision evidence, and activity log.                                                       |
+| Test Result evidence  | Allows creating at least one evidence item of type `testResult`.                                                     |
+| Evidence Pack export  | Generates Markdown from current IndexedDB state without persisting report history or creating export evidence items. |
+| Activity log          | Records user-visible domain mutations.                                                                               |
+| Demo data reset       | Clears MVP stores and restores deterministic business seed data.                                                     |
 
 ## Required IndexedDB stores
 
@@ -131,9 +132,14 @@ The initial readiness must be Not Ready.
 
 ## Required readiness behavior
 
-The implementation must separate persisted calculation and preview calculation:
+The implementation must separate pure rules, persisted calculation, and preview calculation:
 
 ```ts
+calculateReadinessFromSnapshot(
+  snapshot: ReadinessSnapshot,
+  draftInput?: ReadinessDraftInput
+): ReadinessResult;
+
 calculatePersistedReadiness(releaseId: string): Promise<ReadinessResult>;
 
 calculateReadinessPreview(
@@ -177,6 +183,8 @@ It must include these sections:
 
 It must not persist report history in the MVP.
 
+It must not create an `EvidenceItem` of type `export`. `EvidenceType` does not include `export` in the MVP.
+
 ## MVP out of scope
 
 Do not add these in the MVP:
@@ -197,7 +205,7 @@ The MVP is complete only when:
 
 - the app starts locally from `demo-apps/release-qa-cockpit/`
 - seed data loads deterministically
-- Demo Data Reset restores the initial Not Ready state
+- Demo Data Reset restores the initial Not Ready business state, allowing documented runtime fields such as `lastResetAt` to vary
 - all required screens are reachable
 - readiness unit tests cover Ready, At Risk, and Not Ready
 - the first smoke E2E flow passes locally
