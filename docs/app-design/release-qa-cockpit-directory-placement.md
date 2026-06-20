@@ -7,3 +7,4 @@
 `examples/release-qa-cockpit/` は使用しない。
 
 Generated test path: `demo-apps/release-qa-cockpit/tests/`
+
