@@ -985,6 +985,8 @@ describe('calculateReadinessFromSnapshot', () => {
 
     const result = calculateReadinessFromSnapshot(snapshot);
     expect(result.readiness).toBe('ready');
-    expect(result.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(false);
+    expect(result.unmetConditions.some((c) => c.id === 'qa-completion-comment-missing')).toBe(
+      false,
+    );
   });
 });

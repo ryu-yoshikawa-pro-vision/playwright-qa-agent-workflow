@@ -18,10 +18,7 @@ const toTimestamp = (value: string | undefined | null): number => {
   return Date.parse(value);
 };
 
-const compareDateDesc = (
-  a: string | undefined | null,
-  b: string | undefined | null,
-): number => {
+const compareDateDesc = (a: string | undefined | null, b: string | undefined | null): number => {
   const aTime = toTimestamp(a);
   const bTime = toTimestamp(b);
 
@@ -32,10 +29,7 @@ const compareDateDesc = (
   return bTime - aTime;
 };
 
-const isAfter = (
-  left: string | undefined | null,
-  right: string | undefined | null,
-): boolean => {
+const isAfter = (left: string | undefined | null, right: string | undefined | null): boolean => {
   const leftTime = toTimestamp(left);
   const rightTime = toTimestamp(right);
 

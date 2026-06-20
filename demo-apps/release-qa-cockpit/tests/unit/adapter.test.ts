@@ -142,7 +142,10 @@ describe('loadSnapshot fallback', () => {
     await db.evidenceItems.add(evItem);
     await db.testExecutions.update('exec-recording-playback', { status: 'pass' });
     await db.defects.update('defect-recording-playback-fails', { status: 'closed' });
-    await db.risks.update('risk-recording-regression', { status: 'closed', mitigationNote: 'Resolved' });
+    await db.risks.update('risk-recording-regression', {
+      status: 'closed',
+      mitigationNote: 'Resolved',
+    });
     await db.decisions.add({
       id: 'dec-fallback',
       releaseId: 'rel-weekly-2026-06',
