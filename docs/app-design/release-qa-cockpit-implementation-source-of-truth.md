@@ -1,118 +1,52 @@
-# Release QA Cockpit 実装正本
+# Release QA Cockpit implementation source of truth
 
-このファイルは、`Release QA Cockpit` 実装時の誤読を防ぐための正本である。
+This file remains as a compatibility entry point for older references.
 
-実装時に他ドキュメントと競合する場合は、このファイルを優先する。
-
-MVP の実装範囲、画面、Store、seed data、最初の smoke flow は `docs/app-design/release-qa-cockpit-mvp-implementation-checklist.md` を参照する。ただし、判定条件、MVP 範囲、Store 追加可否、配置パスで競合がある場合は、この正本を優先する。
-
-## 配置
-
-実装先は `demo-apps/release-qa-cockpit/` とする。
-
-`examples/release-qa-cockpit/` は古い配置案であり、実装先、生成テストパス、Target Project Profile のいずれにも使用しない。
-
-## Readiness 判定
-
-判定優先順位は以下とする。
+The detailed canonical implementation design now lives under:
 
 ```text
-1. Not Ready 条件に該当する場合は Not Ready
-2. Not Ready 条件に該当せず Warning 条件がある場合は At Risk
-3. Not Ready 条件にも Warning 条件にも該当しない場合は Ready
+docs/app-design/release-qa-cockpit/
 ```
 
-### Not Ready
+Use that directory as the source of truth.
 
-- 必須テストに `notStarted`、`inProgress`、`fail`、`blocked` がある
-- Critical / High の blocking defect がある
-- Medium / Low でも `impactsReleaseDecision` が true の blocking defect がある
-- High impact risk が `draft`、`pendingApproval`、`rejected` のいずれかである
-- Medium impact risk が `rejected` である
-- QA 完了コメントが未入力である
-- Test Result evidence が 1 件もない
+## Canonical documents
 
-### At Risk
+Read these files in order:
 
-- Medium / Low の blocking defect がある
-- High impact risk が `accepted` である
-- Medium impact risk が `draft`、`pendingApproval`、`accepted` のいずれかである
-- Low impact risk が `pendingApproval` または `rejected` である
-- 必須テストに理由付き `skipped` がある
-- QA 期間が予定より超過している
-- `wontFix` 不具合に対応する Risk が `accepted` として残っている
+1. [Product definition](release-qa-cockpit/product-definition.md)
+2. [MVP scope](release-qa-cockpit/mvp-scope.md)
+3. [Data model](release-qa-cockpit/data-model.md)
+4. [Readiness rules](release-qa-cockpit/readiness-rules.md)
+5. [Screen specification](release-qa-cockpit/screen-spec.md)
+6. [State transitions](release-qa-cockpit/state-transitions.md)
+7. [Seed scenarios](release-qa-cockpit/seed-scenarios.md)
+8. [Testability rules](release-qa-cockpit/testability-rules.md)
+9. [Implementation plan](release-qa-cockpit/implementation-plan.md)
+10. [Testing strategy](release-qa-cockpit/testing-strategy.md)
 
-### Ready
+## Conflict policy
 
-- Not Ready 条件に該当しない
-- At Risk 条件に該当しない
-- 必須テストがすべて `pass` である
-- Critical / High の blocking defect がない
-- QA 完了コメントが入力済みである
-- Test Result evidence が 1 件以上存在する
+If this compatibility file conflicts with any file in `docs/app-design/release-qa-cockpit/`, use the file in `docs/app-design/release-qa-cockpit/`.
 
-理由付き `skipped` は Ready ではなく At Risk とする。
+If files inside that directory conflict, use the more specific document for the topic.
 
-High impact risk の `accepted` は Ready ではなく At Risk とする。
+## Non-negotiable rules
 
-## blocking defect status
+The following rules remain non-negotiable:
 
-```ts
-export const unresolvedBlockingDefectStatuses = [
-  'open',
-  'triaged',
-  'inProgress',
-  'fixed',
-  'readyForRetest',
-  'reopened',
-] as const;
-```
+- Implement only under `demo-apps/release-qa-cockpit/`.
+- Do not use `examples/release-qa-cockpit/`.
+- Keep readiness calculation in domain logic, not React components.
+- Separate persisted readiness from preview readiness.
+- Do not create `comments`, `reportExports`, `reports`, or `reportHistory` stores in the MVP.
+- Generate Evidence Pack Markdown from current IndexedDB state.
+- Do not persist report history in the MVP.
+- Keep Demo Data Reset deterministic.
+- Use accessible selectors as the primary Playwright testing strategy.
 
-`closed`、`wontFix`、`duplicate` は blocking status に含めない。
-
-## Evidence 条件
-
-Readiness 計算時に必要な Evidence 条件は以下とする。
-
-- Test Result evidence が 1 件以上存在する
-- QA 完了コメントが入力されている
-
-Manual Note / External Reference のみでは条件を満たさない。
-
-Release Decision evidence は判定保存時に自動生成するため、Readiness 計算時には必須にしない。
-
-## Reports
-
-MVP の Reports は Release 単位の Evidence Pack Export を閲覧・生成する導線に限定する。
-
-MVP では以下の Store を作成しない。
+## Required implementation path
 
 ```text
-reportExports
-reports
-reportHistory
+demo-apps/release-qa-cockpit/
 ```
-
-Evidence Pack は現在の IndexedDB 状態から Markdown として都度生成する。
-
-## Store
-
-MVP の IndexedDB Store は以下とする。
-
-```text
-users
-sessions
-releases
-releaseScopes
-testItems
-testExecutions
-defects
-risks
-decisions
-evidenceItems
-activityLogs
-demoScenarios
-appSettings
-```
-
-`comments`、`reportExports`、`reports`、`reportHistory` store は MVP では作成しない。
