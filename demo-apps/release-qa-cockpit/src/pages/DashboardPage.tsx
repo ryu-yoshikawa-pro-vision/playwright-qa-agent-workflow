@@ -1,27 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '@/db/schema';
-import { calculatePersistedReadiness } from '@/adapters/readiness';
+import {
+  calculatePersistedReadiness,
+  loadReleaseReadinessSnapshot,
+  calculateReleaseSummaryFromSnapshot,
+} from '@/adapters/readiness';
 import { ReadinessBadge } from '@/components/ReadinessBadge';
-import { isUnresolvedBlockingDefect } from '@/domain/readiness';
-import type {
-  Release,
-  ReleaseReadiness,
-  TestExecution,
-  TestItem,
-  Defect,
-  Risk,
-  Decision,
-} from '@/db/types';
+import type { Release, ReadinessResult } from '@/db/types';
+import type { ReleaseSummary } from '@/adapters/readiness';
 
 export function DashboardPage() {
   const [release, setRelease] = useState<Release | null>(null);
-  const [readiness, setReadiness] = useState<ReleaseReadiness | null>(null);
-  const [testExecutions, setTestExecutions] = useState<TestExecution[]>([]);
-  const [testItems, setTestItems] = useState<TestItem[]>([]);
-  const [defects, setDefects] = useState<Defect[]>([]);
-  const [risks, setRisks] = useState<Risk[]>([]);
-  const [latestDecision, setLatestDecision] = useState<Decision | null>(null);
+  const [readinessResult, setReadinessResult] = useState<ReadinessResult | null>(null);
+  const [summary, setSummary] = useState<ReleaseSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,21 +37,13 @@ export function DashboardPage() {
 
       setRelease(rel);
 
-      const [result, execs, items, defs, rks, decs] = await Promise.all([
+      const [result, snapshot] = await Promise.all([
         calculatePersistedReadiness(rel.id),
-        db.testExecutions.where({ releaseId: rel.id }).toArray(),
-        db.testItems.where({ releaseId: rel.id }).toArray(),
-        db.defects.where({ releaseId: rel.id }).toArray(),
-        db.risks.where({ releaseId: rel.id }).toArray(),
-        db.decisions.where({ releaseId: rel.id }).toArray(),
+        loadReleaseReadinessSnapshot(rel.id),
       ]);
 
-      setReadiness(result.readiness);
-      setTestExecutions(execs);
-      setTestItems(items);
-      setDefects(defs);
-      setRisks(rks);
-      setLatestDecision(decs.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null);
+      setReadinessResult(result);
+      setSummary(calculateReleaseSummaryFromSnapshot(snapshot));
     } catch {
       setError('Failed to load dashboard data.');
     } finally {
@@ -83,16 +67,6 @@ export function DashboardPage() {
     );
   }
 
-  const requiredCount = testItems.filter((ti) => ti.required).length;
-  const passedCount = testExecutions.filter((te) => te.status === 'pass').length;
-  const failedBlockedCount = testExecutions.filter(
-    (te) => te.status === 'fail' || te.status === 'blocked',
-  ).length;
-  const blockingDefectCount = defects.filter(isUnresolvedBlockingDefect).length;
-  const activeRiskCount = risks.filter(
-    (r) => r.status !== 'closed' && r.status !== 'mitigated',
-  ).length;
-
   return (
     <div>
       <h1>Dashboard</h1>
@@ -103,42 +77,42 @@ export function DashboardPage() {
           <p>Version: {release.version}</p>
           <p>Status: {release.status}</p>
 
-          {readiness && (
+          {readinessResult && (
             <div>
-              <ReadinessBadge readiness={readiness} />
+              <ReadinessBadge readiness={readinessResult.readiness} />
             </div>
           )}
         </div>
       )}
 
-      {release && (
+      {release && summary && (
         <div>
           <h3>Test Summary</h3>
-          <p>Required: {requiredCount}</p>
-          <p>Passed: {passedCount}</p>
-          <p>Failed or Blocked: {failedBlockedCount}</p>
+          <p>Required: {summary.requiredTestItemCount}</p>
+          <p>Passed: {summary.passedTestItemCount}</p>
+          <p>Failed or Blocked: {summary.failedOrBlockedTestItemCount}</p>
         </div>
       )}
 
-      {release && (
+      {release && summary && (
         <div>
           <h3>Defect Summary</h3>
-          <p>Unresolved blocking defects: {blockingDefectCount}</p>
+          <p>Unresolved blocking defects: {summary.unresolvedBlockingDefectCount}</p>
         </div>
       )}
 
-      {release && (
+      {release && summary && (
         <div>
           <h3>Risk Summary</h3>
-          <p>Active risks: {activeRiskCount}</p>
+          <p>Active risks: {summary.activeRiskCount}</p>
         </div>
       )}
 
-      {release && latestDecision && (
+      {release && summary?.latestDecision && (
         <div>
           <h3>Latest Decision</h3>
-          <p>Decision: {latestDecision.decision}</p>
-          <p>QA comment: {latestDecision.qaCompletionComment}</p>
+          <p>Decision: {summary.latestDecision.decision}</p>
+          <p>QA comment: {summary.latestDecision.qaCompletionComment}</p>
         </div>
       )}
 

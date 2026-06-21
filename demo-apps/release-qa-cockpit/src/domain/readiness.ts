@@ -63,7 +63,7 @@ function getEffectiveNow(snapshot: ReadinessSnapshot): string | undefined {
   return snapshot.appSettings.demoNow;
 }
 
-function getLatestExecutionForItem(
+export function getLatestExecutionForItem(
   executions: TestExecution[],
   testItemId: string,
 ): TestExecution | undefined {

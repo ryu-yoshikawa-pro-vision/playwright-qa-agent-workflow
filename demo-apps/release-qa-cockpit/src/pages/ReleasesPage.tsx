@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { db } from '@/db/schema';
 import { calculatePersistedReadiness } from '@/adapters/readiness';
 import { ReadinessBadge } from '@/components/ReadinessBadge';
@@ -11,6 +11,7 @@ type ReleaseWithReadiness = {
 };
 
 export function ReleasesPage() {
+  const navigate = useNavigate();
   const [releases, setReleases] = useState<ReleaseWithReadiness[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,9 +45,14 @@ export function ReleasesPage() {
     loadData();
   }, []);
 
-  const handleViewRelease = async (releaseId: string) => {
+  const handleViewRelease = async (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    releaseId: string,
+  ) => {
+    event.preventDefault();
+
     try {
-      await db.transaction('rw', db.sessions, db.activityLogs, async () => {
+      await db.transaction('rw', db.sessions, db.activityLogs, db.users, db.releases, async () => {
         const session = await db.sessions.get('session-default');
         if (!session) return;
 
@@ -70,8 +76,10 @@ export function ReleasesPage() {
           });
         }
       });
-    } catch {
-      // session update failed; navigation still proceeds
+    } catch (error) {
+      console.error('Failed to persist selected release.', error);
+    } finally {
+      navigate(`/releases/${releaseId}`);
     }
   };
 
@@ -109,7 +117,7 @@ export function ReleasesPage() {
           {readiness && <ReadinessBadge readiness={readiness} />}
           <Link
             to={`/releases/${release.id}`}
-            onClick={() => handleViewRelease(release.id)}
+            onClick={(event) => handleViewRelease(event, release.id)}
             aria-label={`View release ${release.name}`}
           >
             View release
