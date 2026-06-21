@@ -3,6 +3,8 @@ import { Layout } from '@/components/Layout';
 import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { DemoControlsPage } from '@/pages/DemoControlsPage';
+import { ReleasesPage } from '@/pages/ReleasesPage';
+import { ReleaseOverviewPage } from '@/pages/ReleaseOverviewPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
 
 export function App() {
@@ -12,8 +14,8 @@ export function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route element={<Layout />}>
           <Route path="/" element={<DashboardPage />} />
-          <Route path="/releases" element={<PlaceholderPage />} />
-          <Route path="/releases/:releaseId" element={<PlaceholderPage />} />
+          <Route path="/releases" element={<ReleasesPage />} />
+          <Route path="/releases/:releaseId" element={<ReleaseOverviewPage />} />
           <Route path="/releases/:releaseId/tests" element={<PlaceholderPage />} />
           <Route path="/releases/:releaseId/defects" element={<PlaceholderPage />} />
           <Route path="/releases/:releaseId/risks" element={<PlaceholderPage />} />

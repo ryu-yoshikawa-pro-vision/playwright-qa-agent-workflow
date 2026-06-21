@@ -1,10 +1,35 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { db } from '../../src/db/schema';
+import type { ReadinessSnapshot } from '../../src/db/types';
 import {
   calculatePersistedReadiness,
   calculateReadinessPreview,
+  calculateReleaseSummaryFromReadinessSnapshot,
 } from '../../src/adapters/readiness';
 import { clearDb, seedDb } from './helpers';
+
+const EMPTY_SNAPSHOT_BASE: Omit<
+  ReadinessSnapshot,
+  'testItems' | 'testExecutions' | 'defects' | 'risks' | 'decisions'
+> = {
+  release: {
+    id: 'test-rel',
+    name: 'Test Release',
+    version: '1.0.0',
+    status: 'inQa',
+    plannedStartDate: '2026-06-01T00:00:00.000Z',
+    plannedEndDate: '2026-06-30T23:59:59.000Z',
+    createdAt: '',
+    updatedAt: '',
+  },
+  evidenceItems: [],
+  appSettings: {
+    id: 'app-settings',
+    demoMode: false,
+    schemaVersion: 1,
+    updatedAt: '',
+  },
+};
 
 beforeEach(async () => {
   await clearDb();
@@ -266,5 +291,492 @@ describe('loadSnapshot fallback', () => {
 
     const result = await calculatePersistedReadiness('rel-weekly-2026-06');
     expect(result.warningConditions.some((c) => c.id.startsWith('qa-period-overdue:'))).toBe(true);
+  });
+});
+
+describe('calculateReleaseSummaryFromReadinessSnapshot', () => {
+  it('counts only the latest execution per test item (old fail + latest pass = pass)', () => {
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [
+        {
+          id: 'ti-1',
+          releaseId: 'test-rel',
+          title: 'Test recording',
+          area: 'Recording',
+          priority: 'high',
+          required: true,
+          expectedBehavior: 'Works',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+      testExecutions: [
+        {
+          id: 'exec-old',
+          releaseId: 'test-rel',
+          testItemId: 'ti-1',
+          status: 'fail',
+          updatedAt: '2026-06-01T00:00:00.000Z',
+        },
+        {
+          id: 'exec-latest',
+          releaseId: 'test-rel',
+          testItemId: 'ti-1',
+          status: 'pass',
+          completedAt: '2026-06-02T00:00:00.000Z',
+          updatedAt: '2026-06-02T00:00:00.000Z',
+        },
+      ],
+      defects: [],
+      risks: [],
+      decisions: [],
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    expect(result.passedTestItemCount).toBe(1);
+    expect(result.failedOrBlockedTestItemCount).toBe(0);
+    expect(result.missingRequiredTestItemCount).toBe(0);
+    expect(result.notCompletedTestItemCount).toBe(0);
+  });
+
+  it('counts required test items without executions as missing', () => {
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [
+        {
+          id: 'ti-missing',
+          releaseId: 'test-rel',
+          title: 'Missing test',
+          area: 'Test',
+          priority: 'high',
+          required: true,
+          expectedBehavior: 'Should exist',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+      testExecutions: [],
+      defects: [],
+      risks: [],
+      decisions: [],
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    expect(result.missingRequiredTestItemCount).toBe(1);
+    expect(result.passedTestItemCount).toBe(0);
+    expect(result.failedOrBlockedTestItemCount).toBe(0);
+    expect(result.notCompletedTestItemCount).toBe(0);
+    expect(result.requiredTestItemCount).toBe(1);
+  });
+
+  it('counts unresolved blocking defects only', () => {
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [],
+      testExecutions: [],
+      defects: [
+        {
+          id: 'def-open',
+          releaseId: 'test-rel',
+          title: 'Open critical defect',
+          description: '',
+          severity: 'critical',
+          status: 'open',
+          impactsReleaseDecision: true,
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 'def-closed',
+          releaseId: 'test-rel',
+          title: 'Closed defect',
+          description: '',
+          severity: 'high',
+          status: 'closed',
+          impactsReleaseDecision: true,
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 'def-low-no-impact',
+          releaseId: 'test-rel',
+          title: 'Low non-impacting',
+          description: '',
+          severity: 'low',
+          status: 'open',
+          impactsReleaseDecision: false,
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+      risks: [],
+      decisions: [],
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    expect(result.unresolvedBlockingDefectCount).toBe(1);
+  });
+
+  it('excludes closed and mitigated risks from active risk count', () => {
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [],
+      testExecutions: [],
+      defects: [],
+      risks: [
+        {
+          id: 'risk-open',
+          releaseId: 'test-rel',
+          title: 'Open risk',
+          description: '',
+          impact: 'high',
+          status: 'draft',
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 'risk-closed',
+          releaseId: 'test-rel',
+          title: 'Closed risk',
+          description: '',
+          impact: 'medium',
+          status: 'closed',
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 'risk-mitigated',
+          releaseId: 'test-rel',
+          title: 'Mitigated risk',
+          description: '',
+          impact: 'low',
+          status: 'mitigated',
+          mitigationNote: 'Done',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+      decisions: [],
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    expect(result.activeRiskCount).toBe(1);
+  });
+
+  it('returns the latest decision by createdAt without mutating the original array', () => {
+    const decisions = [
+      {
+        id: 'dec-old',
+        releaseId: 'test-rel',
+        decision: 'notReady' as const,
+        qaCompletionComment: 'Old decision',
+        decisionComment: 'Not ready',
+        readinessSnapshot: {
+          readiness: 'notReady' as const,
+          unmetConditions: [],
+          warningConditions: [],
+        },
+        decidedByUserId: 'user-1',
+        createdAt: '2026-06-01T00:00:00.000Z',
+      },
+      {
+        id: 'dec-latest',
+        releaseId: 'test-rel',
+        decision: 'ready' as const,
+        qaCompletionComment: 'Latest decision',
+        decisionComment: 'All good',
+        readinessSnapshot: {
+          readiness: 'ready' as const,
+          unmetConditions: [],
+          warningConditions: [],
+        },
+        decidedByUserId: 'user-2',
+        createdAt: '2026-06-15T00:00:00.000Z',
+      },
+    ];
+
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [],
+      testExecutions: [],
+      defects: [],
+      risks: [],
+      decisions,
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    expect(result.latestDecision?.id).toBe('dec-latest');
+    expect(result.latestDecision?.decision).toBe('ready');
+
+    expect(decisions[0].id).toBe('dec-old');
+    expect(decisions[1].id).toBe('dec-latest');
+  });
+
+  it('returns null for latestDecision when decisions array is empty', () => {
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [],
+      testExecutions: [],
+      defects: [],
+      risks: [],
+      decisions: [],
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    expect(result.latestDecision).toBeNull();
+  });
+
+  it('counts notStarted required items as not completed', () => {
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [
+        {
+          id: 'ti-notstarted',
+          releaseId: 'test-rel',
+          title: 'Not started test',
+          area: 'Test',
+          priority: 'high',
+          required: true,
+          expectedBehavior: 'Should start',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+      testExecutions: [
+        {
+          id: 'exec-notstarted',
+          releaseId: 'test-rel',
+          testItemId: 'ti-notstarted',
+          status: 'notStarted',
+          updatedAt: '2026-06-01T00:00:00.000Z',
+        },
+      ],
+      defects: [],
+      risks: [],
+      decisions: [],
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    expect(result.notCompletedTestItemCount).toBe(1);
+    expect(result.passedTestItemCount).toBe(0);
+    expect(result.failedOrBlockedTestItemCount).toBe(0);
+    expect(result.missingRequiredTestItemCount).toBe(0);
+  });
+
+  it('counts inProgress required items as not completed', () => {
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [
+        {
+          id: 'ti-inprogress',
+          releaseId: 'test-rel',
+          title: 'In progress test',
+          area: 'Test',
+          priority: 'high',
+          required: true,
+          expectedBehavior: 'Is running',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+      testExecutions: [
+        {
+          id: 'exec-inprogress',
+          releaseId: 'test-rel',
+          testItemId: 'ti-inprogress',
+          status: 'inProgress',
+          updatedAt: '2026-06-01T00:00:00.000Z',
+        },
+      ],
+      defects: [],
+      risks: [],
+      decisions: [],
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    expect(result.notCompletedTestItemCount).toBe(1);
+    expect(result.passedTestItemCount).toBe(0);
+    expect(result.failedOrBlockedTestItemCount).toBe(0);
+    expect(result.missingRequiredTestItemCount).toBe(0);
+  });
+
+  it('counts retest required items as not completed', () => {
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [
+        {
+          id: 'ti-retest',
+          releaseId: 'test-rel',
+          title: 'Retest item',
+          area: 'Test',
+          priority: 'high',
+          required: true,
+          expectedBehavior: 'Retest',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+      testExecutions: [
+        {
+          id: 'exec-retest',
+          releaseId: 'test-rel',
+          testItemId: 'ti-retest',
+          status: 'retest',
+          updatedAt: '2026-06-01T00:00:00.000Z',
+        },
+      ],
+      defects: [],
+      risks: [],
+      decisions: [],
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    expect(result.notCompletedTestItemCount).toBe(1);
+    expect(result.passedTestItemCount).toBe(0);
+    expect(result.failedOrBlockedTestItemCount).toBe(0);
+    expect(result.missingRequiredTestItemCount).toBe(0);
+  });
+
+  it('counts skipped required items as not completed in release summary', () => {
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [
+        {
+          id: 'ti-skipped',
+          releaseId: 'test-rel',
+          title: 'Skipped test',
+          area: 'Test',
+          priority: 'high',
+          required: true,
+          expectedBehavior: 'Should be done',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+      testExecutions: [
+        {
+          id: 'exec-skipped',
+          releaseId: 'test-rel',
+          testItemId: 'ti-skipped',
+          status: 'skipped',
+          skipReason: 'Not needed',
+          updatedAt: '2026-06-01T00:00:00.000Z',
+        },
+      ],
+      defects: [],
+      risks: [],
+      decisions: [],
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    expect(result.notCompletedTestItemCount).toBe(1);
+    expect(result.passedTestItemCount).toBe(0);
+    expect(result.failedOrBlockedTestItemCount).toBe(0);
+    expect(result.missingRequiredTestItemCount).toBe(0);
+  });
+
+  it('keeps required summary counts exhaustive', () => {
+    const snapshot: ReadinessSnapshot = {
+      ...EMPTY_SNAPSHOT_BASE,
+      testItems: [
+        {
+          id: 'ti-pass',
+          releaseId: 'test-rel',
+          title: 'Pass test',
+          area: 'A',
+          priority: 'high',
+          required: true,
+          expectedBehavior: '',
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 'ti-fail',
+          releaseId: 'test-rel',
+          title: 'Fail test',
+          area: 'A',
+          priority: 'high',
+          required: true,
+          expectedBehavior: '',
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 'ti-blocked',
+          releaseId: 'test-rel',
+          title: 'Blocked test',
+          area: 'A',
+          priority: 'high',
+          required: true,
+          expectedBehavior: '',
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 'ti-missing',
+          releaseId: 'test-rel',
+          title: 'Missing test',
+          area: 'A',
+          priority: 'high',
+          required: true,
+          expectedBehavior: '',
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 'ti-notstarted',
+          releaseId: 'test-rel',
+          title: 'Not started test',
+          area: 'A',
+          priority: 'high',
+          required: true,
+          expectedBehavior: '',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+      testExecutions: [
+        {
+          id: 'exec-pass',
+          releaseId: 'test-rel',
+          testItemId: 'ti-pass',
+          status: 'pass',
+          updatedAt: '',
+        },
+        {
+          id: 'exec-fail',
+          releaseId: 'test-rel',
+          testItemId: 'ti-fail',
+          status: 'fail',
+          updatedAt: '',
+        },
+        {
+          id: 'exec-blocked',
+          releaseId: 'test-rel',
+          testItemId: 'ti-blocked',
+          status: 'blocked',
+          updatedAt: '',
+        },
+        {
+          id: 'exec-notstarted',
+          releaseId: 'test-rel',
+          testItemId: 'ti-notstarted',
+          status: 'notStarted',
+          updatedAt: '',
+        },
+      ],
+      defects: [],
+      risks: [],
+      decisions: [],
+    };
+
+    const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+    const sum =
+      result.passedTestItemCount +
+      result.failedOrBlockedTestItemCount +
+      result.missingRequiredTestItemCount +
+      result.notCompletedTestItemCount;
+    expect(result.requiredTestItemCount).toBe(sum);
   });
 });

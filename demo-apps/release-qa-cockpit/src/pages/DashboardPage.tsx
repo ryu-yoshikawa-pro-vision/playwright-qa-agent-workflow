@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '@/db/schema';
-import { calculatePersistedReadiness } from '@/adapters/readiness';
+import {
+  loadReadinessSnapshot,
+  calculateReleaseSummaryFromReadinessSnapshot,
+} from '@/adapters/readiness';
+import { calculateReadinessFromSnapshot } from '@/domain/readiness';
 import { ReadinessBadge } from '@/components/ReadinessBadge';
-import type { Release, ReleaseReadiness } from '@/db/types';
+import type { Release, ReadinessResult } from '@/db/types';
+import type { ReleaseSummary } from '@/adapters/readiness';
 
 export function DashboardPage() {
   const [release, setRelease] = useState<Release | null>(null);
-  const [readiness, setReadiness] = useState<ReleaseReadiness | null>(null);
+  const [readinessResult, setReadinessResult] = useState<ReadinessResult | null>(null);
+  const [summary, setSummary] = useState<ReleaseSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,16 +28,13 @@ export function DashboardPage() {
         return;
       }
 
-      const rel = await db.releases.get(session.currentReleaseId);
-      if (!rel) {
-        setError('Release not found.');
-        setLoading(false);
-        return;
-      }
+      const snapshot = await loadReadinessSnapshot(session.currentReleaseId);
+      const readinessResult = calculateReadinessFromSnapshot(snapshot);
+      const summary = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
 
-      setRelease(rel);
-      const result = await calculatePersistedReadiness(rel.id);
-      setReadiness(result.readiness);
+      setRelease(snapshot.release);
+      setReadinessResult(readinessResult);
+      setSummary(summary);
     } catch {
       setError('Failed to load dashboard data.');
     } finally {
@@ -65,11 +68,44 @@ export function DashboardPage() {
           <p>Version: {release.version}</p>
           <p>Status: {release.status}</p>
 
-          {readiness && (
+          {readinessResult && (
             <div>
-              <ReadinessBadge readiness={readiness} />
+              <ReadinessBadge readiness={readinessResult.readiness} />
             </div>
           )}
+        </div>
+      )}
+
+      {release && summary && (
+        <div>
+          <h3>Test Summary</h3>
+          <p>Required: {summary.requiredTestItemCount}</p>
+          <p>Passed: {summary.passedTestItemCount}</p>
+          <p>Failed or Blocked: {summary.failedOrBlockedTestItemCount}</p>
+          <p>Missing: {summary.missingRequiredTestItemCount}</p>
+          <p>Not completed: {summary.notCompletedTestItemCount}</p>
+        </div>
+      )}
+
+      {release && summary && (
+        <div>
+          <h3>Defect Summary</h3>
+          <p>Unresolved blocking defects: {summary.unresolvedBlockingDefectCount}</p>
+        </div>
+      )}
+
+      {release && summary && (
+        <div>
+          <h3>Risk Summary</h3>
+          <p>Active risks: {summary.activeRiskCount}</p>
+        </div>
+      )}
+
+      {release && summary?.latestDecision && (
+        <div>
+          <h3>Latest Decision</h3>
+          <p>Decision: {summary.latestDecision.decision}</p>
+          <p>QA comment: {summary.latestDecision.qaCompletionComment}</p>
         </div>
       )}
 

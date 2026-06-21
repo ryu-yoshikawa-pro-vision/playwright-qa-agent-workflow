@@ -38,7 +38,7 @@ const isAfter = (left: string | undefined | null, right: string | undefined | nu
   return leftTime > rightTime;
 };
 
-function isUnresolvedBlockingDefect(defect: Defect): boolean {
+export function isUnresolvedBlockingDefect(defect: Defect): boolean {
   const statusBlocking = (unresolvedBlockingDefectStatuses as readonly string[]).includes(
     defect.status,
   );
@@ -63,7 +63,7 @@ function getEffectiveNow(snapshot: ReadinessSnapshot): string | undefined {
   return snapshot.appSettings.demoNow;
 }
 
-function getLatestExecutionForItem(
+export function getLatestExecutionForItem(
   executions: TestExecution[],
   testItemId: string,
 ): TestExecution | undefined {
