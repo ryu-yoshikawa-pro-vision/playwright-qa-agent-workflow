@@ -1,13 +1,4 @@
-import type {
-  ReadinessResult,
-  ReadinessSnapshot,
-  ReadinessDraftInput,
-  TestItem,
-  TestExecution,
-  Defect,
-  Risk,
-  Decision,
-} from '@/db/types';
+import type { ReadinessResult, ReadinessSnapshot, ReadinessDraftInput, Decision } from '@/db/types';
 import { db } from '@/db/schema';
 import {
   calculateReadinessFromSnapshot,
@@ -28,8 +19,41 @@ const FALLBACK_APP_SETTINGS = {
   updatedAt: new Date().toISOString(),
 };
 
+export async function loadReadinessSnapshot(releaseId: string): Promise<ReadinessSnapshot> {
+  const release = await db.releases.get(releaseId);
+  if (!release) {
+    throw new Error(`Release not found: ${releaseId}`);
+  }
+
+  const [testItems, testExecutions, defects, risks, decisions, evidenceItems, appSettings] =
+    await Promise.all([
+      db.testItems.where({ releaseId }).toArray(),
+      db.testExecutions.where({ releaseId }).toArray(),
+      db.defects.where({ releaseId }).toArray(),
+      db.risks.where({ releaseId }).toArray(),
+      db.decisions.where({ releaseId }).toArray(),
+      db.evidenceItems.where({ releaseId }).toArray(),
+      db.appSettings.get('app-settings'),
+    ]);
+
+  return {
+    release,
+    testItems,
+    testExecutions,
+    defects,
+    risks,
+    decisions,
+    evidenceItems,
+    appSettings: {
+      ...FALLBACK_APP_SETTINGS,
+      ...appSettings,
+      demoNow: resolveDemoNow(appSettings?.demoNow),
+    },
+  };
+}
+
 export async function calculatePersistedReadiness(releaseId: string): Promise<ReadinessResult> {
-  const snapshot = await loadSnapshot(releaseId);
+  const snapshot = await loadReadinessSnapshot(releaseId);
   return calculateReadinessFromSnapshot(snapshot);
 }
 
@@ -37,18 +61,9 @@ export async function calculateReadinessPreview(
   releaseId: string,
   draftInput: ReadinessDraftInput,
 ): Promise<ReadinessResult> {
-  const snapshot = await loadSnapshot(releaseId);
+  const snapshot = await loadReadinessSnapshot(releaseId);
   return calculateReadinessFromSnapshot(snapshot, draftInput);
 }
-
-export type ReleaseReadinessSnapshot = {
-  releaseId: string;
-  testItems: TestItem[];
-  testExecutions: TestExecution[];
-  defects: Defect[];
-  risks: Risk[];
-  decisions: Decision[];
-};
 
 export type ReleaseSummary = {
   requiredTestItemCount: number;
@@ -60,21 +75,8 @@ export type ReleaseSummary = {
   latestDecision: Decision | null;
 };
 
-export async function loadReleaseReadinessSnapshot(
-  releaseId: string,
-): Promise<ReleaseReadinessSnapshot> {
-  const [testItems, testExecutions, defects, risks, decisions] = await Promise.all([
-    db.testItems.where({ releaseId }).toArray(),
-    db.testExecutions.where({ releaseId }).toArray(),
-    db.defects.where({ releaseId }).toArray(),
-    db.risks.where({ releaseId }).toArray(),
-    db.decisions.where({ releaseId }).toArray(),
-  ]);
-  return { releaseId, testItems, testExecutions, defects, risks, decisions };
-}
-
-export function calculateReleaseSummaryFromSnapshot(
-  snapshot: ReleaseReadinessSnapshot,
+export function calculateReleaseSummaryFromReadinessSnapshot(
+  snapshot: ReadinessSnapshot,
 ): ReleaseSummary {
   const { testItems, testExecutions, defects, risks, decisions } = snapshot;
 
@@ -112,38 +114,5 @@ export function calculateReleaseSummaryFromSnapshot(
     unresolvedBlockingDefectCount,
     activeRiskCount,
     latestDecision,
-  };
-}
-
-async function loadSnapshot(releaseId: string): Promise<ReadinessSnapshot> {
-  const release = await db.releases.get(releaseId);
-  if (!release) {
-    throw new Error(`Release not found: ${releaseId}`);
-  }
-
-  const [testItems, testExecutions, defects, risks, decisions, evidenceItems, appSettings] =
-    await Promise.all([
-      db.testItems.where({ releaseId }).toArray(),
-      db.testExecutions.where({ releaseId }).toArray(),
-      db.defects.where({ releaseId }).toArray(),
-      db.risks.where({ releaseId }).toArray(),
-      db.decisions.where({ releaseId }).toArray(),
-      db.evidenceItems.where({ releaseId }).toArray(),
-      db.appSettings.get('app-settings'),
-    ]);
-
-  return {
-    release,
-    testItems,
-    testExecutions,
-    defects,
-    risks,
-    decisions,
-    evidenceItems,
-    appSettings: {
-      ...FALLBACK_APP_SETTINGS,
-      ...appSettings,
-      demoNow: resolveDemoNow(appSettings?.demoNow),
-    },
   };
 }

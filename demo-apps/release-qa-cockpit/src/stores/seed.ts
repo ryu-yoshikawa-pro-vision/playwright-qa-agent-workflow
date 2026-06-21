@@ -88,6 +88,16 @@ export function getSeedData(): SeedData {
         createdAt: FIXED_TIME,
         updatedAt: FIXED_TIME,
       },
+      {
+        id: 'rel-hotfix-2026-06',
+        name: 'Hotfix Release 2026-06',
+        version: '2026.06-hotfix',
+        status: 'inQa',
+        plannedStartDate: '2026-06-15T00:00:00.000Z',
+        plannedEndDate: '2026-06-16T23:59:59.000Z',
+        createdAt: FIXED_TIME,
+        updatedAt: FIXED_TIME,
+      },
     ],
     releaseScopes: [
       {

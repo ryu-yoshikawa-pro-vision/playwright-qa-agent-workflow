@@ -56,10 +56,10 @@ test.describe('PR-3 core release screens', () => {
     await expect(page.getByLabel('Readiness: Not Ready')).toBeVisible();
 
     await page.getByRole('link', { name: 'Releases' }).click();
-    await expect(page.getByLabel('Readiness: Not Ready')).toBeVisible();
+    await expect(page.getByLabel('Readiness: Not Ready').first()).toBeVisible();
 
     await page.getByRole('link', { name: 'View release Weekly Release 2026-06' }).click();
-    await expect(page.getByLabel('Readiness: Not Ready')).toBeVisible();
+    await expect(page.getByLabel('Readiness: Not Ready').first()).toBeVisible();
   });
 
   test('E2E-004: Release Overview shows readiness conditions and operational links', async ({
@@ -85,7 +85,9 @@ test.describe('PR-3 core release screens', () => {
     await expect(page.getByText('Active risks: 1')).toBeVisible();
   });
 
-  test('E2E-005: selecting a release updates the active dashboard release', async ({ page }) => {
+  test('E2E-005: selecting a different release updates the active dashboard release', async ({
+    page,
+  }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Weekly Release 2026-06' })).toBeVisible();
@@ -93,12 +95,12 @@ test.describe('PR-3 core release screens', () => {
     await page.getByRole('link', { name: 'Releases' }).click();
     await expect(page.getByRole('heading', { name: 'Releases' })).toBeVisible();
 
-    await page.getByRole('link', { name: 'View release Weekly Release 2026-06' }).click();
-    await expect(page.getByRole('heading', { name: 'Weekly Release 2026-06' })).toBeVisible();
+    await page.getByRole('link', { name: 'View release Hotfix Release 2026-06' }).click();
+    await expect(page.getByRole('heading', { name: 'Hotfix Release 2026-06' })).toBeVisible();
 
     await page.getByRole('link', { name: 'Dashboard' }).click();
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Weekly Release 2026-06' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Hotfix Release 2026-06' })).toBeVisible();
     await expect(page.getByLabel('Readiness: Not Ready')).toBeVisible();
   });
 });

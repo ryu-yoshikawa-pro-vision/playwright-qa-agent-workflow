@@ -1,12 +1,35 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { db } from '../../src/db/schema';
+import type { ReadinessSnapshot } from '../../src/db/types';
 import {
   calculatePersistedReadiness,
   calculateReadinessPreview,
-  calculateReleaseSummaryFromSnapshot,
+  calculateReleaseSummaryFromReadinessSnapshot,
 } from '../../src/adapters/readiness';
-import type { ReleaseReadinessSnapshot } from '../../src/adapters/readiness';
 import { clearDb, seedDb } from './helpers';
+
+const EMPTY_SNAPSHOT_BASE: Omit<
+  ReadinessSnapshot,
+  'testItems' | 'testExecutions' | 'defects' | 'risks' | 'decisions'
+> = {
+  release: {
+    id: 'test-rel',
+    name: 'Test Release',
+    version: '1.0.0',
+    status: 'inQa',
+    plannedStartDate: '2026-06-01T00:00:00.000Z',
+    plannedEndDate: '2026-06-30T23:59:59.000Z',
+    createdAt: '',
+    updatedAt: '',
+  },
+  evidenceItems: [],
+  appSettings: {
+    id: 'app-settings',
+    demoMode: false,
+    schemaVersion: 1,
+    updatedAt: '',
+  },
+};
 
 beforeEach(async () => {
   await clearDb();
@@ -232,10 +255,10 @@ describe('loadSnapshot fallback', () => {
     expect(result.warningConditions.some((c) => c.id.startsWith('qa-period-overdue:'))).toBe(true);
   });
 
-  describe('calculateReleaseSummaryFromSnapshot', () => {
+  describe('calculateReleaseSummaryFromReadinessSnapshot', () => {
     it('counts only the latest execution per test item (old fail + latest pass = pass)', () => {
-      const snapshot: ReleaseReadinessSnapshot = {
-        releaseId: 'test-rel',
+      const snapshot: ReadinessSnapshot = {
+        ...EMPTY_SNAPSHOT_BASE,
         testItems: [
           {
             id: 'ti-1',
@@ -271,15 +294,15 @@ describe('loadSnapshot fallback', () => {
         decisions: [],
       };
 
-      const result = calculateReleaseSummaryFromSnapshot(snapshot);
+      const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
       expect(result.passedTestItemCount).toBe(1);
       expect(result.failedOrBlockedTestItemCount).toBe(0);
       expect(result.missingRequiredTestItemCount).toBe(0);
     });
 
     it('counts required test items without executions as missing', () => {
-      const snapshot: ReleaseReadinessSnapshot = {
-        releaseId: 'test-rel',
+      const snapshot: ReadinessSnapshot = {
+        ...EMPTY_SNAPSHOT_BASE,
         testItems: [
           {
             id: 'ti-missing',
@@ -299,7 +322,7 @@ describe('loadSnapshot fallback', () => {
         decisions: [],
       };
 
-      const result = calculateReleaseSummaryFromSnapshot(snapshot);
+      const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
       expect(result.missingRequiredTestItemCount).toBe(1);
       expect(result.passedTestItemCount).toBe(0);
       expect(result.failedOrBlockedTestItemCount).toBe(0);
@@ -307,8 +330,8 @@ describe('loadSnapshot fallback', () => {
     });
 
     it('counts unresolved blocking defects only', () => {
-      const snapshot: ReleaseReadinessSnapshot = {
-        releaseId: 'test-rel',
+      const snapshot: ReadinessSnapshot = {
+        ...EMPTY_SNAPSHOT_BASE,
         testItems: [],
         testExecutions: [],
         defects: [
@@ -350,13 +373,13 @@ describe('loadSnapshot fallback', () => {
         decisions: [],
       };
 
-      const result = calculateReleaseSummaryFromSnapshot(snapshot);
+      const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
       expect(result.unresolvedBlockingDefectCount).toBe(1);
     });
 
     it('excludes closed and mitigated risks from active risk count', () => {
-      const snapshot: ReleaseReadinessSnapshot = {
-        releaseId: 'test-rel',
+      const snapshot: ReadinessSnapshot = {
+        ...EMPTY_SNAPSHOT_BASE,
         testItems: [],
         testExecutions: [],
         defects: [],
@@ -396,7 +419,7 @@ describe('loadSnapshot fallback', () => {
         decisions: [],
       };
 
-      const result = calculateReleaseSummaryFromSnapshot(snapshot);
+      const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
       expect(result.activeRiskCount).toBe(1);
     });
 
@@ -432,8 +455,8 @@ describe('loadSnapshot fallback', () => {
         },
       ];
 
-      const snapshot: ReleaseReadinessSnapshot = {
-        releaseId: 'test-rel',
+      const snapshot: ReadinessSnapshot = {
+        ...EMPTY_SNAPSHOT_BASE,
         testItems: [],
         testExecutions: [],
         defects: [],
@@ -441,7 +464,7 @@ describe('loadSnapshot fallback', () => {
         decisions,
       };
 
-      const result = calculateReleaseSummaryFromSnapshot(snapshot);
+      const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
       expect(result.latestDecision?.id).toBe('dec-latest');
       expect(result.latestDecision?.decision).toBe('ready');
 
@@ -450,8 +473,8 @@ describe('loadSnapshot fallback', () => {
     });
 
     it('returns null for latestDecision when decisions array is empty', () => {
-      const snapshot: ReleaseReadinessSnapshot = {
-        releaseId: 'test-rel',
+      const snapshot: ReadinessSnapshot = {
+        ...EMPTY_SNAPSHOT_BASE,
         testItems: [],
         testExecutions: [],
         defects: [],
@@ -459,7 +482,7 @@ describe('loadSnapshot fallback', () => {
         decisions: [],
       };
 
-      const result = calculateReleaseSummaryFromSnapshot(snapshot);
+      const result = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
       expect(result.latestDecision).toBeNull();
     });
   });

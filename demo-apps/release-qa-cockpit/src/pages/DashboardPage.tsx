@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '@/db/schema';
 import {
-  calculatePersistedReadiness,
-  loadReleaseReadinessSnapshot,
-  calculateReleaseSummaryFromSnapshot,
+  loadReadinessSnapshot,
+  calculateReleaseSummaryFromReadinessSnapshot,
 } from '@/adapters/readiness';
+import { calculateReadinessFromSnapshot } from '@/domain/readiness';
 import { ReadinessBadge } from '@/components/ReadinessBadge';
 import type { Release, ReadinessResult } from '@/db/types';
 import type { ReleaseSummary } from '@/adapters/readiness';
@@ -28,22 +28,13 @@ export function DashboardPage() {
         return;
       }
 
-      const rel = await db.releases.get(session.currentReleaseId);
-      if (!rel) {
-        setError('Release not found.');
-        setLoading(false);
-        return;
-      }
+      const snapshot = await loadReadinessSnapshot(session.currentReleaseId);
+      const readinessResult = calculateReadinessFromSnapshot(snapshot);
+      const summary = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
 
-      setRelease(rel);
-
-      const [result, snapshot] = await Promise.all([
-        calculatePersistedReadiness(rel.id),
-        loadReleaseReadinessSnapshot(rel.id),
-      ]);
-
-      setReadinessResult(result);
-      setSummary(calculateReleaseSummaryFromSnapshot(snapshot));
+      setRelease(snapshot.release);
+      setReadinessResult(readinessResult);
+      setSummary(summary);
     } catch {
       setError('Failed to load dashboard data.');
     } finally {

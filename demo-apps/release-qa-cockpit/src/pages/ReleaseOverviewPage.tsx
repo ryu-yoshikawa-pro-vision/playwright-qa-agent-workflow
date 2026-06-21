@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { db } from '@/db/schema';
 import {
-  calculatePersistedReadiness,
-  loadReleaseReadinessSnapshot,
-  calculateReleaseSummaryFromSnapshot,
+  loadReadinessSnapshot,
+  calculateReleaseSummaryFromReadinessSnapshot,
 } from '@/adapters/readiness';
+import { calculateReadinessFromSnapshot } from '@/domain/readiness';
 import { ReadinessBadge } from '@/components/ReadinessBadge';
 import type { Release, ReleaseScope, ReadinessResult } from '@/db/types';
 import type { ReleaseSummary } from '@/adapters/readiness';
@@ -29,22 +29,17 @@ export function ReleaseOverviewPage() {
     setLoading(true);
     setError(null);
     try {
-      const rel = await db.releases.get(releaseId);
-      if (!rel) {
-        setError('Release not found.');
-        setLoading(false);
-        return;
-      }
-
-      const [result, snapshot, relScopes] = await Promise.all([
-        calculatePersistedReadiness(releaseId),
-        loadReleaseReadinessSnapshot(releaseId),
+      const [snapshot, relScopes] = await Promise.all([
+        loadReadinessSnapshot(releaseId),
         db.releaseScopes.where({ releaseId }).toArray(),
       ]);
 
-      setRelease(rel);
-      setReadinessResult(result);
-      setSummary(calculateReleaseSummaryFromSnapshot(snapshot));
+      const readinessResult = calculateReadinessFromSnapshot(snapshot);
+      const summary = calculateReleaseSummaryFromReadinessSnapshot(snapshot);
+
+      setRelease(snapshot.release);
+      setReadinessResult(readinessResult);
+      setSummary(summary);
       setScopes(relScopes.filter((s) => s.inScope));
     } catch {
       setError('Failed to load release overview.');
