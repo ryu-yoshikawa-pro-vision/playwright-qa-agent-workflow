@@ -45,10 +45,17 @@ export function ReleasesPage() {
     loadData();
   }, []);
 
+  const shouldUseBrowserDefaultNavigation = (event: React.MouseEvent<HTMLAnchorElement>): boolean =>
+    event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+
   const handleViewRelease = async (
     event: React.MouseEvent<HTMLAnchorElement>,
     releaseId: string,
   ) => {
+    if (shouldUseBrowserDefaultNavigation(event)) {
+      return;
+    }
+
     event.preventDefault();
 
     try {

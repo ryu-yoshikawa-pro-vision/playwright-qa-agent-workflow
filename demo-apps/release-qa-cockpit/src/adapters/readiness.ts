@@ -70,6 +70,7 @@ export type ReleaseSummary = {
   passedTestItemCount: number;
   failedOrBlockedTestItemCount: number;
   missingRequiredTestItemCount: number;
+  notCompletedTestItemCount: number;
   unresolvedBlockingDefectCount: number;
   activeRiskCount: number;
   latestDecision: Decision | null;
@@ -85,6 +86,7 @@ export function calculateReleaseSummaryFromReadinessSnapshot(
   let passedTestItemCount = 0;
   let failedOrBlockedTestItemCount = 0;
   let missingRequiredTestItemCount = 0;
+  let notCompletedTestItemCount = 0;
 
   for (const item of requiredItems) {
     const latest = getLatestExecutionForItem(testExecutions, item.id);
@@ -94,6 +96,8 @@ export function calculateReleaseSummaryFromReadinessSnapshot(
       passedTestItemCount++;
     } else if (latest.status === 'fail' || latest.status === 'blocked') {
       failedOrBlockedTestItemCount++;
+    } else {
+      notCompletedTestItemCount++;
     }
   }
 
@@ -111,6 +115,7 @@ export function calculateReleaseSummaryFromReadinessSnapshot(
     passedTestItemCount,
     failedOrBlockedTestItemCount,
     missingRequiredTestItemCount,
+    notCompletedTestItemCount,
     unresolvedBlockingDefectCount,
     activeRiskCount,
     latestDecision,

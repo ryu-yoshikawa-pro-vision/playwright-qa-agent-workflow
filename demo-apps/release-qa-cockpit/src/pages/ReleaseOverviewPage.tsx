@@ -124,6 +124,8 @@ export function ReleaseOverviewPage() {
           <p>Required: {summary.requiredTestItemCount}</p>
           <p>Passed: {summary.passedTestItemCount}</p>
           <p>Failed or Blocked: {summary.failedOrBlockedTestItemCount}</p>
+          <p>Missing: {summary.missingRequiredTestItemCount}</p>
+          <p>Not completed: {summary.notCompletedTestItemCount}</p>
         </div>
       )}
 
