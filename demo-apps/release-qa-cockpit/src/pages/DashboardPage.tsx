@@ -3,11 +3,25 @@ import { Link } from 'react-router-dom';
 import { db } from '@/db/schema';
 import { calculatePersistedReadiness } from '@/adapters/readiness';
 import { ReadinessBadge } from '@/components/ReadinessBadge';
-import type { Release, ReleaseReadiness } from '@/db/types';
+import { unresolvedBlockingDefectStatuses } from '@/db/types';
+import type {
+  Release,
+  ReleaseReadiness,
+  TestExecution,
+  TestItem,
+  Defect,
+  Risk,
+  Decision,
+} from '@/db/types';
 
 export function DashboardPage() {
   const [release, setRelease] = useState<Release | null>(null);
   const [readiness, setReadiness] = useState<ReleaseReadiness | null>(null);
+  const [testExecutions, setTestExecutions] = useState<TestExecution[]>([]);
+  const [testItems, setTestItems] = useState<TestItem[]>([]);
+  const [defects, setDefects] = useState<Defect[]>([]);
+  const [risks, setRisks] = useState<Risk[]>([]);
+  const [latestDecision, setLatestDecision] = useState<Decision | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,8 +44,24 @@ export function DashboardPage() {
       }
 
       setRelease(rel);
-      const result = await calculatePersistedReadiness(rel.id);
+
+      const [result, execs, items, defs, rks, decs] = await Promise.all([
+        calculatePersistedReadiness(rel.id),
+        db.testExecutions.where({ releaseId: rel.id }).toArray(),
+        db.testItems.where({ releaseId: rel.id }).toArray(),
+        db.defects.where({ releaseId: rel.id }).toArray(),
+        db.risks.where({ releaseId: rel.id }).toArray(),
+        db.decisions.where({ releaseId: rel.id }).toArray(),
+      ]);
+
       setReadiness(result.readiness);
+      setTestExecutions(execs);
+      setTestItems(items);
+      setDefects(defs);
+      setRisks(rks);
+      setLatestDecision(
+        decs.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null,
+      );
     } catch {
       setError('Failed to load dashboard data.');
     } finally {
@@ -55,6 +85,23 @@ export function DashboardPage() {
     );
   }
 
+  const requiredCount = testItems.filter((ti) => ti.required).length;
+  const passedCount = testExecutions.filter((te) => te.status === 'pass').length;
+  const failedBlockedCount = testExecutions.filter(
+    (te) => te.status === 'fail' || te.status === 'blocked',
+  ).length;
+  const blockingDefectCount = defects.filter((d) => {
+    const statusBlocking = (unresolvedBlockingDefectStatuses as readonly string[]).includes(
+      d.status,
+    );
+    const severityBlocking = d.severity === 'critical' || d.severity === 'high';
+    const impactsBlocking = d.impactsReleaseDecision;
+    return statusBlocking && (severityBlocking || impactsBlocking);
+  }).length;
+  const activeRiskCount = risks.filter(
+    (r) => r.status !== 'closed' && r.status !== 'mitigated',
+  ).length;
+
   return (
     <div>
       <h1>Dashboard</h1>
@@ -70,6 +117,37 @@ export function DashboardPage() {
               <ReadinessBadge readiness={readiness} />
             </div>
           )}
+        </div>
+      )}
+
+      {release && (
+        <div>
+          <h3>Test Summary</h3>
+          <p>Required: {requiredCount}</p>
+          <p>Passed: {passedCount}</p>
+          <p>Failed or Blocked: {failedBlockedCount}</p>
+        </div>
+      )}
+
+      {release && (
+        <div>
+          <h3>Defect Summary</h3>
+          <p>Unresolved blocking defects: {blockingDefectCount}</p>
+        </div>
+      )}
+
+      {release && (
+        <div>
+          <h3>Risk Summary</h3>
+          <p>Active risks: {activeRiskCount}</p>
+        </div>
+      )}
+
+      {release && latestDecision && (
+        <div>
+          <h3>Latest Decision</h3>
+          <p>Decision: {latestDecision.decision}</p>
+          <p>QA comment: {latestDecision.qaCompletionComment}</p>
         </div>
       )}
 
