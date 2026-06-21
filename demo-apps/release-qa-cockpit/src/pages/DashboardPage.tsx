@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { db } from '@/db/schema';
 import { calculatePersistedReadiness } from '@/adapters/readiness';
 import { ReadinessBadge } from '@/components/ReadinessBadge';
-import { unresolvedBlockingDefectStatuses } from '@/db/types';
+import { isUnresolvedBlockingDefect } from '@/domain/readiness';
 import type {
   Release,
   ReleaseReadiness,
@@ -59,9 +59,7 @@ export function DashboardPage() {
       setTestItems(items);
       setDefects(defs);
       setRisks(rks);
-      setLatestDecision(
-        decs.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null,
-      );
+      setLatestDecision(decs.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null);
     } catch {
       setError('Failed to load dashboard data.');
     } finally {
@@ -90,14 +88,7 @@ export function DashboardPage() {
   const failedBlockedCount = testExecutions.filter(
     (te) => te.status === 'fail' || te.status === 'blocked',
   ).length;
-  const blockingDefectCount = defects.filter((d) => {
-    const statusBlocking = (unresolvedBlockingDefectStatuses as readonly string[]).includes(
-      d.status,
-    );
-    const severityBlocking = d.severity === 'critical' || d.severity === 'high';
-    const impactsBlocking = d.impactsReleaseDecision;
-    return statusBlocking && (severityBlocking || impactsBlocking);
-  }).length;
+  const blockingDefectCount = defects.filter(isUnresolvedBlockingDefect).length;
   const activeRiskCount = risks.filter(
     (r) => r.status !== 'closed' && r.status !== 'mitigated',
   ).length;

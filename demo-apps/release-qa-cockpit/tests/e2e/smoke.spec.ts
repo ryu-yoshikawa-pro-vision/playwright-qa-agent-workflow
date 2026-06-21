@@ -39,27 +39,19 @@ test.describe('PR-1 smoke', () => {
 });
 
 test.describe('PR-3 core release screens', () => {
-  test('E2E-002: navigation from Dashboard to Releases to Release Overview', async ({
-    page,
-  }) => {
+  test('E2E-002: navigation from Dashboard to Releases to Release Overview', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
 
     await page.getByRole('link', { name: 'Releases' }).click();
     await expect(page.getByRole('heading', { name: 'Releases' })).toBeVisible();
-    await expect(
-      page.getByRole('heading', { name: 'Weekly Release 2026-06' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Weekly Release 2026-06' })).toBeVisible();
 
     await page.getByRole('link', { name: 'View release Weekly Release 2026-06' }).click();
-    await expect(
-      page.getByRole('heading', { name: 'Weekly Release 2026-06' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Weekly Release 2026-06' })).toBeVisible();
   });
 
-  test('E2E-003: readiness badge shown on Releases and Release Overview', async ({
-    page,
-  }) => {
+  test('E2E-003: readiness badge shown on Releases and Release Overview', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByLabel('Readiness: Not Ready')).toBeVisible();
 
@@ -74,32 +66,16 @@ test.describe('PR-3 core release screens', () => {
     page,
   }) => {
     await page.goto('/releases/rel-weekly-2026-06');
-    await expect(
-      page.getByRole('heading', { name: 'Weekly Release 2026-06' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Weekly Release 2026-06' })).toBeVisible();
 
-    await expect(
-      page.getByRole('region', { name: 'Unmet readiness conditions' }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole('region', { name: 'Readiness warnings' }),
-    ).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Unmet readiness conditions' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Readiness warnings' })).toBeVisible();
 
-    await expect(
-      page.getByRole('link', { name: 'Open Test Execution' }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole('link', { name: 'Open Defect Triage' }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole('link', { name: 'Open Risk Review' }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole('link', { name: 'Open Release Decision' }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole('link', { name: 'Export Evidence Pack' }),
-    ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Open Test Execution' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Open Defect Triage' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Open Risk Review' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Open Release Decision' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Export Evidence Pack' })).toBeVisible();
 
     await expect(page.getByLabel('Readiness: Not Ready')).toBeVisible();
     await expect(page.getByText('Required: 3')).toBeVisible();

@@ -45,25 +45,33 @@ export function ReleasesPage() {
   }, []);
 
   const handleViewRelease = async (releaseId: string) => {
-    const session = await db.sessions.get('session-default');
-    if (session) {
-      session.currentReleaseId = releaseId;
-      session.updatedAt = new Date().toISOString();
-      await db.sessions.put(session);
+    try {
+      await db.transaction('rw', db.sessions, db.activityLogs, async () => {
+        const session = await db.sessions.get('session-default');
+        if (!session) return;
 
-      const user = await db.users.get(session.currentUserId);
-      if (user) {
-        const release = await db.releases.get(releaseId);
-        await db.activityLogs.add({
-          id: `log-release-selected-${Date.now()}`,
-          actorUserId: user.id,
-          action: 'release.selected',
-          targetEntityType: 'release',
-          targetEntityId: releaseId,
-          summary: `Selected release: ${release?.name ?? releaseId}`,
-          createdAt: new Date().toISOString(),
+        await db.sessions.put({
+          ...session,
+          currentReleaseId: releaseId,
+          updatedAt: new Date().toISOString(),
         });
-      }
+
+        const user = await db.users.get(session.currentUserId);
+        if (user) {
+          const release = await db.releases.get(releaseId);
+          await db.activityLogs.add({
+            id: crypto.randomUUID(),
+            actorUserId: user.id,
+            action: 'release.selected',
+            targetEntityType: 'release',
+            targetEntityId: releaseId,
+            summary: `Selected release: ${release?.name ?? releaseId}`,
+            createdAt: new Date().toISOString(),
+          });
+        }
+      });
+    } catch {
+      // session update failed; navigation still proceeds
     }
   };
 
