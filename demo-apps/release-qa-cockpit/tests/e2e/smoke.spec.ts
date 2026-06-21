@@ -104,3 +104,90 @@ test.describe('PR-3 core release screens', () => {
     await expect(page.getByLabel('Readiness: Not Ready')).toBeVisible();
   });
 });
+
+test.describe('PR-4 QA operation screens', () => {
+  test('E2E-006: TestExecution fail -> retest -> pass', async ({ page }) => {
+    await page.goto('/releases/rel-weekly-2026-06/tests');
+    await expect(page.getByRole('heading', { name: 'Test Execution' })).toBeVisible();
+
+    await expect(
+      page.getByLabel('Move test Recording playback is available after processing to retest'),
+    ).toBeVisible();
+
+    await page
+      .getByLabel('Move test Recording playback is available after processing to retest')
+      .click();
+
+    await expect(
+      page.getByLabel('Mark test Recording playback is available after processing as passed'),
+    ).toBeVisible();
+
+    await page
+      .getByLabel('Mark test Recording playback is available after processing as passed')
+      .click();
+  });
+
+  test('E2E-007: Defect open -> triaged -> inProgress -> fixed -> readyForRetest -> closed', async ({
+    page,
+  }) => {
+    await page.goto('/releases/rel-weekly-2026-06/defects');
+    await expect(page.getByRole('heading', { name: 'Defect Triage' })).toBeVisible();
+
+    await page
+      .getByLabel('Move defect Recording playback fails after processing to Triaged')
+      .click();
+    await page
+      .getByLabel('Move defect Recording playback fails after processing to In Progress')
+      .click();
+    await page
+      .getByLabel('Move defect Recording playback fails after processing to Fixed')
+      .click();
+    await page
+      .getByLabel('Move defect Recording playback fails after processing to Ready for Retest')
+      .click();
+    await page
+      .getByLabel('Close defect Recording playback fails after processing')
+      .click();
+  });
+
+  test('E2E-008: Risk draft -> pendingApproval -> accepted', async ({ page }) => {
+    await page.goto('/releases/rel-weekly-2026-06/risks');
+    await expect(page.getByRole('heading', { name: 'Risk Review' })).toBeVisible();
+
+    await page
+      .getByLabel('Submit risk Recording regression risk remains after fix for approval')
+      .click();
+
+    await page
+      .getByLabel('Accept risk Recording regression risk remains after fix')
+      .click();
+
+    await expect(page.getByLabel('Accepted reason')).toBeVisible();
+    await page.getByLabel('Accepted reason').fill('Acceptable regression risk');
+    await page.getByRole('button', { name: 'Confirm' }).click();
+  });
+
+  test('E2E-009: Viewer cannot mutate test execution', async ({ page }) => {
+    await page.goto('/login');
+    await page.getByRole('button', { name: 'Continue as Viewer' }).click();
+    await page.waitForURL('/');
+
+    await page.goto('/releases/rel-weekly-2026-06/tests');
+    await expect(page.getByRole('heading', { name: 'Test Execution' })).toBeVisible();
+
+    await expect(page.getByText(/Viewer cannot/)).toBeVisible();
+  });
+
+  test('E2E-010: Create Test Result evidence', async ({ page }) => {
+    await page.goto('/releases/rel-weekly-2026-06/tests');
+    await expect(page.getByRole('heading', { name: 'Test Execution' })).toBeVisible();
+
+    await expect(
+      page.getByLabel('Create Test Result evidence for Evidence Pack Markdown includes QA summary'),
+    ).toBeVisible();
+
+    await page
+      .getByLabel('Create Test Result evidence for Evidence Pack Markdown includes QA summary')
+      .click();
+  });
+});
