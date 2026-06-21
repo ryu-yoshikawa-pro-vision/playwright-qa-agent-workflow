@@ -23,13 +23,15 @@ export function DefectTriagePage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [reasonValue, setReasonValue] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
     if (!releaseId) return;
     setLoading(true);
-    setError(null);
+    setLoadError(null);
+    setActionError(null);
     try {
       const [defs, session] = await Promise.all([
         db.defects.where({ releaseId }).toArray(),
@@ -41,7 +43,7 @@ export function DefectTriagePage() {
         setCurrentUser(user ?? null);
       }
     } catch {
-      setError('Failed to load defect data.');
+      setLoadError('Failed to load defect data.');
     } finally {
       setLoading(false);
     }
@@ -67,11 +69,11 @@ export function DefectTriagePage() {
     if (!defect) return;
 
     if (!reasonValue.trim()) {
-      setError(`${getFieldLabel(pendingAction.requiredField)} is required.`);
+      setActionError(`${getFieldLabel(pendingAction.requiredField)} is required.`);
       return;
     }
 
-    setError(null);
+    setActionError(null);
     executeTransition(defect, pendingAction.targetStatus, reasonValue.trim());
     setPendingAction(null);
     setReasonValue('');
@@ -80,7 +82,7 @@ export function DefectTriagePage() {
   const handleCancelReason = () => {
     setPendingAction(null);
     setReasonValue('');
-    setError(null);
+    setActionError(null);
   };
 
   const executeTransition = async (
@@ -89,17 +91,37 @@ export function DefectTriagePage() {
     reasonValue: string | undefined,
   ) => {
     if (!currentUser || !releaseId) return;
+    setActionError(null);
 
     try {
       await db.transaction('rw', db.defects, db.activityLogs, async () => {
         const now = new Date().toISOString();
+        const latestDefect = await db.defects.get(defect.id);
+
+        if (!latestDefect) {
+          throw new Error('Defect not found.');
+        }
+
+        if (!isTransitionAllowed('defect', latestDefect.status, targetStatus)) {
+          throw new Error(
+            `Invalid defect transition from ${latestDefect.status} to ${targetStatus}.`,
+          );
+        }
+
+        if (!canMutateDefect(currentUser!.role, latestDefect.status, targetStatus)) {
+          throw new Error(
+            `Current role cannot move defect from ${latestDefect.status} to ${targetStatus}.`,
+          );
+        }
+
+        const beforeStatus = latestDefect.status;
         const updates: Partial<Defect> = {
           status: targetStatus,
           updatedAt: now,
         };
 
         if (reasonValue !== undefined) {
-          const requiredField = getRequiredReasonField('defect', defect.status, targetStatus);
+          const requiredField = getRequiredReasonField('defect', beforeStatus, targetStatus);
           if (requiredField === 'resolutionNote') updates.resolutionNote = reasonValue;
         }
 
@@ -112,14 +134,16 @@ export function DefectTriagePage() {
           action: getTransitionAction('defect', targetStatus),
           targetEntityType: 'defect',
           targetEntityId: defect.id,
-          summary: `${currentUser.name} moved defect "${defect.title}" from ${defect.status} to ${targetStatus}.`,
+          summary: `${currentUser.name} moved defect "${defect.title}" from ${beforeStatus} to ${targetStatus}.`,
           createdAt: now,
         });
       });
 
       await loadData();
-    } catch {
-      setError('Failed to update defect. Please try again.');
+    } catch (err) {
+      setActionError(
+        err instanceof Error ? err.message : 'Failed to update defect. Please try again.',
+      );
     }
   };
 
@@ -147,17 +171,24 @@ export function DefectTriagePage() {
   };
 
   const targetStatuses: DefectStatus[] = [
-    'triaged', 'inProgress', 'fixed', 'readyForRetest',
-    'closed', 'reopened', 'wontFix', 'duplicate',
+    'triaged',
+    'inProgress',
+    'fixed',
+    'readyForRetest',
+    'closed',
+    'reopened',
+    'wontFix',
+    'duplicate',
   ];
 
   if (loading) return <div>Loading...</div>;
 
-  if (error && !pendingAction) {
+  if (loadError) {
     return (
       <div>
         <h1>Defect Triage</h1>
-        <p>{error}</p>
+        <p role="alert">{loadError}</p>
+        <button onClick={loadData}>Retry</button>
         <Link to={`/releases/${releaseId}`}>Back to Release Overview</Link>
       </div>
     );
@@ -174,7 +205,7 @@ export function DefectTriagePage() {
 
       {roleDisabledReason && <p>{roleDisabledReason}</p>}
 
-      {error && <p role="alert">{error}</p>}
+      {actionError && <p role="alert">{actionError}</p>}
 
       {defects.length === 0 ? (
         <p>No defects found for this release.</p>
@@ -187,9 +218,7 @@ export function DefectTriagePage() {
               <div>
                 <strong>{defect.title}</strong>
                 <span> — Severity: {defect.severity}</span>
-                {defect.impactsReleaseDecision && (
-                  <span> — Impacts release decision</span>
-                )}
+                {defect.impactsReleaseDecision && <span> — Impacts release decision</span>}
               </div>
               <div>
                 Status: <span>{statusLabelMap[defect.status]}</span>

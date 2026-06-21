@@ -23,13 +23,15 @@ export function RiskReviewPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [reasonValue, setReasonValue] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
     if (!releaseId) return;
     setLoading(true);
-    setError(null);
+    setLoadError(null);
+    setActionError(null);
     try {
       const [rks, session] = await Promise.all([
         db.risks.where({ releaseId }).toArray(),
@@ -41,7 +43,7 @@ export function RiskReviewPage() {
         setCurrentUser(user ?? null);
       }
     } catch {
-      setError('Failed to load risk data.');
+      setLoadError('Failed to load risk data.');
     } finally {
       setLoading(false);
     }
@@ -67,11 +69,11 @@ export function RiskReviewPage() {
     if (!risk) return;
 
     if (!reasonValue.trim()) {
-      setError(`${getFieldLabel(pendingAction.requiredField)} is required.`);
+      setActionError(`${getFieldLabel(pendingAction.requiredField)} is required.`);
       return;
     }
 
-    setError(null);
+    setActionError(null);
     executeTransition(risk, pendingAction.targetStatus, reasonValue.trim());
     setPendingAction(null);
     setReasonValue('');
@@ -80,7 +82,7 @@ export function RiskReviewPage() {
   const handleCancelReason = () => {
     setPendingAction(null);
     setReasonValue('');
-    setError(null);
+    setActionError(null);
   };
 
   const executeTransition = async (
@@ -89,17 +91,35 @@ export function RiskReviewPage() {
     reasonValue: string | undefined,
   ) => {
     if (!currentUser || !releaseId) return;
+    setActionError(null);
 
     try {
       await db.transaction('rw', db.risks, db.activityLogs, async () => {
         const now = new Date().toISOString();
+        const latestRisk = await db.risks.get(risk.id);
+
+        if (!latestRisk) {
+          throw new Error('Risk not found.');
+        }
+
+        if (!isTransitionAllowed('risk', latestRisk.status, targetStatus)) {
+          throw new Error(`Invalid risk transition from ${latestRisk.status} to ${targetStatus}.`);
+        }
+
+        if (!canMutateRisk(currentUser!.role, latestRisk.status, targetStatus)) {
+          throw new Error(
+            `Current role cannot move risk from ${latestRisk.status} to ${targetStatus}.`,
+          );
+        }
+
+        const beforeStatus = latestRisk.status;
         const updates: Partial<Risk> = {
           status: targetStatus,
           updatedAt: now,
         };
 
         if (reasonValue !== undefined) {
-          const requiredField = getRequiredReasonField('risk', risk.status, targetStatus);
+          const requiredField = getRequiredReasonField('risk', beforeStatus, targetStatus);
           if (requiredField === 'acceptedReason') updates.acceptedReason = reasonValue;
           if (requiredField === 'rejectedReason') updates.rejectedReason = reasonValue;
           if (requiredField === 'mitigationNote') updates.mitigationNote = reasonValue;
@@ -114,14 +134,16 @@ export function RiskReviewPage() {
           action: getTransitionAction('risk', targetStatus),
           targetEntityType: 'risk',
           targetEntityId: risk.id,
-          summary: `${currentUser.name} moved risk "${risk.title}" from ${risk.status} to ${targetStatus}.`,
+          summary: `${currentUser.name} moved risk "${risk.title}" from ${beforeStatus} to ${targetStatus}.`,
           createdAt: now,
         });
       });
 
       await loadData();
-    } catch {
-      setError('Failed to update risk. Please try again.');
+    } catch (err) {
+      setActionError(
+        err instanceof Error ? err.message : 'Failed to update risk. Please try again.',
+      );
     }
   };
 
@@ -146,16 +168,21 @@ export function RiskReviewPage() {
   };
 
   const targetStatuses: RiskStatus[] = [
-    'pendingApproval', 'accepted', 'rejected', 'mitigated', 'closed',
+    'pendingApproval',
+    'accepted',
+    'rejected',
+    'mitigated',
+    'closed',
   ];
 
   if (loading) return <div>Loading...</div>;
 
-  if (error && !pendingAction) {
+  if (loadError) {
     return (
       <div>
         <h1>Risk Review</h1>
-        <p>{error}</p>
+        <p role="alert">{loadError}</p>
+        <button onClick={loadData}>Retry</button>
         <Link to={`/releases/${releaseId}`}>Back to Release Overview</Link>
       </div>
     );
@@ -172,7 +199,7 @@ export function RiskReviewPage() {
 
       {roleDisabledReason && <p>{roleDisabledReason}</p>}
 
-      {error && <p role="alert">{error}</p>}
+      {actionError && <p role="alert">{actionError}</p>}
 
       {risks.length === 0 ? (
         <p>No risks found for this release.</p>

@@ -1,6 +1,6 @@
 import type { DefectStatus, RiskStatus, TestExecutionStatus } from '@/db/types';
 
-const testExecutionAllowedTransitions: Record<TestExecutionStatus, TestExecutionStatus[]> = {
+export const testExecutionAllowedTransitions: Record<TestExecutionStatus, TestExecutionStatus[]> = {
   notStarted: ['inProgress', 'skipped'],
   inProgress: ['pass', 'fail', 'blocked'],
   pass: [],
@@ -10,7 +10,7 @@ const testExecutionAllowedTransitions: Record<TestExecutionStatus, TestExecution
   retest: ['pass', 'fail'],
 };
 
-const defectAllowedTransitions: Record<DefectStatus, DefectStatus[]> = {
+export const defectAllowedTransitions = {
   open: ['triaged', 'duplicate', 'wontFix'],
   triaged: ['inProgress', 'wontFix'],
   inProgress: ['fixed'],
@@ -20,38 +20,32 @@ const defectAllowedTransitions: Record<DefectStatus, DefectStatus[]> = {
   closed: ['reopened'],
   wontFix: ['reopened'],
   duplicate: ['reopened'],
-};
+} satisfies Record<DefectStatus, DefectStatus[]>;
 
-const riskAllowedTransitions: Record<RiskStatus, RiskStatus[]> = {
+export const riskAllowedTransitions = {
   draft: ['pendingApproval', 'mitigated'],
   pendingApproval: ['accepted', 'rejected'],
   accepted: ['closed', 'mitigated'],
   rejected: ['pendingApproval'],
   mitigated: ['closed'],
   closed: [],
-};
+} satisfies Record<RiskStatus, RiskStatus[]>;
 
 type EntityType = 'testExecution' | 'defect' | 'risk';
 
-export function isTransitionAllowed<T extends string>(
-  entity: EntityType,
-  from: T,
-  to: T,
-): boolean {
+export function isTransitionAllowed<T extends string>(entity: EntityType, from: T, to: T): boolean {
   if (entity === 'testExecution') {
     const map = testExecutionAllowedTransitions as Record<string, string[]>;
     const allowed = map[from];
     return allowed ? allowed.includes(to) : false;
   }
   if (entity === 'defect') {
-    const map = defectAllowedTransitions as Record<string, string[]>;
-    const allowed = map[from];
-    return allowed ? allowed.includes(to) : false;
+    const allowed = defectAllowedTransitions[from as DefectStatus];
+    return allowed ? allowed.includes(to as DefectStatus) : false;
   }
   if (entity === 'risk') {
-    const map = riskAllowedTransitions as Record<string, string[]>;
-    const allowed = map[from];
-    return allowed ? allowed.includes(to) : false;
+    const allowed = riskAllowedTransitions[from as RiskStatus];
+    return allowed ? allowed.includes(to as RiskStatus) : false;
   }
   return false;
 }
@@ -120,11 +114,7 @@ export function getTransitionAction(entity: EntityType, toStatus: string): strin
   return `${entity}.updated`;
 }
 
-export function getTransitionLabel(
-  entity: EntityType,
-  toStatus: string,
-  title: string,
-): string {
+export function getTransitionLabel(entity: EntityType, toStatus: string, title: string): string {
   if (entity === 'testExecution') {
     const labelMap: Record<string, string> = {
       inProgress: `Start test ${title}`,

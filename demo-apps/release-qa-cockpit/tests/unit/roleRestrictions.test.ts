@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   canMutateTestExecution,
+  canMutateTestExecutionStatus,
   canMutateDefect,
   canMutateDefectAny,
   canMutateRisk,
@@ -11,11 +12,37 @@ import {
 } from '../../src/domain/roleRestrictions';
 
 describe('canViewScreen', () => {
-  it('allows all roles', () => {
+  it('allows all known roles', () => {
     expect(canViewScreen('qaLead')).toBe(true);
     expect(canViewScreen('qaMember')).toBe(true);
     expect(canViewScreen('releaseManager')).toBe(true);
     expect(canViewScreen('viewer')).toBe(true);
+  });
+
+  it('denies unknown role', () => {
+    expect(canViewScreen('unknown' as never)).toBe(false);
+  });
+});
+
+describe('canMutateTestExecutionStatus', () => {
+  it('allows QA Lead valid transition', () => {
+    expect(canMutateTestExecutionStatus('qaLead', 'inProgress', 'pass')).toBe(true);
+  });
+
+  it('denies QA Lead invalid transition', () => {
+    expect(canMutateTestExecutionStatus('qaLead', 'pass', 'fail')).toBe(false);
+  });
+
+  it('denies Viewer valid transition', () => {
+    expect(canMutateTestExecutionStatus('viewer', 'inProgress', 'pass')).toBe(false);
+  });
+
+  it('denies Viewer invalid transition', () => {
+    expect(canMutateTestExecutionStatus('viewer', 'pass', 'fail')).toBe(false);
+  });
+
+  it('denies Release Manager', () => {
+    expect(canMutateTestExecutionStatus('releaseManager', 'inProgress', 'pass')).toBe(false);
   });
 });
 

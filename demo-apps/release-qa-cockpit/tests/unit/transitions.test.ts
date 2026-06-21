@@ -172,7 +172,9 @@ describe('getRequiredReasonField', () => {
     });
 
     it('returns blockedReason for blocked', () => {
-      expect(getRequiredReasonField('testExecution', 'inProgress', 'blocked')).toBe('blockedReason');
+      expect(getRequiredReasonField('testExecution', 'inProgress', 'blocked')).toBe(
+        'blockedReason',
+      );
     });
 
     it('returns null for pass', () => {
@@ -223,7 +225,7 @@ describe('getRequiredReasonField', () => {
       expect(getRequiredReasonField('risk', 'draft', 'mitigated')).toBe('mitigationNote');
     });
 
-    it('returns null for pendingApproval -> draft (nonexistent)', () => {
+    it('returns acceptedReason for pendingApproval -> accepted', () => {
       expect(getRequiredReasonField('risk', 'pendingApproval', 'accepted')).toBe('acceptedReason');
     });
 

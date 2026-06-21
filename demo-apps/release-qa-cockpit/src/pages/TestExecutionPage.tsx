@@ -9,7 +9,12 @@ import {
   getTransitionLabel,
   getFieldLabel,
 } from '@/domain/transitions';
-import { canMutateTestExecution, canCreateEvidence, getDisabledReason } from '@/domain/roleRestrictions';
+import {
+  canMutateTestExecution,
+  canMutateTestExecutionStatus,
+  canCreateEvidence,
+  getDisabledReason,
+} from '@/domain/roleRestrictions';
 
 type PendingAction = {
   testItemId: string;
@@ -25,13 +30,15 @@ export function TestExecutionPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [reasonValue, setReasonValue] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
     if (!releaseId) return;
     setLoading(true);
-    setError(null);
+    setLoadError(null);
+    setActionError(null);
     try {
       const [items, execs, session] = await Promise.all([
         db.testItems.where({ releaseId }).toArray(),
@@ -45,7 +52,7 @@ export function TestExecutionPage() {
         setCurrentUser(user ?? null);
       }
     } catch {
-      setError('Failed to load test execution data.');
+      setLoadError('Failed to load test execution data.');
     } finally {
       setLoading(false);
     }
@@ -96,11 +103,11 @@ export function TestExecutionPage() {
     if (!testItem) return;
 
     if (!reasonValue.trim()) {
-      setError(`${getFieldLabel(pendingAction.requiredField)} is required.`);
+      setActionError(`${getFieldLabel(pendingAction.requiredField)} is required.`);
       return;
     }
 
-    setError(null);
+    setActionError(null);
     executeTransition(execution, pendingAction.targetStatus, testItem.title, reasonValue.trim());
     setPendingAction(null);
     setReasonValue('');
@@ -109,7 +116,7 @@ export function TestExecutionPage() {
   const handleCancelReason = () => {
     setPendingAction(null);
     setReasonValue('');
-    setError(null);
+    setActionError(null);
   };
 
   const executeTransition = async (
@@ -119,17 +126,37 @@ export function TestExecutionPage() {
     reasonValue: string | undefined,
   ) => {
     if (!currentUser || !releaseId) return;
+    setActionError(null);
 
     try {
       await db.transaction('rw', db.testExecutions, db.activityLogs, async () => {
         const now = new Date().toISOString();
+        const latestExecution = await db.testExecutions.get(execution.id);
+
+        if (!latestExecution) {
+          throw new Error('Test execution not found.');
+        }
+
+        if (!isTransitionAllowed('testExecution', latestExecution.status, targetStatus)) {
+          throw new Error(
+            `Invalid test execution transition from ${latestExecution.status} to ${targetStatus}.`,
+          );
+        }
+
+        if (
+          !canMutateTestExecutionStatus(currentUser!.role, latestExecution.status, targetStatus)
+        ) {
+          throw new Error('Current role cannot update test executions.');
+        }
+
+        const beforeStatus = latestExecution.status;
         const updates: Partial<TestExecution> = {
           status: targetStatus,
           updatedAt: now,
         };
 
         if (reasonValue !== undefined) {
-          const requiredField = getRequiredReasonField('testExecution', execution.status, targetStatus);
+          const requiredField = getRequiredReasonField('testExecution', beforeStatus, targetStatus);
           if (requiredField === 'skipReason') updates.skipReason = reasonValue;
           if (requiredField === 'blockedReason') updates.blockedReason = reasonValue;
         }
@@ -139,6 +166,14 @@ export function TestExecutionPage() {
         }
         if (targetStatus === 'inProgress') {
           updates.startedAt = now;
+          updates.completedAt = undefined;
+        }
+        if (targetStatus === 'retest') {
+          updates.startedAt = now;
+          updates.completedAt = undefined;
+        }
+        if (targetStatus === 'blocked' || targetStatus === 'skipped') {
+          updates.completedAt = undefined;
         }
 
         await db.testExecutions.update(execution.id, updates);
@@ -150,19 +185,27 @@ export function TestExecutionPage() {
           action: getTransitionAction('testExecution', targetStatus),
           targetEntityType: 'testExecution',
           targetEntityId: execution.id,
-          summary: `${currentUser.name} moved test "${testTitle}" from ${execution.status} to ${targetStatus}.`,
+          summary: `${currentUser.name} moved test "${testTitle}" from ${beforeStatus} to ${targetStatus}.`,
           createdAt: now,
         });
       });
 
       await loadData();
-    } catch {
-      setError('Failed to update test execution. Please try again.');
+    } catch (err) {
+      setActionError(
+        err instanceof Error ? err.message : 'Failed to update test execution. Please try again.',
+      );
     }
   };
 
   const handleCreateEvidence = async (execution: TestExecution, testItem: TestItem) => {
     if (!currentUser || !releaseId) return;
+    setActionError(null);
+    const canCreateForStatus = execution.status === 'pass' || execution.status === 'fail';
+    if (!canCreateForStatus) {
+      setActionError('Evidence can only be created for passed or failed tests.');
+      return;
+    }
     try {
       await db.transaction('rw', db.evidenceItems, db.activityLogs, async () => {
         const now = new Date().toISOString();
@@ -191,7 +234,7 @@ export function TestExecutionPage() {
       });
       await loadData();
     } catch {
-      setError('Failed to create evidence. Please try again.');
+      setActionError('Failed to create evidence. Please try again.');
     }
   };
 
@@ -207,11 +250,12 @@ export function TestExecutionPage() {
 
   if (loading) return <div>Loading...</div>;
 
-  if (error && !pendingAction) {
+  if (loadError) {
     return (
       <div>
         <h1>Test Execution</h1>
-        <p>{error}</p>
+        <p role="alert">{loadError}</p>
+        <button onClick={loadData}>Retry</button>
         <Link to={`/releases/${releaseId}`}>Back to Release Overview</Link>
       </div>
     );
@@ -229,7 +273,7 @@ export function TestExecutionPage() {
 
       {roleDisabledReason && <p>{roleDisabledReason}</p>}
 
-      {error && <p role="alert">{error}</p>}
+      {actionError && <p role="alert">{actionError}</p>}
 
       {testItems.length === 0 ? (
         <p>No test items found for this release.</p>
@@ -237,8 +281,7 @@ export function TestExecutionPage() {
         testItems.map((item) => {
           const execution = getExecution(item.id);
           const currentStatus = execution?.status ?? null;
-          const isPendingThisItem =
-            pendingAction?.testItemId === item.id;
+          const isPendingThisItem = pendingAction?.testItemId === item.id;
 
           return (
             <div key={item.id} data-testid="test-execution-row">
@@ -250,9 +293,7 @@ export function TestExecutionPage() {
               </div>
               <div>
                 Status:{' '}
-                <span>
-                  {currentStatus ? statusLabelMap[currentStatus] : 'No execution'}
-                </span>
+                <span>{currentStatus ? statusLabelMap[currentStatus] : 'No execution'}</span>
                 {execution?.assigneeUserId && <span> — Assigned</span>}
               </div>
 
@@ -275,9 +316,7 @@ export function TestExecutionPage() {
                     return (
                       <button
                         key={targetStatus}
-                        onClick={() =>
-                          handleTransitionClick(item, execution, targetStatus)
-                        }
+                        onClick={() => handleTransitionClick(item, execution, targetStatus)}
                         aria-label={label}
                       >
                         {label}
@@ -303,14 +342,16 @@ export function TestExecutionPage() {
                 </div>
               )}
 
-              {execution && canCreateEv && (
-                <button
-                  onClick={() => handleCreateEvidence(execution, item)}
-                  aria-label={`Create Test Result evidence for ${item.title}`}
-                >
-                  Create Test Result evidence for {item.title}
-                </button>
-              )}
+              {execution &&
+                canCreateEv &&
+                (execution.status === 'pass' || execution.status === 'fail') && (
+                  <button
+                    onClick={() => handleCreateEvidence(execution, item)}
+                    aria-label={`Create Test Result evidence for ${item.title}`}
+                  >
+                    Create Test Result evidence for {item.title}
+                  </button>
+                )}
             </div>
           );
         })

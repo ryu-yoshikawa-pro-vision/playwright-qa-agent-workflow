@@ -105,7 +105,22 @@ test.describe('PR-3 core release screens', () => {
   });
 });
 
-test.describe('PR-4 QA operation screens', () => {
+test.describe.serial('PR-4 QA operation screens', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login');
+    await page.evaluate(async () => {
+      await new Promise<void>((resolve, reject) => {
+        const req = indexedDB.deleteDatabase('ReleaseQACockpit');
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    });
+    await page.reload();
+    await page.waitForURL('/login');
+    await page.getByRole('button', { name: 'Continue as QA Lead' }).click();
+    await page.waitForURL('/');
+  });
+
   test('E2E-006: TestExecution fail -> retest -> pass', async ({ page }) => {
     await page.goto('/releases/rel-weekly-2026-06/tests');
     await expect(page.getByRole('heading', { name: 'Test Execution' })).toBeVisible();
@@ -139,15 +154,11 @@ test.describe('PR-4 QA operation screens', () => {
     await page
       .getByLabel('Move defect Recording playback fails after processing to In Progress')
       .click();
-    await page
-      .getByLabel('Move defect Recording playback fails after processing to Fixed')
-      .click();
+    await page.getByLabel('Move defect Recording playback fails after processing to Fixed').click();
     await page
       .getByLabel('Move defect Recording playback fails after processing to Ready for Retest')
       .click();
-    await page
-      .getByLabel('Close defect Recording playback fails after processing')
-      .click();
+    await page.getByLabel('Close defect Recording playback fails after processing').click();
   });
 
   test('E2E-008: Risk draft -> pendingApproval -> accepted', async ({ page }) => {
@@ -158,9 +169,7 @@ test.describe('PR-4 QA operation screens', () => {
       .getByLabel('Submit risk Recording regression risk remains after fix for approval')
       .click();
 
-    await page
-      .getByLabel('Accept risk Recording regression risk remains after fix')
-      .click();
+    await page.getByLabel('Accept risk Recording regression risk remains after fix').click();
 
     await expect(page.getByLabel('Accepted reason')).toBeVisible();
     await page.getByLabel('Accepted reason').fill('Acceptable regression risk');
@@ -178,7 +187,7 @@ test.describe('PR-4 QA operation screens', () => {
     await expect(page.getByText(/Viewer cannot/)).toBeVisible();
   });
 
-  test('E2E-010: Create Test Result evidence', async ({ page }) => {
+  test('E2E-010: Create Test Result evidence for passed/failed test', async ({ page }) => {
     await page.goto('/releases/rel-weekly-2026-06/tests');
     await expect(page.getByRole('heading', { name: 'Test Execution' })).toBeVisible();
 
@@ -189,5 +198,35 @@ test.describe('PR-4 QA operation screens', () => {
     await page
       .getByLabel('Create Test Result evidence for Evidence Pack Markdown includes QA summary')
       .click();
+  });
+
+  test('E2E-011: Viewer sees no update buttons on test execution', async ({ page }) => {
+    await page.goto('/login');
+    await page.getByRole('button', { name: 'Continue as Viewer' }).click();
+    await page.waitForURL('/');
+
+    await page.goto('/releases/rel-weekly-2026-06/tests');
+    await expect(page.getByRole('heading', { name: 'Test Execution' })).toBeVisible();
+
+    await expect(page.getByText(/Viewer cannot/)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Move test/i })).toHaveCount(0);
+  });
+
+  test('E2E-012: Empty reason confirm shows inline error and list persists', async ({ page }) => {
+    await page.goto('/releases/rel-weekly-2026-06/risks');
+    await expect(page.getByRole('heading', { name: 'Risk Review' })).toBeVisible();
+
+    await page
+      .getByLabel('Submit risk Recording regression risk remains after fix for approval')
+      .click();
+
+    await page.getByLabel('Accept risk Recording regression risk remains after fix').click();
+
+    await expect(page.getByLabel('Accepted reason')).toBeVisible();
+    await page.getByRole('button', { name: 'Confirm' }).click();
+
+    await expect(page.getByRole('alert')).toBeVisible();
+    await expect(page.getByRole('alert')).toContainText('Accepted reason is required');
+    await expect(page.getByTestId('risk-row')).toBeVisible();
   });
 });
