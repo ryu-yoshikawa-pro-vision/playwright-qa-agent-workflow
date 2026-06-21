@@ -48,6 +48,7 @@ export type SourceEntityType =
   | 'defect'
   | 'risk'
   | 'decision'
+  | 'evidenceItem'
   | 'evidencePack'
   | 'demoScenario'
   | 'user'

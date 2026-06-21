@@ -150,16 +150,19 @@ export function TestExecutionPage() {
         }
 
         const beforeStatus = latestExecution.status;
+        const requiredField = getRequiredReasonField('testExecution', beforeStatus, targetStatus);
+
+        if (requiredField && !reasonValue?.trim()) {
+          throw new Error(`${getFieldLabel(requiredField)} is required.`);
+        }
+
         const updates: Partial<TestExecution> = {
           status: targetStatus,
           updatedAt: now,
         };
 
-        if (reasonValue !== undefined) {
-          const requiredField = getRequiredReasonField('testExecution', beforeStatus, targetStatus);
-          if (requiredField === 'skipReason') updates.skipReason = reasonValue;
-          if (requiredField === 'blockedReason') updates.blockedReason = reasonValue;
-        }
+        if (requiredField === 'skipReason') updates.skipReason = reasonValue?.trim();
+        if (requiredField === 'blockedReason') updates.blockedReason = reasonValue?.trim();
 
         if (targetStatus === 'pass' || targetStatus === 'fail') {
           updates.completedAt = now;
@@ -201,21 +204,26 @@ export function TestExecutionPage() {
   const handleCreateEvidence = async (execution: TestExecution, testItem: TestItem) => {
     if (!currentUser || !releaseId) return;
     setActionError(null);
-    const canCreateForStatus = execution.status === 'pass' || execution.status === 'fail';
-    if (!canCreateForStatus) {
-      setActionError('Evidence can only be created for passed or failed tests.');
-      return;
-    }
     try {
-      await db.transaction('rw', db.evidenceItems, db.activityLogs, async () => {
+      await db.transaction('rw', db.testExecutions, db.evidenceItems, db.activityLogs, async () => {
         const now = new Date().toISOString();
+        const latestExecution = await db.testExecutions.get(execution.id);
+
+        if (!latestExecution) {
+          throw new Error('Test execution not found.');
+        }
+
+        if (latestExecution.status !== 'pass' && latestExecution.status !== 'fail') {
+          throw new Error('Evidence can only be created for passed or failed tests.');
+        }
+
         const evidenceId = crypto.randomUUID();
         await db.evidenceItems.add({
           id: evidenceId,
           releaseId,
           type: 'testResult',
           title: `Test Result: ${testItem.title}`,
-          contentMarkdown: `Test "${testItem.title}" completed with status: ${execution.status}.`,
+          contentMarkdown: `Test "${testItem.title}" completed with status: ${latestExecution.status}.`,
           sourceEntityType: 'testExecution',
           sourceEntityId: execution.id,
           createdByUserId: currentUser.id,
@@ -226,15 +234,17 @@ export function TestExecutionPage() {
           releaseId,
           actorUserId: currentUser.id,
           action: 'evidence.testResult.created',
-          targetEntityType: 'evidenceItems',
+          targetEntityType: 'evidenceItem',
           targetEntityId: evidenceId,
           summary: `${currentUser.name} created Test Result evidence for "${testItem.title}".`,
           createdAt: now,
         });
       });
       await loadData();
-    } catch {
-      setActionError('Failed to create evidence. Please try again.');
+    } catch (err) {
+      setActionError(
+        err instanceof Error ? err.message : 'Failed to create evidence. Please try again.',
+      );
     }
   };
 

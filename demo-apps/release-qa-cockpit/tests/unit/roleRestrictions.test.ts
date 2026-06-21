@@ -117,6 +117,26 @@ describe('canMutateDefect', () => {
     expect(canMutateDefect('qaMember', 'open', 'duplicate')).toBe(false);
   });
 
+  it('denies QA Member to reopen from closed', () => {
+    expect(canMutateDefect('qaMember', 'closed', 'reopened')).toBe(false);
+  });
+
+  it('denies QA Member to reopen from wontFix', () => {
+    expect(canMutateDefect('qaMember', 'wontFix', 'reopened')).toBe(false);
+  });
+
+  it('denies QA Member to reopen from duplicate', () => {
+    expect(canMutateDefect('qaMember', 'duplicate', 'reopened')).toBe(false);
+  });
+
+  it('denies QA Member to reopen from fixed', () => {
+    expect(canMutateDefect('qaMember', 'fixed', 'reopened')).toBe(false);
+  });
+
+  it('denies QA Member to progress reopened', () => {
+    expect(canMutateDefect('qaMember', 'reopened', 'inProgress')).toBe(false);
+  });
+
   it('denies Release Manager any defect mutation', () => {
     expect(canMutateDefect('releaseManager', 'open', 'triaged')).toBe(false);
     expect(canMutateDefect('releaseManager', 'readyForRetest', 'closed')).toBe(false);

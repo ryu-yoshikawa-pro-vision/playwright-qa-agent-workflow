@@ -1,9 +1,5 @@
 import type { DefectStatus, RiskStatus, TestExecutionStatus, UserRole } from '@/db/types';
-import {
-  isTransitionAllowed,
-  defectAllowedTransitions,
-  riskAllowedTransitions,
-} from './transitions';
+import { isTransitionAllowed, riskAllowedTransitions } from './transitions';
 
 const screenViewableRoles: UserRole[] = ['qaLead', 'qaMember', 'releaseManager', 'viewer'];
 
@@ -24,6 +20,14 @@ export function canMutateTestExecutionStatus(
   return canMutateTestExecution(userRole);
 }
 
+const qaMemberAllowedDefectTransitions: Partial<Record<DefectStatus, DefectStatus[]>> = {
+  open: ['triaged'],
+  triaged: ['inProgress'],
+  inProgress: ['fixed'],
+  fixed: ['readyForRetest'],
+  readyForRetest: ['reopened'],
+};
+
 export function canMutateDefect(
   userRole: UserRole,
   fromStatus: DefectStatus,
@@ -33,14 +37,7 @@ export function canMutateDefect(
   if (userRole === 'viewer' || userRole === 'releaseManager') return false;
   if (userRole === 'qaLead') return true;
   if (userRole === 'qaMember') {
-    const qaMemberBlocked: Partial<Record<DefectStatus, DefectStatus[]>> = {
-      open: ['wontFix', 'duplicate'],
-      triaged: ['wontFix'],
-      readyForRetest: ['closed'],
-    };
-    const blocked = qaMemberBlocked[fromStatus];
-    if (blocked && blocked.includes(toStatus)) return false;
-    const allowed = defectAllowedTransitions[fromStatus];
+    const allowed = qaMemberAllowedDefectTransitions[fromStatus];
     return allowed ? allowed.includes(toStatus) : false;
   }
   return false;

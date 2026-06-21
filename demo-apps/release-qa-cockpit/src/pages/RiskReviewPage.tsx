@@ -113,17 +113,20 @@ export function RiskReviewPage() {
         }
 
         const beforeStatus = latestRisk.status;
+        const requiredField = getRequiredReasonField('risk', beforeStatus, targetStatus);
+
+        if (requiredField && !reasonValue?.trim()) {
+          throw new Error(`${getFieldLabel(requiredField)} is required.`);
+        }
+
         const updates: Partial<Risk> = {
           status: targetStatus,
           updatedAt: now,
         };
 
-        if (reasonValue !== undefined) {
-          const requiredField = getRequiredReasonField('risk', beforeStatus, targetStatus);
-          if (requiredField === 'acceptedReason') updates.acceptedReason = reasonValue;
-          if (requiredField === 'rejectedReason') updates.rejectedReason = reasonValue;
-          if (requiredField === 'mitigationNote') updates.mitigationNote = reasonValue;
-        }
+        if (requiredField === 'acceptedReason') updates.acceptedReason = reasonValue?.trim();
+        if (requiredField === 'rejectedReason') updates.rejectedReason = reasonValue?.trim();
+        if (requiredField === 'mitigationNote') updates.mitigationNote = reasonValue?.trim();
 
         await db.risks.update(risk.id, updates);
 

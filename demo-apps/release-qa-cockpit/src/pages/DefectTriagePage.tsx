@@ -115,15 +115,18 @@ export function DefectTriagePage() {
         }
 
         const beforeStatus = latestDefect.status;
+        const requiredField = getRequiredReasonField('defect', beforeStatus, targetStatus);
+
+        if (requiredField && !reasonValue?.trim()) {
+          throw new Error(`${getFieldLabel(requiredField)} is required.`);
+        }
+
         const updates: Partial<Defect> = {
           status: targetStatus,
           updatedAt: now,
         };
 
-        if (reasonValue !== undefined) {
-          const requiredField = getRequiredReasonField('defect', beforeStatus, targetStatus);
-          if (requiredField === 'resolutionNote') updates.resolutionNote = reasonValue;
-        }
+        if (requiredField === 'resolutionNote') updates.resolutionNote = reasonValue?.trim();
 
         await db.defects.update(defect.id, updates);
 

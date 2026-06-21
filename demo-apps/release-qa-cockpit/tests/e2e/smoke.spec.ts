@@ -113,6 +113,7 @@ test.describe.serial('PR-4 QA operation screens', () => {
         const req = indexedDB.deleteDatabase('ReleaseQACockpit');
         req.onsuccess = () => resolve();
         req.onerror = () => reject(req.error);
+        req.onblocked = () => reject(new Error('IndexedDB deletion was blocked.'));
       });
     });
     await page.reload();
